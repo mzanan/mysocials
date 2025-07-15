@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MySocials - All your links in one place",
-  description: "Create your personal page and share all your important links with one simple URL.",
+  title: "Matias’s Social Media",
+  description: "All my social networks in one place",
 };
 
 export default function RootLayout({
