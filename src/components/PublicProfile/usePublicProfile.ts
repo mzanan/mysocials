@@ -23,7 +23,7 @@ const data: PublicProfileData = {
     { id: '2', title: 'Tiktok', url: 'https://tiktok.com/@mzanan0'},
     { id: '3', title: 'X', url: 'https://x.com/mzanan'},
     { id: '4', title: 'Twitch', url: 'https://twitch.tv/gvtnomad'},
-    { id: '5', title: 'Youtube', url: 'https://www.youtube.com/@GVTNomadCryptoTrading'},
+    { id: '5', title: 'Youtube', url: 'https://www.youtube.com/@gvtnomad'},
     { id: '6', title: 'Facebook', url: 'https://www.facebook.com/groups/570791134308265/'},
     { id: '7', title: 'GVTNomad', url: 'https://gvtnomad.com/p/GVT13C89', icon_url: 'https://gvtnomad.com/gvtnomad_logo.svg'},
     { id: '8', title: 'TraderNaut', url: 'https://www.tradernaut.xyz', icon_url: 'https://gvtnomad.com/gvtnomad_logo.svg'},
