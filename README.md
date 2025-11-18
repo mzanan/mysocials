@@ -1,99 +1,156 @@
-# MySocials 🔗
+# 🚀 Complete Setup - mySocials
 
-A simple, static, and fast "link-in-bio" page built with Next.js 15. All data is hardcoded for maximum performance and simplicity.
+## Prerequisites
 
-This project serves as a template for anyone wanting a personal landing page without the need for a database or backend services.
+- **Node.js** 20+ and npm
+- **Python 3** (for Instagram scraping)
+- **pip3** (Python package manager)
 
-## ✨ Features
+## Installation
 
-- ✅ **Fully Static**: No database, no auth, just pure HTML/CSS/JS.
-- ⚡️ **Blazing Fast**: Built with Next.js and optimized for performance.
-- 🎨 **Modern UI**: Clean and beautiful UI built with ShadCN UI and Tailwind CSS.
-- 📱 **Responsive Design**: Looks great on all devices.
-- 🔗 **Social Icons**: Automatically displays icons for your social links.
-- 🛠️ **Easy to Customize**: Edit a single file to update your profile, bio, and links.
+### 1️⃣ Clone and install Node.js dependencies
 
-## 🛠️ Tech Stack
-
-- **Framework**: Next.js 15 (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS 4
-- **UI Components**: ShadCN UI
-- **Icons**: Lucide Icons, React Social Icons
-
-## 📁 Project Structure
-
-```
-src/
-├── app/                     # Next.js App Router
-│   ├── page.tsx             # The main page that shows the profile.
-│   └── layout.tsx           # The root layout.
-│
-├── components/              # React components
-│   └── PublicProfile/       # The main component to display the profile.
-│       ├── PublicProfile.tsx
-│       └── usePublicProfile.ts
-│
-├── hooks/                   # Custom React hooks
-│   └── usePublicProfile.ts  # Hook where all profile data is hardcoded.
-│
-├── types/                   # TypeScript type definitions
-│   ├── link.ts
-│   └── profile.ts
-```
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Node.js 18+ 
-- npm or yarn
-
-### Installation
-
-1. **Clone the repository**
-```bash
-git clone <repository-url>
-cd mysocials
-```
-
-2. **Install dependencies**
 ```bash
 npm install
 ```
 
-3. **Run the development server**
+### 2️⃣ Install Python dependencies
+
+```bash
+npm run setup:python
+```
+
+Or manually:
+
+```bash
+pip3 install -r scripts/requirements.txt
+```
+
+### 3️⃣ Start the server
+
 ```bash
 npm run dev
 ```
 
-Visit [http://localhost:3000](http://localhost:3000) to see the application.
+Open [http://localhost:3000](http://localhost:3000)
 
-## ✍️ How to Customize
+## 🎨 Features
 
-All your personal information is stored in one place. To update your profile:
+### Dynamic Backgrounds per Category
 
-1.  Open the file `src/hooks/usePublicProfile.ts`.
-2.  Find the `hardcodedData` constant.
-3.  Edit the `profile` object with your name, username, bio, and avatar URL.
-4.  Update the `links` array with your social media links (title and URL).
+Each tab has a dynamic background with real content from your social media:
 
-**Example:**
-```typescript
-const hardcodedData: PublicProfileData = {
-  profile: {
-    id: '1',
-    username: 'your_username',
-    full_name: 'Your Full Name',
-    avatar_url: 'https://your-avatar-url.com/image.png',
-    bio: 'Your amazing bio here.',
-    // ... other fields
-  },
-  links: [
-    { id: '1', title: 'GitHub', url: 'https://github.com/your_username', /* ... */ },
-    { id: '2', title: 'Twitter', url: 'https://twitter.com/your_username', /* ... */ },
-    // Add more links here
-  ]
-}
+#### 📸 Personal
+- **Source**: Instagram
+- **Implementation**: Python script using `instaloader`
+- **Visual**: Animated grid with real images
+
+#### 🎮 Valorant
+- **Sources**: Twitch + TikTok
+- **Visual**: Mixed grid of videos and streams
+
+#### 💻 Dev
+- **Source**: Automatic screenshots with Puppeteer
+- **Projects**: 
+  - ecommerce-landing-kappa.vercel.app
+  - ecommerce-six-peach-14.vercel.app
+- **Visual**: Real screenshots captured in real-time
+
+#### 📈 Trading
+- **Source**: TradingView Widgets
+- **Charts**: BTC, ETH, SOL, BNB, XRP, ADA, DOGE, MATIC, DOT, AVAX, LINK, UNI
+- **Visual**: Grid of 12 real-time charts
+
+## 📂 File Structure
+
+```
+/src
+  /app
+    /api
+      /instagram      # Instagram scraping API
+      /twitch         # Twitch streams API
+      /tiktok         # TikTok videos API
+      /dev-screenshots # Screenshots API with Puppeteer
+      /trading-charts  # TradingView widgets API
+  /components
+    /PublicProfile
+      /Backgrounds    # Background components per category
+  /lib
+    cache.ts          # Caching system (30 min)
+
+/scripts
+  instagram_scraper.py  # Python script for Instagram
+  requirements.txt      # Python dependencies
+  setup.sh             # Installation script
+
+/public
+  /instagram-cache    # Downloaded images (git ignored)
 ```
 
-That's it! Your changes will be reflected instantly in development mode.
+## 🔧 Available Scripts
+
+```bash
+npm run dev              # Start development server
+npm run build            # Build for production
+npm run start            # Start production server
+npm run lint             # Run linter
+npm run format           # Format code with Prettier
+npm run setup:python     # Install Python dependencies
+```
+
+## 🐛 Troubleshooting
+
+### Error: "instaloader: command not found"
+
+Run:
+```bash
+npm run setup:python
+```
+
+Or install manually:
+```bash
+pip3 install instaloader
+```
+
+### Error: "Python 3 is not installed"
+
+Install Python 3:
+- **macOS**: `brew install python3`
+- **Ubuntu/Debian**: `sudo apt install python3 python3-pip`
+- **Windows**: Download from [python.org](https://python.org)
+
+### Screenshots not working
+
+Puppeteer may take time on first execution. Screenshots are cached for 30 minutes.
+
+### No Instagram images
+
+The script downloads images to `public/instagram-cache/`. If there are no images:
+1. Verify that `instaloader` is installed
+2. Check the logs in the terminal
+3. Make sure the Instagram profile is public
+
+## 🎯 Cache
+
+The system implements a **30-minute** in-memory cache for:
+- ✅ Instagram images
+- ✅ Twitch videos
+- ✅ TikTok videos
+- ✅ Project screenshots
+- ✅ Trading charts
+
+This reduces requests and improves performance.
+
+## 🔐 Privacy
+
+- Instagram images are downloaded locally to `public/instagram-cache/`
+- This directory is in `.gitignore` and is not uploaded to the repository
+- Screenshots are generated in real-time and cached temporarily
+
+## 📝 Notes
+
+- Instagram scraping requires the profile to be public
+- Screenshots may take a few seconds to generate
+- Cache is reset when restarting the server
+- In production, consider using Redis for caching
+
