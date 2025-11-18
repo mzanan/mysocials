@@ -1,7 +1,10 @@
 'use client'
 
+import { useState, useMemo } from 'react'
 import { Link } from '@/types/link'
 import { Profile } from '@/types/profile'
+
+type Category = 'Personal' | 'Valorant' | 'Dev' | 'Trading'
 
 interface PublicProfileData {
   profile: Profile
@@ -19,27 +22,42 @@ const data: PublicProfileData = {
     username_updated_at: new Date().toISOString(),
   },
   links: [
-    { id: '1', title: 'Instagram', url: 'https://instagram.com/matizanan'},
-    { id: '2', title: 'Tiktok', url: 'https://tiktok.com/@mzanan0'},
-    { id: '3', title: 'X', url: 'https://x.com/mzanan'},
-    { id: '4', title: 'Youtube', url: 'https://www.youtube.com/@gvtnomad'},
-    { id: '5', title: 'GVTNomad', url: 'https://gvtnomad.com/p/GVT13C89', icon_url: 'https://gvtnomad.com/gvtnomad_logo.svg'},
-    { id: '6', title: 'TraderNaut', url: 'https://www.tradernaut.xyz', icon_url: 'https://gvtnomad.com/gvtnomad_logo.svg'},
+    { title: 'Instagram', url: 'https://instagram.com/matizanan', category: 'Personal', tooltip: 'My Instagram profile' },
+    { title: 'X', url: 'https://x.com/mzanan', category: 'Personal', tooltip: 'My X profile' },
+
+    { title: 'Twitch', url: 'https://twitch.tv/mzanan', category: 'Valorant', tooltip: 'Live streaming' },
+    { title: 'Tiktok', url: 'https://tiktok.com/@mzanan0', category: 'Valorant', tooltip: 'Daily content' },
+
+    { title: 'Ecommerce Landing', url: 'https://ecommerce-landing-kappa.vercel.app/', icon: '🛍️', category: 'Dev', tooltip: 'Ecommerce landing page' },
+    { title: 'Ecommerce', url: 'https://ecommerce-six-peach-14.vercel.app/', icon: '🛒', category: 'Dev', tooltip: 'Full online store' },
+    { title: 'Portfolio Coming Soon', url: '/', icon: '🤓', category: 'Dev', disabled: true, tooltip: 'Coming soon' },
+
+    { title: 'YouTube', url: 'https://www.youtube.com/@gvtnomad', category: 'Trading', tooltip: 'YouTube channel' },
+    { title: 'GVTNomad', url: 'https://gvtnomad.com/p/GVT13C89', icon_url: 'https://gvtnomad.com/gvtnomad_logo.svg', category: 'Trading', tooltip: 'My referral code' },
+    { title: 'TraderNaut', url: 'https://www.tradernaut.xyz', icon_url: 'https://gvtnomad.com/gvtnomad_logo.svg', category: 'Trading', tooltip: 'Trading tool' },
   ]
 }
 
+const categories: Category[] = ['Personal', 'Valorant', 'Dev', 'Trading']
+
 export function usePublicProfile() {
-  const handleLinkClick = (linkId: string) => {
-    const link = data.links.find(l => l.id === linkId)
-    if (link) {
-      window.open(link.url, '_blank', 'noopener,noreferrer')
-    }
+  const [activeCategory, setActiveCategory] = useState<Category>('Personal')
+
+  const filteredLinks = useMemo(() => {
+    return data.links.filter(link => link.category === activeCategory)
+  }, [activeCategory])
+
+  const handleLinkClick = (url: string) => {
+    window.open(url, '_blank', 'noopener,noreferrer')
   }
 
   return {
     profile: data.profile,
-    links: data.links,
+    links: filteredLinks,
+    categories,
+    activeCategory,
+    setActiveCategory,
     handleLinkClick
   }
-} 
+}
 
