@@ -27,7 +27,7 @@ export function PublicProfile() {
               {profile.full_name}
             </h1>
             {profile.bio && (
-              <p className="text-gray-600 text-sm">{profile.bio}</p>
+              <p className="text-gray-600 text-sm whitespace-pre-line">{profile.bio}</p>
             )}
           </div>
 
