@@ -27,3 +27,11 @@ export function setCachedData<T>(key: string, data: T): void {
   })
 }
 
+export function clearCache(key?: string): void {
+  if (key) {
+    cache.delete(key)
+  } else {
+    cache.clear()
+  }
+}
+
