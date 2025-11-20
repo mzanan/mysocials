@@ -5,11 +5,27 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'images.unsplash.com',
+        hostname: 'i.redd.it',
       },
       {
         protocol: 'https',
-        hostname: 'static-cdn.jtvnw.net',
+        hostname: 'preview.redd.it',
+      },
+      {
+        protocol: 'https',
+        hostname: 'external-preview.redd.it',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.thumbs.redditmedia.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.imgur.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'imgur.com',
       },
       {
         protocol: 'https',
@@ -19,15 +35,23 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: '**.fbcdn.net',
       },
-      {
-        protocol: 'https',
-        hostname: '**.tiktokcdn.com',
-      },
-      {
-        protocol: 'https',
-        hostname: '**.tiktokcdn-us.com',
-      },
     ],
+  },
+  serverExternalPackages: ['canvas', 'jsdom'],
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals = config.externals || []
+      config.externals.push({
+        canvas: 'commonjs canvas',
+      })
+    }
+
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      canvas: false,
+    }
+
+    return config
   },
 };
 
