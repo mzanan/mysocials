@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { getBrowserCache, setBrowserCache } from '@/lib/browser-cache'
 
 interface Chart {
   id: string
@@ -31,16 +32,37 @@ const itemVariants = {
   },
 }
 
-export function TradingBackground() {
+interface TradingBackgroundProps {
+  isActive: boolean
+}
+
+export function TradingBackground({ isActive }: TradingBackgroundProps) {
   const [charts, setCharts] = useState<Chart[]>([])
+  const [animationKey, setAnimationKey] = useState(0)
+
+  useEffect(() => {
+    if (isActive) {
+      setAnimationKey(prev => prev + 1)
+    }
+  }, [isActive])
 
   useEffect(() => {
     const fetchCharts = async () => {
+      // Check browser cache first
+      const cached = getBrowserCache<Chart[]>('trading_charts')
+      if (cached && cached.length > 0) {
+        setCharts(cached.slice(0, 10))
+        return
+      }
+
+      // Fetch from API if not cached
       try {
         const response = await fetch('/api/trading-charts')
         const data = await response.json()
         if (data.charts && data.charts.length > 0) {
-          setCharts(data.charts.slice(0, 12))
+          // Cache the charts
+          setBrowserCache('trading_charts', data.charts)
+          setCharts(data.charts.slice(0, 10))
         }
       } catch (error) {
         console.error('Error fetching trading charts:', error)
@@ -64,28 +86,26 @@ export function TradingBackground() {
   return (
     <div className="fixed inset-0 overflow-hidden z-0 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900">
       <motion.div
-        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 p-2 h-full"
+        className="grid grid-cols-2 h-full w-full min-w-0"
         variants={containerVariants}
         initial="hidden"
-        animate="visible"
-        key={charts.length}
+        animate={isActive ? "visible" : "hidden"}
+        key={animationKey}
       >
         {charts.map((chart) => (
           <motion.div
             key={chart.id}
-            className="relative aspect-video rounded-lg overflow-hidden bg-black/20 border border-white/10"
+            className="relative w-full h-full min-w-0 overflow-hidden bg-black/20"
             variants={itemVariants}
-            whileHover={{ scale: 1.02, zIndex: 10 }}
             transition={{ duration: 0.3 }}
           >
             <iframe
               src={chart.widgetUrl}
-              className="w-full h-full"
-              frameBorder="0"
+              style={{ width: '100%', height: '100%', border: 'none' }}
               allow="clipboard-write"
               title={`${chart.symbol} Chart`}
             />
-            <div className="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+            <div className="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded z-10">
               {chart.symbol}
             </div>
           </motion.div>

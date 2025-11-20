@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
+import { getBrowserCache, setBrowserCache } from '@/lib/browser-cache'
 
 interface Project {
   url: string
@@ -33,15 +34,36 @@ const itemVariants = {
   },
 }
 
-export function DevBackground() {
+interface DevBackgroundProps {
+  isActive: boolean
+}
+
+export function DevBackground({ isActive }: DevBackgroundProps) {
   const [projects, setProjects] = useState<Project[]>([])
+  const [animationKey, setAnimationKey] = useState(0)
+
+  useEffect(() => {
+    if (isActive) {
+      setAnimationKey(prev => prev + 1)
+    }
+  }, [isActive])
 
   useEffect(() => {
     const fetchScreenshots = async () => {
+      // Check browser cache first
+      const cached = getBrowserCache<Project[]>('dev_screenshots')
+      if (cached && cached.length > 0) {
+        setProjects(cached)
+        return
+      }
+
+      // Fetch from API if not cached
       try {
         const response = await fetch('/api/dev-screenshots')
         const data = await response.json()
         if (data.screenshots && data.screenshots.length > 0) {
+          // Cache the screenshots
+          setBrowserCache('dev_screenshots', data.screenshots)
           setProjects(data.screenshots)
         }
       } catch (error) {
@@ -66,8 +88,8 @@ export function DevBackground() {
         className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 h-full items-center justify-center"
         variants={containerVariants}
         initial="hidden"
-        animate="visible"
-        key={projects.length}
+        animate={isActive ? "visible" : "hidden"}
+        key={animationKey}
       >
         {projects.map((project) => (
           <motion.div

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
+import { getBrowserCache, setBrowserCache } from '@/lib/browser-cache'
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -26,15 +27,41 @@ const itemVariants = {
     },
 }
 
-export function PersonalBackground() {
+interface PersonalBackgroundProps {
+    isActive: boolean
+}
+
+export function PersonalBackground({ isActive }: PersonalBackgroundProps) {
     const [images, setImages] = useState<string[]>([])
+    const [animationKey, setAnimationKey] = useState(0)
+
+    useEffect(() => {
+        if (isActive) {
+            setAnimationKey(prev => prev + 1)
+        }
+    }, [isActive])
 
     useEffect(() => {
         const fetchImages = async () => {
+            // Check browser cache first
+            const cached = getBrowserCache<string[]>('instagram_images')
+            if (cached && cached.length > 0) {
+                let repeatedImages: string[] = []
+                while (repeatedImages.length < 40) {
+                    repeatedImages = [...repeatedImages, ...cached]
+                }
+                setImages(repeatedImages.slice(0, 40))
+                return
+            }
+
+            // Fetch from API if not cached
             try {
                 const response = await fetch('/api/instagram')
                 const data = await response.json()
                 if (data.images && data.images.length > 0) {
+                    // Cache the images
+                    setBrowserCache('instagram_images', data.images)
+                    
                     let repeatedImages: string[] = []
                     while (repeatedImages.length < 40) {
                         repeatedImages = [...repeatedImages, ...data.images]
@@ -63,8 +90,8 @@ export function PersonalBackground() {
                 className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-1 p-1"
                 variants={containerVariants}
                 initial="hidden"
-                animate="visible"
-                key={images.length}
+                animate={isActive ? "visible" : "hidden"}
+                key={animationKey}
             >
                 {images.map((image, index) => (
                     <motion.div
