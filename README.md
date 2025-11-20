@@ -3,8 +3,6 @@
 ## Prerequisites
 
 - **Node.js** 20+ and npm
-- **Python 3** (for Instagram scraping)
-- **pip3** (Python package manager)
 
 ## Installation
 
@@ -14,19 +12,7 @@
 npm install
 ```
 
-### 2️⃣ Install Python dependencies
-
-```bash
-npm run setup:python
-```
-
-Or manually:
-
-```bash
-pip3 install -r scripts/requirements.txt
-```
-
-### 3️⃣ Start the server
+### 2️⃣ Start the server
 
 ```bash
 npm run dev
@@ -42,12 +28,12 @@ Each tab has a dynamic background with real content from your social media:
 
 #### 📸 Personal
 - **Source**: Instagram
-- **Implementation**: Python script using `instaloader`
+- **Implementation**: Direct API calls to Instagram's public web API
 - **Visual**: Animated grid with real images
 
 #### 🎮 Valorant
-- **Sources**: Twitch + TikTok
-- **Visual**: Mixed grid of videos and streams
+- **Source**: Reddit (r/Valorant subreddit)
+- **Visual**: Grid of gameplay and character images
 
 #### 💻 Dev
 - **Source**: Automatic screenshots with Puppeteer
@@ -59,7 +45,8 @@ Each tab has a dynamic background with real content from your social media:
 #### 📈 Trading
 - **Source**: TradingView Widgets
 - **Charts**: BTC, ETH, SOL, BNB, XRP, ADA, DOGE, MATIC, DOT, AVAX, LINK, UNI
-- **Visual**: Grid of 12 real-time charts
+- **Timeframe**: 1 hour (1H)
+- **Visual**: Grid of 10 real-time charts in 2 columns
 
 ## 📂 File Structure
 
@@ -67,24 +54,18 @@ Each tab has a dynamic background with real content from your social media:
 /src
   /app
     /api
-      /instagram      # Instagram scraping API
-      /twitch         # Twitch streams API
-      /tiktok         # TikTok videos API
+      /instagram      # Instagram images API
+      /valorant       # Valorant images from Reddit API
       /dev-screenshots # Screenshots API with Puppeteer
       /trading-charts  # TradingView widgets API
   /components
     /PublicProfile
       /Backgrounds    # Background components per category
   /lib
-    cache.ts          # Caching system (30 min)
-
-/scripts
-  instagram_scraper.py  # Python script for Instagram
-  requirements.txt      # Python dependencies
-  setup.sh             # Installation script
-
-/public
-  /instagram-cache    # Downloaded images (git ignored)
+    cache.ts          # Server-side caching system (30 min)
+    browser-cache.ts  # Browser-side caching system (24 hours)
+    preload.ts        # Preloads all background data
+    projects.ts       # Dev projects configuration
 ```
 
 ## 🔧 Available Scripts
@@ -95,29 +76,9 @@ npm run build            # Build for production
 npm run start            # Start production server
 npm run lint             # Run linter
 npm run format           # Format code with Prettier
-npm run setup:python     # Install Python dependencies
 ```
 
 ## 🐛 Troubleshooting
-
-### Error: "instaloader: command not found"
-
-Run:
-```bash
-npm run setup:python
-```
-
-Or install manually:
-```bash
-pip3 install instaloader
-```
-
-### Error: "Python 3 is not installed"
-
-Install Python 3:
-- **macOS**: `brew install python3`
-- **Ubuntu/Debian**: `sudo apt install python3 python3-pip`
-- **Windows**: Download from [python.org](https://python.org)
 
 ### Screenshots not working
 
@@ -125,32 +86,37 @@ Puppeteer may take time on first execution. Screenshots are cached for 30 minute
 
 ### No Instagram images
 
-The script downloads images to `public/instagram-cache/`. If there are no images:
-1. Verify that `instaloader` is installed
-2. Check the logs in the terminal
-3. Make sure the Instagram profile is public
+If there are no images:
+1. Check the logs in the terminal
+2. Make sure the Instagram profile is public
+3. Instagram's API may have rate limits
 
 ## 🎯 Cache
 
-The system implements a **30-minute** in-memory cache for:
+The system implements a dual caching system:
+
+**Server-side cache** (30 minutes):
 - ✅ Instagram images
-- ✅ Twitch videos
-- ✅ TikTok videos
+- ✅ Valorant images
 - ✅ Project screenshots
 - ✅ Trading charts
 
-This reduces requests and improves performance.
+**Browser-side cache** (24 hours):
+- ✅ All background data is cached in localStorage
+- ✅ Prevents unnecessary API calls when switching tabs
+- ✅ Improves performance and reduces server load
 
 ## 🔐 Privacy
 
-- Instagram images are downloaded locally to `public/instagram-cache/`
-- This directory is in `.gitignore` and is not uploaded to the repository
+- Instagram images are fetched directly from Instagram's public API
 - Screenshots are generated in real-time and cached temporarily
+- All data is cached in the browser for 24 hours
 
 ## 📝 Notes
 
-- Instagram scraping requires the profile to be public
+- Instagram requires the profile to be public
 - Screenshots may take a few seconds to generate
-- Cache is reset when restarting the server
-- In production, consider using Redis for caching
+- Server-side cache is reset when restarting the server
+- Browser cache persists across sessions (24 hours)
+- In production, consider using Redis for server-side caching
 
