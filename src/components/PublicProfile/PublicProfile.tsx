@@ -28,24 +28,20 @@ export function PublicProfile() {
     preloadAllData()
   }, [])
 
-  const renderBackground = () => {
-    switch (activeCategory) {
-      case 'Personal':
-        return <PersonalBackground />
-      case 'Valorant':
-        return <ValorantBackground />
-      case 'Dev':
-        return <DevBackground />
-      case 'Trading':
-        return <TradingBackground />
-      default:
-        return <PersonalBackground />
-    }
-  }
-
   return (
     <div className="min-h-screen flex flex-col items-center justify-center relative">
-      {renderBackground()}
+      <div className={activeCategory === 'Personal' ? 'visible' : 'invisible fixed inset-0 pointer-events-none'}>
+        <PersonalBackground isActive={activeCategory === 'Personal'} />
+      </div>
+      <div className={activeCategory === 'Valorant' ? 'visible' : 'invisible fixed inset-0 pointer-events-none'}>
+        <ValorantBackground isActive={activeCategory === 'Valorant'} />
+      </div>
+      <div className={activeCategory === 'Dev' ? 'visible' : 'invisible fixed inset-0 pointer-events-none'}>
+        <DevBackground isActive={activeCategory === 'Dev'} />
+      </div>
+      <div className={activeCategory === 'Trading' ? 'visible' : 'invisible fixed inset-0 pointer-events-none'}>
+        <TradingBackground isActive={activeCategory === 'Trading'} />
+      </div>
       <div className="max-w-md px-4 py-8 relative z-10">
         <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-xl p-8">
           <div className="text-center mb-8">
@@ -78,48 +74,48 @@ export function PublicProfile() {
               <TabsContent key={category} value={category} className="space-y-3">
                 {links.length > 0 ? (
                   links.map((link: Link) => (
-                        <Tooltip key={link.url}>
-                    <TooltipTrigger asChild>
-                    <Button
-                      key={link.url}
-                      variant="outline"
-                      className="w-full h-14 text-lg font-medium bg-white hover:bg-gray-50 border-2 flex items-center gap-3 justify-start px-4"
-                      disabled={link.disabled}
-                      onClick={() => !link.disabled ? handleLinkClick(link.url) : null}
-                    >
-                      {link.icon ? (
-                        <div className="w-8 h-8 flex items-center justify-center text-2xl">
-                         {link.icon}
-                        </div>
-                      ) : link.icon_url ? (
-                        <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
-                          <Image 
-                            src={link.icon_url} 
-                            alt={`${link.title} icon`}
-                            width={20}
-                            height={20}
-                            className="object-contain"
-                          />
-                        </div>
-                      ) : (
-                        <SocialIcon 
-                          url={link.url}
-                          style={{ height: 32, width: 32 }}
-                        />
-                      )}
-                        <span className="flex-1 text-left">{link.title}</span>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{link.tooltip}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                    ))
-                  ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      Working on it...
-                    </div>
-                  )}
+                    <Tooltip key={link.url}>
+                      <TooltipTrigger asChild>
+                        <Button
+                          key={link.url}
+                          variant="outline"
+                          className="w-full h-14 text-lg font-medium bg-white hover:bg-gray-50 border-2 flex items-center gap-3 justify-start px-4"
+                          disabled={link.disabled}
+                          onClick={() => !link.disabled ? handleLinkClick(link.url) : null}
+                        >
+                          {link.icon ? (
+                            <div className="w-8 h-8 flex items-center justify-center text-2xl">
+                              {link.icon}
+                            </div>
+                          ) : link.icon_url ? (
+                            <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                              <Image
+                                src={link.icon_url}
+                                alt={`${link.title} icon`}
+                                width={20}
+                                height={20}
+                                className="object-contain"
+                              />
+                            </div>
+                          ) : (
+                            <SocialIcon
+                              url={link.url}
+                              style={{ height: 32, width: 32 }}
+                            />
+                          )}
+                          <span className="flex-1 text-left">{link.title}</span>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{link.tooltip}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    Working on it...
+                  </div>
+                )}
               </TabsContent>
             ))}
           </Tabs>
