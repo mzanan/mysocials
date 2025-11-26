@@ -8,20 +8,8 @@ This project uses automatic web scraping to obtain real content from your social
 # 1. Install Node.js dependencies
 npm install
 
-# 2. Install Python dependencies (for Instagram scraping)
-npm run setup:python
-
-# 3. Start the project
+# 2. Start the project
 npm run dev
-```
-
-## Project Structure
-
-```
-/scripts
-  ├── instagram_scraper.py    # Python script for Instagram
-  ├── requirements.txt         # Python dependencies
-  └── setup.sh                # Installation script
 ```
 
 ## Required Tools
