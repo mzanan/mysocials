@@ -3,8 +3,23 @@
 import { useState, useMemo } from 'react'
 import { Link } from '@/types/link'
 import { Profile } from '@/types/profile'
+import {
+  PersonalBackground,
+  ValorantBackground,
+  DevBackground,
+  TradingBackground,
+} from './Backgrounds'
 
-type Category = 'Personal' | 'Valorant' | 'Dev' | 'Trading'
+export const backgrounds = [
+  { key: 'Personal', Component: PersonalBackground },
+  { key: 'Valorant', Component: ValorantBackground },
+  { key: 'Dev', Component: DevBackground },
+  { key: 'Trading', Component: TradingBackground },
+] as const
+
+export const iconContainerClasses = "w-8 h-8 flex items-center justify-center"
+
+export type Category = 'Personal' | 'Valorant' | 'Dev' | 'Trading'
 
 interface PublicProfileData {
   profile: Profile
@@ -22,19 +37,19 @@ const data: PublicProfileData = {
     username_updated_at: new Date().toISOString(),
   },
   links: [
-    { title: 'Instagram', url: 'https://instagram.com/matizanan', category: 'Personal', tooltip: 'My Instagram profile' },
-    { title: 'X', url: 'https://x.com/mzanan', category: 'Personal', tooltip: 'My X profile' },
+    { title: 'Instagram', url: 'https://instagram.com/matizanan', category: 'Personal', tooltip: 'My Instagram Profile' },
+    { title: 'X', url: 'https://x.com/mzanan', category: 'Personal', tooltip: 'My X Profile' },
 
-    { title: 'Twitch', url: 'https://twitch.tv/mzanan', category: 'Valorant', tooltip: 'Live streaming' },
-    { title: 'Tiktok', url: 'https://tiktok.com/@mzanan0', category: 'Valorant', tooltip: 'Daily content' },
+    { title: 'Twitch', url: 'https://twitch.tv/mzanan', category: 'Valorant', tooltip: 'Live Streaming' },
+    { title: 'Tiktok', url: 'https://tiktok.com/@mzanan0', category: 'Valorant', tooltip: 'Daily Content' },
 
-    { title: 'Ecommerce Landing', url: 'https://ecommerce-landing-kappa.vercel.app/', icon: '🛍️', category: 'Dev', tooltip: 'Ecommerce landing page' },
-    { title: 'Ecommerce', url: 'https://ecommerce-six-peach-14.vercel.app/', icon: '🛒', category: 'Dev', tooltip: 'Full online store' },
-    { title: 'Portfolio Coming Soon', url: '/', icon: '🤓', category: 'Dev', disabled: true, tooltip: 'Coming soon' },
+    { title: 'Ecommerce Landing', url: 'https://landing.itsmatias.com', icon: '🛍️', category: 'Dev', tooltip: 'Ecommerce Landing page' },
+    { title: 'Ecommerce', url: 'https://ecommerce.itsmatias.com', icon: '🛒', category: 'Dev', tooltip: 'Full Online Store' },
+    { title: 'My Dev Portfolio', url: 'https://itsmatias.com', icon: '🤓', category: 'Dev', tooltip: 'My Dev Portfolio' },
 
-    { title: 'YouTube', url: 'https://www.youtube.com/@gvtnomad', category: 'Trading', tooltip: 'YouTube channel' },
-    { title: 'GVTNomad', url: 'https://gvtnomad.com/p/GVT13C89', icon_url: 'https://gvtnomad.com/gvtnomad_logo.svg', category: 'Trading', tooltip: 'My referral code' },
-    { title: 'TraderNaut', url: 'https://www.tradernaut.xyz', icon_url: 'https://gvtnomad.com/gvtnomad_logo.svg', category: 'Trading', tooltip: 'Trading tool' },
+    { title: 'Twitch', url: 'https://twitch.tv/mzanann', category: 'Trading', tooltip: 'Crypto Trading Live Streaming' },
+    { title: 'YouTube', url: 'https://www.youtube.com/@MatiasTrading', category: 'Trading', tooltip: 'Trading Channel Recordings' },
+    { title: 'GVTNomad', url: 'https://gvtnomad.com/p/GVT13C89', icon_url: 'https://gvtnomad.com/gvtnomad_logo.svg', category: 'Trading', tooltip: 'Join GVTNomad' },
   ]
 }
 
