@@ -39,9 +39,11 @@ const data: PublicProfileData = {
   links: [
     { title: 'Instagram', url: 'https://instagram.com/matizanan', category: 'Personal', tooltip: 'My Instagram Profile' },
     { title: 'X', url: 'https://x.com/mzanan', category: 'Personal', tooltip: 'My X Profile' },
+    { title: '', url: '', category: 'Personal', transparent: true, tooltip: '' },
 
     { title: 'Twitch', url: 'https://twitch.tv/mzanan', category: 'Valorant', tooltip: 'Live Streaming' },
     { title: 'Tiktok', url: 'https://tiktok.com/@mzanan0', category: 'Valorant', tooltip: 'Daily Content' },
+    { title: '', url: '', category: 'Valorant', transparent: true, tooltip: '' },
 
     { title: 'Ecommerce Landing', url: 'https://landing.itsmatias.com', icon: '🛍️', category: 'Dev', tooltip: 'Ecommerce Landing page' },
     { title: 'Ecommerce', url: 'https://ecommerce.itsmatias.com', icon: '🛒', category: 'Dev', tooltip: 'Full Online Store' },

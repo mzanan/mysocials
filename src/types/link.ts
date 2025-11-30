@@ -6,4 +6,5 @@ export interface Link {
   category: 'Personal' | 'Valorant' | 'Dev' | 'Trading'
   disabled?: boolean
   tooltip?: string
+  transparent?: boolean
 } 

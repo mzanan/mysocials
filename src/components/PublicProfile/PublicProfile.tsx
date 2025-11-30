@@ -30,7 +30,7 @@ export function PublicProfile() {
           <Component isActive={activeCategory === key} />
         </div>
       ))}
-      <div className="max-w-md px-4 py-8 relative z-10 max-h-[calc(100dvh-2rem)] overflow-y-auto">
+      <div className="relative z-10 flex flex-col items-center justify-center">
         <div className="bg-white/20 backdrop-blur-xs rounded-3xl shadow-xl p-8">
           <div className="text-center mb-8">
             <Avatar className="w-24 h-24 mx-auto mb-4">
@@ -66,7 +66,7 @@ export function PublicProfile() {
                         <Button
                           key={link.url}
                           variant="outline"
-                          className="w-full h-14 text-lg font-medium bg-white/50 flex items-center gap-3 justify-start px-4"
+                          className={`w-full h-14 text-lg font-medium bg-white/50 flex items-center gap-3 justify-start px-4 ${link.transparent ? 'invisible' : ''}`}
                           disabled={link.disabled}
                           onClick={() => !link.disabled ? handleLinkClick(link.url) : null}
                         >
