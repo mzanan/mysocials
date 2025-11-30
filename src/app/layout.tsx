@@ -13,9 +13,47 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const SITE_URL = "https://matias-socials.vercel.app";
+const SITE_NAME = "Matias Social Media";
+const SITE_DESCRIPTION = "All my social networks in one place";
+const OG_IMAGE_URL = "/og-image.png";
+
 export const metadata: Metadata = {
-  title: "Matias’s Social Media",
-  description: "All my social networks in one place",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_NAME,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    images: [
+      {
+        url: OG_IMAGE_URL,
+        width: 1200,
+        height: 630,
+        alt: SITE_NAME,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    images: [OG_IMAGE_URL],
+  },
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
+  alternates: {
+    canonical: SITE_URL,
+  },
 };
 
 export default function RootLayout({
