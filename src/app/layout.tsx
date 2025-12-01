@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const SITE_URL = "https://matias-socials.vercel.app";
+const SITE_URL = "https://links.itsmatias.com";
 const SITE_NAME = "Matias Social Media";
 const SITE_DESCRIPTION = "All my social networks in one place";
 const OG_IMAGE_URL = "/og-image.png";
