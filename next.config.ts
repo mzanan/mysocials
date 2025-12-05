@@ -38,6 +38,7 @@ const nextConfig: NextConfig = {
     ],
   },
   serverExternalPackages: ['canvas', 'jsdom'],
+  turbopack: {},
   webpack: (config, { isServer }) => {
     if (isServer) {
       config.externals = config.externals || []
