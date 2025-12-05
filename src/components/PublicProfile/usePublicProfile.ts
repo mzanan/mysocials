@@ -2,13 +2,13 @@
 
 import { useState, useMemo } from 'react'
 import { Link } from '@/types/link'
-import { Profile } from '@/types/profile'
+import { Profile, Category } from '@/types/profile'
 import {
   PersonalBackground,
   ValorantBackground,
   DevBackground,
   TradingBackground,
-} from './Backgrounds'
+} from '../Backgrounds'
 
 export const backgrounds = [
   { key: 'Personal', Component: PersonalBackground },
@@ -18,8 +18,6 @@ export const backgrounds = [
 ] as const
 
 export const iconContainerClasses = "w-8 h-8 flex items-center justify-center"
-
-export type Category = 'Personal' | 'Valorant' | 'Dev' | 'Trading'
 
 interface PublicProfileData {
   profile: Profile
@@ -31,7 +29,12 @@ const data: PublicProfileData = {
     id: '1',
     full_name: 'Matias Zanan',
     avatar_url: 'https://pbs.twimg.com/profile_images/1963563791003914243/4yYUGPT5_400x400.jpg',
-    bio: '✈  Digital Nomad · 📍 From Argentina to the world · \n ₿ Crypto trader · 🤓 Student of @gvtnomad',
+    bios: {
+      Personal: '✈  Digital Nomad',
+      Valorant: '🎮 Valorant Streamer',
+      Dev: '💻 Full Stack Developer',
+      Trading: '📈 Crypto Trader & Analyst',
+    },
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     username_updated_at: new Date().toISOString(),
@@ -39,11 +42,9 @@ const data: PublicProfileData = {
   links: [
     { title: 'Instagram', url: 'https://instagram.com/matizanan', category: 'Personal', tooltip: 'My Instagram Profile' },
     { title: 'X', url: 'https://x.com/mzanan', category: 'Personal', tooltip: 'My X Profile' },
-    { title: '', url: '', category: 'Personal', transparent: true, tooltip: '' },
 
     { title: 'Twitch', url: 'https://twitch.tv/mzanan', category: 'Valorant', tooltip: 'Live Streaming' },
     { title: 'Tiktok', url: 'https://tiktok.com/@mzanan0', category: 'Valorant', tooltip: 'Daily Content' },
-    { title: '', url: '', category: 'Valorant', transparent: true, tooltip: '' },
 
     { title: 'Ecommerce Landing', url: 'https://landing.itsmatias.com', icon: '🛍️', category: 'Dev', tooltip: 'Ecommerce Landing page' },
     { title: 'Ecommerce', url: 'https://ecommerce.itsmatias.com', icon: '🛒', category: 'Dev', tooltip: 'Full Online Store' },
@@ -51,7 +52,6 @@ const data: PublicProfileData = {
 
     { title: 'Twitch', url: 'https://twitch.tv/mzanann', category: 'Trading', tooltip: 'Crypto Trading Live Streaming' },
     { title: 'YouTube', url: 'https://www.youtube.com/@MatiasTrading', category: 'Trading', tooltip: 'Trading Channel Recordings' },
-    { title: 'GVTNomad', url: 'https://gvtnomad.com/p/GVT13C89', icon_url: 'https://gvtnomad.com/gvtnomad_logo.svg', category: 'Trading', tooltip: 'Join GVTNomad' },
   ]
 }
 
@@ -68,13 +68,16 @@ export function usePublicProfile() {
     window.open(url, '_blank', 'noopener,noreferrer')
   }
 
+  const currentBio = data.profile.bios?.[activeCategory] || ''
+
   return {
     profile: data.profile,
+    bio: currentBio,
     links: filteredLinks,
     categories,
     activeCategory,
     setActiveCategory,
     handleLinkClick
   }
-} 
+}
 
