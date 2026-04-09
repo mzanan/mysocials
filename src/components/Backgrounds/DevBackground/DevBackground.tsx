@@ -25,10 +25,11 @@ export function DevBackground({ isActive }: { isActive: boolean }) {
           >
             <video
               src={project.video}
-              autoPlay
+              autoPlay={isActive}
               muted
               loop
               playsInline
+              preload={isActive ? 'auto' : 'none'}
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex items-end p-6">

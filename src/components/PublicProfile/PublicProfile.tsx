@@ -33,7 +33,7 @@ export function PublicProfile() {
         </div>
       ))}
       <div className="relative z-10 flex flex-col items-center justify-center">
-        <div className="bg-white/0 backdrop-blur-xs rounded-3xl shadow-xl p-8">
+        <div className="bg-white/0 backdrop-blur-xs rounded-3xl shadow-xl p-8 w-[340px]">
           <div className="flex md:flex-col-reverse items-center justify-center pb-4">
             <div className='flex flex-col gap-2 text-center'>
               <h1 className="text-2xl font-bold text-white drop-shadow-md">
@@ -66,7 +66,7 @@ export function PublicProfile() {
           </div>
 
           <Tabs value={activeCategory} onValueChange={(value: string) => setActiveCategory(value as Category)} className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-6 bg-white/20 backdrop-blur-xs">
+            <TabsList className="grid w-full grid-cols-2 mb-6 bg-white/20 backdrop-blur-xs">
               {categories.map((category) => (
                 <TabsTrigger key={category} value={category} className='hover:bg-white/50'>
                   {category}
