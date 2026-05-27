@@ -17,14 +17,13 @@ npm run format       # prettier --write .
 
 ## Paths críticos
 
-- `src/components/PublicProfile/` — raíz con tabs.
-- `src/components/Backgrounds/PersonalBackground/` — Instagram.
+- `src/components/PublicProfile/PublicProfile.tsx` — raíz con tabs. `DevBackground` se importa vía `next/dynamic({ ssr: false })`; `PersonalBackground` es eager (default tab). Patrón "ever activated" con `useRef<Set>` para no re-montar al volver.
+- `src/components/Backgrounds/PersonalBackground/` — Instagram (grid 480px webp).
 - `src/components/Backgrounds/DevBackground/` — videos Dev (`preload="none"` hasta active).
-- `src/components/Backgrounds/ValorantBackground/` — Reddit.
-- `src/components/Backgrounds/TradingBackground/` — TradingView.
+- `src/components/SocialIcon/SocialIcon.tsx` — íconos locales (IG/TikTok/YT/Twitch) con lucide-react + SVG TikTok inline. Reemplaza `react-social-icons` (que pesaba ~99KB en initial chunk).
 - `src/lib/projects.ts` — config de proyectos Dev.
 - `src/lib/cache.ts` (server 30 min) + `browser-cache.ts` (localStorage 24 h).
-- `src/app/api/instagram/`, `valorant/`, `dev-screenshots/`, `trading-charts/`.
+- `src/app/api/instagram/`, `valorant/`.
 
 ## Env vars
 
@@ -35,9 +34,11 @@ Las credenciales de Instagram / Reddit / etc. viven en `.env`. Ver el endpoint c
 - Cache dual server + browser. Cambios a fetch deben mantener ambos.
 - Animaciones con `itemVariants` (fade + scale + delay escalonado por `index`). `import { motion } from "motion/react"` (NO `framer-motion`).
 - Videos lazy hasta `isActive` para evitar descargar todo en cold load. Sumar siempre `poster={video.replace(/\.mp4$/, '.webp')}` para que el primer frame se vea instant.
+- **Imágenes IG en `public/images/instagram/` viven como `.webp` 480px q70 (~30KB avg)**. NO re-introducir `.jpg` — el endpoint filtra ambos pero perdés peso. Si scrapeás IG de nuevo, re-encodear con `cwebp -q 70 -resize 480 0`.
 - `axios` fue borrado del package.json — no lo uses (los API routes leen filesystem, fetch nativo alcanza).
-- `optimizePackageImports` está activo para `motion` y `lucide-react`. **NO sumar `react-social-icons`** — rompe el build prerender (TypeError destructuring `color`).
-- **Runtime real:** `usePublicProfile.ts:11-14` solo monta `[PersonalBackground, DevBackground]`. Trading y Valorant existen pero nunca renderizan — tocar esos archivos no afecta producción.
+- **`react-social-icons` fue borrado** (28/05) por SVGs locales en `SocialIcon/SocialIcon.tsx`. Si necesitás más redes, sumalas ahí (lucide + brand BG) en vez de re-instalar el package.
+- `optimizePackageImports` está activo para `motion` y `lucide-react`.
+- **Runtime real:** solo se montan Personal (eager) y Dev (via `next/dynamic`). El array `backgrounds` vive en `PublicProfile.tsx`, ya no en `usePublicProfile.ts`. Si querés sumar tabs, agregalas en `categories` de `usePublicProfile` + en `backgrounds` de `PublicProfile.tsx` (idealmente dynamic).
 
 ## Heurísticas
 

@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Link } from '@/types/link'
-import { SocialIcon } from 'react-social-icons'
+import { SocialIcon } from '@/components/SocialIcon/SocialIcon'
 import Image from 'next/image'
 import {
   Tooltip,
@@ -115,10 +115,7 @@ export function PublicProfile() {
                             />
                           </div>
                         ) : (
-                          <SocialIcon
-                            url={link.url}
-                            style={{ height: 32, width: 32 }}
-                          />
+                          <SocialIcon url={link.url} size={32} />
                         )}
                         <span className="flex-1 text-left">{link.title}</span>
                       </Button>
