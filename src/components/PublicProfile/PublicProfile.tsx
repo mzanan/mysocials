@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useRef } from 'react'
+import dynamic from 'next/dynamic'
 import { usePublicProfile } from './usePublicProfile'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -13,25 +14,37 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { preloadAllData } from '@/lib/preload'
-import { backgrounds, iconContainerClasses } from './usePublicProfile'
+import { PersonalBackground } from '@/components/Backgrounds/PersonalBackground/PersonalBackground'
+import { iconContainerClasses } from './usePublicProfile'
 import { Category } from '@/types/profile'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence } from 'motion/react'
+
+const DevBackground = dynamic(
+  () => import('@/components/Backgrounds/DevBackground/DevBackground').then(m => ({ default: m.DevBackground })),
+  { ssr: false }
+)
+
+const backgrounds = [
+  { key: 'Personal' as const, Component: PersonalBackground },
+  { key: 'Dev' as const, Component: DevBackground },
+]
 
 export function PublicProfile() {
   const { profile, bio, links, categories, activeCategory, setActiveCategory, handleLinkClick } = usePublicProfile()
 
-  useEffect(() => {
-    preloadAllData()
-  }, [])
+  const everActivatedRef = useRef<Set<Category>>(new Set([activeCategory]))
+  everActivatedRef.current.add(activeCategory)
 
   return (
     <div className="h-dvh flex flex-col items-center justify-center relative overflow-hidden">
-      {backgrounds.map(({ key, Component }) => (
-        <div key={key} className={activeCategory === key ? 'visible' : 'invisible fixed inset-0 pointer-events-none'}>
-          <Component isActive={activeCategory === key} />
-        </div>
-      ))}
+      {backgrounds.map(({ key, Component }) => {
+        if (!everActivatedRef.current.has(key)) return null
+        return (
+          <div key={key} className={activeCategory === key ? 'visible' : 'invisible fixed inset-0 pointer-events-none'}>
+            <Component isActive={activeCategory === key} />
+          </div>
+        )
+      })}
       <div className="relative z-10 flex flex-col items-center justify-center">
         <div className="bg-white/0 backdrop-blur-xs rounded-3xl shadow-xl p-8 w-[340px]">
           <div className="flex md:flex-col-reverse items-center justify-center pb-4">

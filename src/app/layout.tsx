@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import { StructuredData } from "@/components/seo/StructuredData";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,7 +17,6 @@ const geistMono = Geist_Mono({
 const SITE_URL = "https://links.itsmatias.com";
 const SITE_NAME = "Matias Social Media";
 const SITE_DESCRIPTION = "All my social networks in one place";
-const OG_IMAGE_URL = "/og-image.png";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -32,20 +32,11 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     title: SITE_NAME,
     description: SITE_DESCRIPTION,
-    images: [
-      {
-        url: OG_IMAGE_URL,
-        width: 1200,
-        height: 630,
-        alt: SITE_NAME,
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: SITE_NAME,
     description: SITE_DESCRIPTION,
-    images: [OG_IMAGE_URL],
   },
   icons: {
     icon: "/icon.svg",
@@ -66,6 +57,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <StructuredData />
         {children}
         <Toaster position="top-right" richColors />
       </body>

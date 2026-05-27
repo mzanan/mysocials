@@ -3,15 +3,6 @@
 import { useState, useMemo } from 'react'
 import { Link } from '@/types/link'
 import { Profile, Category } from '@/types/profile'
-import {
-  PersonalBackground,
-  DevBackground,
-} from '../Backgrounds'
-
-export const backgrounds = [
-  { key: 'Personal', Component: PersonalBackground },
-  { key: 'Dev', Component: DevBackground },
-] as const
 
 export const iconContainerClasses = "w-8 h-8 flex items-center justify-center"
 

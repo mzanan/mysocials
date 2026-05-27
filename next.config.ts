@@ -39,6 +39,9 @@ const nextConfig: NextConfig = {
   },
   serverExternalPackages: ['canvas', 'jsdom'],
   turbopack: {},
+  experimental: {
+    optimizePackageImports: ['motion', 'lucide-react'],
+  },
   webpack: (config, { isServer }) => {
     if (isServer) {
       config.externals = config.externals || []

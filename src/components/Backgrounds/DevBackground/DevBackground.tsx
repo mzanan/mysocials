@@ -1,6 +1,6 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 import { useDevBackground, containerVariants, itemVariants } from './useDevBackground'
 
 export function DevBackground({ isActive }: { isActive: boolean }) {
@@ -25,6 +25,7 @@ export function DevBackground({ isActive }: { isActive: boolean }) {
           >
             <video
               src={project.video}
+              poster={project.video.replace(/\.mp4$/, '.webp')}
               autoPlay={isActive}
               muted
               loop

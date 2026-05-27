@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 import Image from 'next/image'
 import { usePersonalBackground, containerVariants, itemVariants } from './usePersonalBackground'
 
@@ -87,6 +87,8 @@ export function PersonalBackground({ isActive }: { isActive: boolean }) {
                     fill
                     className="object-cover"
                     sizes={`${cellSize}px`}
+                    placeholder="blur"
+                    blurDataURL="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxIDEiPjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiMxYTFhMmUiLz48L3N2Zz4="
                   />
                 </motion.div>
               )
