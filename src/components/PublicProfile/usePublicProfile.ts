@@ -15,8 +15,7 @@ const data: PublicProfileData = {
   profile: {
     id: "1",
     full_name: "Matias Zanan",
-    avatar_url:
-      "https://pbs.twimg.com/profile_images/1963563791003914243/4yYUGPT5_400x400.jpg",
+    avatar_url: "/avatar.webp",
     bios: {
       Personal: "✈  Digital Nomad",
       Valorant: "🎮 Valorant Streamer",
