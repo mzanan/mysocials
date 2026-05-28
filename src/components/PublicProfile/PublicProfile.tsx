@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useState, useEffect, useCallback } from 'react'
 import dynamic from 'next/dynamic'
 import { usePublicProfile } from './usePublicProfile'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -21,32 +21,53 @@ import { motion, AnimatePresence } from 'motion/react'
 
 const DevBackground = dynamic(
   () => import('@/components/Backgrounds/DevBackground/DevBackground').then(m => ({ default: m.DevBackground })),
-  { ssr: false }
+  {
+    ssr: false,
+    loading: () => (
+      <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900" />
+    ),
+  }
 )
 
-const backgrounds = [
-  { key: 'Personal' as const, Component: PersonalBackground },
-  { key: 'Dev' as const, Component: DevBackground },
-]
-
-export function PublicProfile() {
+export function PublicProfile({ initialImages }: { initialImages: string[] }) {
   const { profile, bio, links, categories, activeCategory, setActiveCategory, handleLinkClick } = usePublicProfile()
 
   const everActivatedRef = useRef<Set<Category>>(new Set([activeCategory]))
   everActivatedRef.current.add(activeCategory)
 
+  const [showCard, setShowCard] = useState(false)
+  const revealCard = useCallback(() => setShowCard(true), [])
+
+  useEffect(() => {
+    setShowCard(false)
+    const t = setTimeout(() => setShowCard(true), 4000)
+    return () => clearTimeout(t)
+  }, [activeCategory])
+
   return (
-    <div className="h-dvh flex flex-col items-center justify-center relative overflow-hidden">
-      {backgrounds.map(({ key, Component }) => {
-        if (!everActivatedRef.current.has(key)) return null
-        return (
-          <div key={key} className={activeCategory === key ? 'visible' : 'invisible fixed inset-0 pointer-events-none'}>
-            <Component isActive={activeCategory === key} />
-          </div>
-        )
-      })}
-      <div className="relative z-10 flex flex-col items-center justify-center">
-        <div className="bg-white/0 backdrop-blur-xs rounded-3xl shadow-xl p-8 w-[340px]">
+    <div className="h-dvh flex flex-col items-center justify-center relative overflow-hidden bg-[#15151f]">
+      {everActivatedRef.current.has('Personal') && (
+        <div className={activeCategory === 'Personal' ? 'visible' : 'invisible fixed inset-0 pointer-events-none'}>
+          <PersonalBackground isActive={activeCategory === 'Personal'} initialImages={initialImages} onReady={revealCard} />
+        </div>
+      )}
+      {everActivatedRef.current.has('Dev') && (
+        <div className={activeCategory === 'Dev' ? 'visible' : 'invisible fixed inset-0 pointer-events-none'}>
+          <DevBackground isActive={activeCategory === 'Dev'} onReady={revealCard} />
+        </div>
+      )}
+      <div
+        className="relative z-10 flex flex-col items-center justify-center"
+        style={{ visibility: showCard ? 'visible' : 'hidden', pointerEvents: showCard ? 'auto' : 'none' }}
+      >
+        <div className="relative rounded-3xl shadow-xl w-[340px]">
+          <div className="absolute inset-0 rounded-3xl bg-white/0 backdrop-blur-xs" />
+          <motion.div
+            className="relative p-8"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: showCard ? 1 : 0, y: showCard ? 0 : 12 }}
+            transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+          >
           <div className="flex md:flex-col-reverse items-center justify-center pb-4">
             <div className='flex flex-col gap-2 text-center'>
               <h1 className="text-2xl font-bold text-white drop-shadow-md">
@@ -129,6 +150,7 @@ export function PublicProfile() {
               </TabsContent>
             ))}
           </Tabs>
+          </motion.div>
         </div>
       </div>
     </div>

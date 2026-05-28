@@ -1,22 +1,6 @@
 import { NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
+import { getInstagramImages } from '@/lib/instagram'
 
 export async function GET() {
-  try {
-    const dir = path.join(process.cwd(), 'public', 'images', 'instagram')
-
-    if (!fs.existsSync(dir)) {
-      return NextResponse.json({ images: [] })
-    }
-
-    const files = fs.readdirSync(dir)
-      .filter(f => /\.(jpg|jpeg|png|webp|gif)$/i.test(f))
-      .sort()
-      .map(f => `/images/instagram/${f}`)
-
-    return NextResponse.json({ images: files })
-  } catch {
-    return NextResponse.json({ images: [] })
-  }
+  return NextResponse.json({ images: getInstagramImages() })
 }

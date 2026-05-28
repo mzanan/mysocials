@@ -129,4 +129,35 @@
   .bg-overlay-gradient {
     @apply absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40 pointer-events-none;
   }
+
+  .bg-grid-base {
+    background-color: #15151f;
+  }
+
+  .skeleton-shimmer {
+    background-color: #1a1a2e;
+    background-image: linear-gradient(
+      100deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.07) 50%,
+      transparent 70%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-sweep 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes skeleton-sweep {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer {
+    animation: none;
+  }
 }

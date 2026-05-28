@@ -1,10 +1,17 @@
 'use client'
 
+import { useEffect } from 'react'
 import { motion } from 'motion/react'
 import { useDevBackground, containerVariants, itemVariants } from './useDevBackground'
 
-export function DevBackground({ isActive }: { isActive: boolean }) {
+export function DevBackground({ isActive, onReady }: { isActive: boolean; onReady?: () => void }) {
   const { projects, animationKey } = useDevBackground(isActive)
+
+  useEffect(() => {
+    if (!isActive) return
+    const t = setTimeout(() => onReady?.(), 1500)
+    return () => clearTimeout(t)
+  }, [isActive, animationKey, onReady])
 
   return (
     <div className="bg-fixed-overlay bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
