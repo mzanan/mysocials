@@ -4,12 +4,12 @@ import { useState, useEffect } from 'react'
 
 export const itemVariants = {
   hidden: { opacity: 0, scale: 0.8 },
-  visible: (col: number = 0) => ({
+  visible: (index: number = 0) => ({
     opacity: 1,
     scale: 1,
     transition: {
       duration: 0.5,
-      delay: col * 0.04,
+      delay: index * 0.03,
       ease: [0, 0, 0.2, 1] as const,
     },
   }),

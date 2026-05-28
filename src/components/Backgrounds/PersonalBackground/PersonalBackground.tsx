@@ -92,7 +92,7 @@ export function PersonalBackground({
       const t = setTimeout(() => {
         readyFiredRef.current = true
         onReady?.()
-      }, 800)
+      }, total * 30 + 500)
       return () => clearTimeout(t)
     }
   }, [isActive, readyCount, total, onReady])
@@ -115,7 +115,7 @@ export function PersonalBackground({
                     <m.div
                       className="absolute inset-0"
                       variants={itemVariants}
-                      custom={colIdx}
+                      custom={globalIndex}
                       initial="hidden"
                       animate={revealed ? 'visible' : 'hidden'}
                       whileHover={{ scale: 1.05, zIndex: 10 }}
