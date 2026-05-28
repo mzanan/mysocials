@@ -1,4 +1,4 @@
-export type Category = 'Personal' | 'Valorant' | 'Dev' | 'Trading'
+export type Category = 'Personal' | 'Dev'
 
 export interface Profile {
   id: string

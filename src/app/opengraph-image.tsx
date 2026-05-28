@@ -62,7 +62,7 @@ export default async function Image() {
             lineHeight: 1.35,
           }}
         >
-          Personal · Dev · Valorant · Trading
+          Personal · Dev
         </div>
       </div>
     ),

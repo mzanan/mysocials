@@ -3,8 +3,6 @@ export interface Link {
   url: string
   icon?: string
   icon_url?: string
-  category: 'Personal' | 'Valorant' | 'Dev' | 'Trading'
+  category: 'Personal' | 'Dev'
   disabled?: boolean
-  tooltip?: string
-  transparent?: boolean
 } 

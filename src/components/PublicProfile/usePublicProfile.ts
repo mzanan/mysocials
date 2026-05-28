@@ -18,9 +18,7 @@ const data: PublicProfileData = {
     avatar_url: "/avatar.webp",
     bios: {
       Personal: "✈  Digital Nomad",
-      Valorant: "🎮 Valorant Streamer",
       Dev: "💻 Full Stack Developer",
-      Trading: "📈 Crypto Trader & Analyst",
     },
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -31,67 +29,34 @@ const data: PublicProfileData = {
       title: "Instagram",
       url: "https://instagram.com/matiasenasia",
       category: "Personal",
-      tooltip: "My Instagram Profile",
     },
     {
       title: "Tiktok",
       url: "https://www.tiktok.com/@matiasenasia",
       category: "Personal",
-      tooltip: "My TikTok Profile",
     },
     {
       title: "Youtube",
       url: "https://www.youtube.com/@PerdidoenAsia/shorts",
       category: "Personal",
-      tooltip: "My YouTube Profile",
     },
-
-    {
-      title: "Twitch",
-      url: "https://twitch.tv/mzanan",
-      category: "Valorant",
-      tooltip: "Live Streaming",
-    },
-    {
-      title: "Tiktok",
-      url: "https://tiktok.com/@mzanan0",
-      category: "Valorant",
-      tooltip: "Daily Content",
-    },
-
     {
       title: "Ecommerce Landing",
       url: "https://landing.itsmatias.com",
-      icon: "🛍️",
+      icon: "shopping-bag",
       category: "Dev",
-      tooltip: "Ecommerce Landing page",
     },
     {
       title: "Ecommerce",
       url: "https://ecommerce.itsmatias.com",
-      icon: "🛒",
+      icon: "shopping-cart",
       category: "Dev",
-      tooltip: "Full Online Store",
     },
     {
       title: "My Dev Portfolio",
       url: "https://itsmatias.com",
-      icon: "🤓",
+      icon: "code",
       category: "Dev",
-      tooltip: "My Dev Portfolio",
-    },
-
-    {
-      title: "Twitch",
-      url: "https://twitch.tv/mzanann",
-      category: "Trading",
-      tooltip: "Crypto Trading Live Streaming",
-    },
-    {
-      title: "YouTube",
-      url: "https://www.youtube.com/@MatiasTrading",
-      category: "Trading",
-      tooltip: "Trading Channel Recordings",
     },
   ],
 };

@@ -45,6 +45,7 @@
 
 :root {
   --radius: 0.625rem;
+  --accent-glow: #a78bfa;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -132,6 +133,31 @@
 
   .bg-grid-base {
     background-color: #15151f;
+  }
+
+  .grain-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
+  }
+
+  .link-btn {
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.25s ease;
+  }
+
+  .link-btn:hover {
+    background-color: color-mix(in oklab, var(--accent-glow) 10%, rgba(255, 255, 255, 0.06));
+    border-color: color-mix(in oklab, var(--accent-glow) 55%, transparent);
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-glow) 22%, transparent),
+      0 10px 34px -8px color-mix(in oklab, var(--accent-glow) 55%, transparent);
+  }
+
+  .link-btn:hover .link-chev {
+    color: var(--accent-glow);
   }
 
   .skeleton-shimmer {

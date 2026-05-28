@@ -14,7 +14,7 @@ export function DevBackground({ isActive, onReady }: { isActive: boolean; onRead
   }, [isActive, animationKey, onReady])
 
   return (
-    <div className="bg-fixed-overlay bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="bg-fixed-overlay bg-gradient-to-br from-[#15151f] via-[#16131d] to-[#0e0e16]">
       <m.div
         className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 h-full items-center justify-center"
         variants={containerVariants}
