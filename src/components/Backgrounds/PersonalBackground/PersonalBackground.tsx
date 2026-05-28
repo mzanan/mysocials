@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { motion } from 'motion/react'
+import { m } from 'motion/react'
 import Image from 'next/image'
 import { usePersonalBackground, itemVariants } from './usePersonalBackground'
 
@@ -112,7 +112,7 @@ export function PersonalBackground({
                     className="relative overflow-hidden rounded-sm skeleton-shimmer"
                     style={{ width: grid.cellSize, height: grid.cellSize }}
                   >
-                    <motion.div
+                    <m.div
                       className="absolute inset-0"
                       variants={itemVariants}
                       custom={colIdx}
@@ -131,7 +131,7 @@ export function PersonalBackground({
                         onLoad={() => markLoaded(globalIndex)}
                         onError={() => markLoaded(globalIndex)}
                       />
-                    </motion.div>
+                    </m.div>
                   </div>
                 )
               })}

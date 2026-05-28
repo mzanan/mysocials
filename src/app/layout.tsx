@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import "./globals.css";
-import { Toaster } from "@/components/ui/sonner";
 import { StructuredData } from "@/components/seo/StructuredData";
 
 const SITE_URL = "https://links.itsmatias.com";
@@ -50,7 +49,6 @@ export default function RootLayout({
       >
         <StructuredData />
         {children}
-        <Toaster position="top-right" richColors />
       </body>
     </html>
   );

@@ -17,7 +17,7 @@ import {
 import { PersonalBackground } from '@/components/Backgrounds/PersonalBackground/PersonalBackground'
 import { iconContainerClasses } from './usePublicProfile'
 import { Category } from '@/types/profile'
-import { motion, AnimatePresence } from 'motion/react'
+import { LazyMotion, domAnimation, m, AnimatePresence } from 'motion/react'
 
 const DevBackground = dynamic(
   () => import('@/components/Backgrounds/DevBackground/DevBackground').then(m => ({ default: m.DevBackground })),
@@ -45,6 +45,7 @@ export function PublicProfile({ initialImages }: { initialImages: string[] }) {
   }, [activeCategory])
 
   return (
+    <LazyMotion features={domAnimation}>
     <div className="h-dvh flex flex-col items-center justify-center relative overflow-hidden bg-[#15151f]">
       {everActivatedRef.current.has('Personal') && (
         <div className={activeCategory === 'Personal' ? 'visible' : 'invisible fixed inset-0 pointer-events-none'}>
@@ -62,7 +63,7 @@ export function PublicProfile({ initialImages }: { initialImages: string[] }) {
       >
         <div className="relative rounded-3xl shadow-xl w-[340px]">
           <div className="absolute inset-0 rounded-3xl bg-white/0 backdrop-blur-xs" />
-          <motion.div
+          <m.div
             className="relative p-8"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: showCard ? 1 : 0, y: showCard ? 0 : 12 }}
@@ -74,7 +75,7 @@ export function PublicProfile({ initialImages }: { initialImages: string[] }) {
                 {profile.full_name}
               </h1>
               <AnimatePresence mode="wait">
-                <motion.p
+                <m.p
                   key={activeCategory}
                   initial={{ opacity: 0, y: 20, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -86,7 +87,7 @@ export function PublicProfile({ initialImages }: { initialImages: string[] }) {
                   className="text-white text-sm whitespace-pre-line drop-shadow-md"
                 >
                   {bio}
-                </motion.p>
+                </m.p>
               </AnimatePresence>
             </div>
             <Avatar className="w-24 h-24 mx-auto md:mb-2">
@@ -150,9 +151,10 @@ export function PublicProfile({ initialImages }: { initialImages: string[] }) {
               </TabsContent>
             ))}
           </Tabs>
-          </motion.div>
+          </m.div>
         </div>
       </div>
     </div>
+    </LazyMotion>
   )
 } 

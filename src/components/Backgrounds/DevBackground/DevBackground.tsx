@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { motion } from 'motion/react'
+import { m } from 'motion/react'
 import { useDevBackground, containerVariants, itemVariants } from './useDevBackground'
 
 export function DevBackground({ isActive, onReady }: { isActive: boolean; onReady?: () => void }) {
@@ -15,7 +15,7 @@ export function DevBackground({ isActive, onReady }: { isActive: boolean; onRead
 
   return (
     <div className="bg-fixed-overlay bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <motion.div
+      <m.div
         className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 h-full items-center justify-center"
         variants={containerVariants}
         initial="hidden"
@@ -23,7 +23,7 @@ export function DevBackground({ isActive, onReady }: { isActive: boolean; onRead
         key={animationKey}
       >
         {projects.map((project) => (
-          <motion.div
+          <m.div
             key={project.url}
             className="relative aspect-video rounded-xl overflow-hidden shadow-2xl border-2 border-white/10"
             variants={itemVariants}
@@ -46,9 +46,9 @@ export function DevBackground({ isActive, onReady }: { isActive: boolean; onRead
                 <p className="text-sm text-gray-300 mt-1">Web Development</p>
               </div>
             </div>
-          </motion.div>
+          </m.div>
         ))}
-      </motion.div>
+      </m.div>
       <div className="bg-overlay-gradient" />
     </div>
   )
