@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion } from 'motion/react'
 import Image from 'next/image'
 import { usePersonalBackground, containerVariants, itemVariants } from './usePersonalBackground'
@@ -16,6 +16,30 @@ interface GridState {
 export function PersonalBackground({ isActive }: { isActive: boolean }) {
   const { images, animationKey } = usePersonalBackground(isActive)
   const [grid, setGrid] = useState<GridState | null>(null)
+
+  // Reveal advances only over a contiguous row-major prefix of *loaded* images,
+  // so a cell never animates in while its image is still downloading — no holes
+  // in a row, order preserved. `readyCount` = length of that prefix.
+  const [readyCount, setReadyCount] = useState(0)
+  const loadedRef = useRef<Set<number>>(new Set())
+
+  // Replay from scratch every time the tab is (re)activated. Reset during render
+  // (guarded) so children remount with readyCount already 0 — no visible→hidden flash.
+  const prevKeyRef = useRef(animationKey)
+  if (prevKeyRef.current !== animationKey) {
+    prevKeyRef.current = animationKey
+    loadedRef.current = new Set()
+    setReadyCount(0)
+  }
+
+  const markLoaded = (globalIndex: number) => {
+    loadedRef.current.add(globalIndex)
+    setReadyCount(prev => {
+      let n = prev
+      while (loadedRef.current.has(n)) n++
+      return n
+    })
+  }
 
   useEffect(() => {
     if (images.length === 0) return
@@ -71,13 +95,16 @@ export function PersonalBackground({ isActive }: { isActive: boolean }) {
           <div key={colIdx} className="flex flex-col flex-shrink-0" style={{ gap: GAP }}>
             {col.map((src, imgIdx) => {
               const globalIndex = imgIdx * cols + colIdx
+              const revealed = isActive && globalIndex < readyCount
               return (
                 <motion.div
                   key={imgIdx}
                   className="relative overflow-hidden rounded-sm"
                   style={{ width: cellSize, height: cellSize }}
                   variants={itemVariants}
-                  custom={globalIndex}
+                  custom={colIdx}
+                  initial="hidden"
+                  animate={revealed ? 'visible' : 'hidden'}
                   whileHover={{ scale: 1.05, zIndex: 10 }}
                   transition={{ duration: 0.2 }}
                 >
@@ -89,6 +116,8 @@ export function PersonalBackground({ isActive }: { isActive: boolean }) {
                     sizes={`${cellSize}px`}
                     placeholder="blur"
                     blurDataURL="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxIDEiPjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiMxYTFhMmUiLz48L3N2Zz4="
+                    onLoad={() => markLoaded(globalIndex)}
+                    onError={() => markLoaded(globalIndex)}
                   />
                 </motion.div>
               )
