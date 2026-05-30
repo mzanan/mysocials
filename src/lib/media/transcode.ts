@@ -69,6 +69,7 @@ export async function transcodeVideo(file: File): Promise<Blob> {
   const data = await ffmpeg.readFile(output)
   await ffmpeg.deleteFile(input).catch(() => {})
   await ffmpeg.deleteFile(output).catch(() => {})
-  const bytes = typeof data === "string" ? new TextEncoder().encode(data) : data
+  const raw = typeof data === "string" ? new TextEncoder().encode(data) : data
+  const bytes = new Uint8Array(raw)
   return new Blob([bytes], { type: "video/mp4" })
 }
