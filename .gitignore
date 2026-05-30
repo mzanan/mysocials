@@ -37,6 +37,13 @@ yarn-error.log*
 # vercel
 .vercel
 
+# local libSQL dev database
+local.db
+local.db-*
+
+# local media uploads (dev storage driver)
+public/uploads
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

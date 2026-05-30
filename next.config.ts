@@ -36,9 +36,25 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: '**.fbcdn.net',
       },
+      {
+        protocol: 'https',
+        hostname: '**.r2.dev',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.r2.cloudflarestorage.com',
+      },
+      ...(process.env.R2_PUBLIC_BASE_URL
+        ? [
+            {
+              protocol: 'https' as const,
+              hostname: new URL(process.env.R2_PUBLIC_BASE_URL).hostname,
+            },
+          ]
+        : []),
     ],
   },
-  serverExternalPackages: ['canvas', 'jsdom'],
+  serverExternalPackages: ['canvas', 'jsdom', 'sharp'],
   turbopack: {},
   experimental: {
     optimizePackageImports: ['motion', 'lucide-react'],

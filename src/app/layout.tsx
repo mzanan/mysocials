@@ -2,11 +2,10 @@ import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import "./globals.css";
-import { StructuredData } from "@/components/seo/StructuredData";
 
-const SITE_URL = "https://links.itsmatias.com";
-const SITE_NAME = "Matias Social Media";
-const SITE_DESCRIPTION = "All my social networks in one place";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+const SITE_NAME = "mySocials";
+const SITE_DESCRIPTION = "One beautiful page for all your links.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -47,7 +46,6 @@ export default function RootLayout({
       <body
         className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}
       >
-        <StructuredData />
         {children}
       </body>
     </html>

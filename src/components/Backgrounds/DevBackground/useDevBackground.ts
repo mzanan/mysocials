@@ -1,12 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { getDevProjects } from '@/lib/projects'
+import { useEffect, useState } from 'react'
 
-interface Project {
+export interface DevVideo {
   url: string
-  video: string
-  title: string
+  posterUrl?: string | null
+  title?: string | null
 }
 
 export const containerVariants = {
@@ -33,22 +32,13 @@ export const itemVariants = {
 }
 
 export function useDevBackground(isActive: boolean) {
-  const [projects, setProjects] = useState<Project[]>([])
   const [animationKey, setAnimationKey] = useState(0)
 
   useEffect(() => {
-    const devProjects = getDevProjects()
-    setProjects(devProjects)
-  }, [])
-
-  useEffect(() => {
     if (isActive) {
-      setAnimationKey(prev => prev + 1)
+      setAnimationKey((prev) => prev + 1)
     }
   }, [isActive])
 
-  return {
-    projects,
-    animationKey
-  }
+  return { animationKey }
 }

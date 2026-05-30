@@ -2,10 +2,23 @@
 
 import { useEffect } from 'react'
 import { m } from 'motion/react'
-import { useDevBackground, containerVariants, itemVariants } from './useDevBackground'
+import {
+  useDevBackground,
+  containerVariants,
+  itemVariants,
+  type DevVideo,
+} from './useDevBackground'
 
-export function DevBackground({ isActive, onReady }: { isActive: boolean; onReady?: () => void }) {
-  const { projects, animationKey } = useDevBackground(isActive)
+export function DevBackground({
+  isActive,
+  videos,
+  onReady,
+}: {
+  isActive: boolean
+  videos: DevVideo[]
+  onReady?: () => void
+}) {
+  const { animationKey } = useDevBackground(isActive)
 
   useEffect(() => {
     if (!isActive) return
@@ -16,36 +29,35 @@ export function DevBackground({ isActive, onReady }: { isActive: boolean; onRead
   return (
     <div className="bg-fixed-overlay bg-gradient-to-br from-[#15151f] via-[#16131d] to-[#0e0e16]">
       <m.div
-        className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 h-full items-center justify-center"
+        className="grid h-full grid-cols-1 items-center justify-center gap-6 p-6 md:grid-cols-2"
         variants={containerVariants}
         initial="hidden"
-        animate={isActive ? "visible" : "hidden"}
+        animate={isActive ? 'visible' : 'hidden'}
         key={animationKey}
       >
-        {projects.map((project) => (
+        {videos.map((video) => (
           <m.div
-            key={project.url}
-            className="relative aspect-video rounded-xl overflow-hidden shadow-2xl border-2 border-white/10"
+            key={video.url}
+            className="relative aspect-video overflow-hidden rounded-xl border-2 border-white/10 shadow-2xl"
             variants={itemVariants}
             whileHover={{ scale: 1.02, zIndex: 10 }}
             transition={{ duration: 0.3 }}
           >
             <video
-              src={project.video}
-              poster={project.video.replace(/\.mp4$/, '.webp')}
+              src={video.url}
+              poster={video.posterUrl ?? undefined}
               autoPlay={isActive}
               muted
               loop
               playsInline
               preload={isActive ? 'auto' : 'none'}
-              className="w-full h-full object-cover"
+              className="h-full w-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex items-end p-6">
-              <div className="text-white">
-                <p className="font-bold text-lg">{project.title}</p>
-                <p className="text-sm text-gray-300 mt-1">Web Development</p>
+            {video.title && (
+              <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/90 via-black/50 to-transparent p-6">
+                <p className="text-lg font-bold text-white">{video.title}</p>
               </div>
-            </div>
+            )}
           </m.div>
         ))}
       </m.div>
@@ -53,4 +65,3 @@ export function DevBackground({ isActive, onReady }: { isActive: boolean; onRead
     </div>
   )
 }
-
