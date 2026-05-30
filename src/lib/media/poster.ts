@@ -1,11 +1,9 @@
-// Extracts a poster frame from a video file entirely in the browser, so the
-// server never needs ffmpeg. Returns a webp Blob, or null if extraction fails.
 export async function extractPoster(file: File): Promise<Blob | null> {
   return new Promise((resolve) => {
     const url = URL.createObjectURL(file)
-    const video = document.createElement('video')
+    const video = document.createElement("video")
     video.muted = true
-    video.preload = 'auto'
+    video.preload = "auto"
     video.src = url
 
     const cleanup = () => URL.revokeObjectURL(url)
@@ -23,10 +21,10 @@ export async function extractPoster(file: File): Promise<Blob | null> {
       const w = 480
       const ratio = video.videoWidth ? video.videoHeight / video.videoWidth : 0.5625
       const h = Math.round(w * ratio)
-      const canvas = document.createElement('canvas')
+      const canvas = document.createElement("canvas")
       canvas.width = w
       canvas.height = h
-      const ctx = canvas.getContext('2d')
+      const ctx = canvas.getContext("2d")
       if (!ctx) {
         cleanup()
         resolve(null)
@@ -38,7 +36,7 @@ export async function extractPoster(file: File): Promise<Blob | null> {
           cleanup()
           resolve(blob)
         },
-        'image/webp',
+        "image/webp",
         0.7,
       )
     }

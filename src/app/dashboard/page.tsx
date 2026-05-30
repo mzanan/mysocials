@@ -7,7 +7,7 @@ import { ig_connections, profiles } from '@/lib/db/schema'
 import { instagramEnabled } from '@/lib/ig'
 import { billingEnabled } from '@/lib/subscription'
 import { DashboardEditor } from './_components/DashboardEditor'
-import type { DashboardData } from './_components/types'
+import type { DashboardData } from '@/types/dashboard'
 
 export const dynamic = 'force-dynamic'
 

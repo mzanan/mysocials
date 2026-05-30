@@ -17,7 +17,7 @@ const eslintConfig = defineConfig([
           selector:
             "JSXOpeningElement[name.name=/^(button|a)$/] JSXAttribute[name.name='className'] Literal[value=/rounded-full/][value=/bg-white/]",
           message:
-            'Inline solid button/anchor styling — reuse <Pill variant="solid"> (@/components/ui/Pill) instead of hand-written bg-white rounded-full classes.',
+            'Inline solid button/anchor styling — reuse <Button variant="glass"> (@/components/ui/button) instead of hand-written bg-white rounded-full classes.',
         },
       ],
     },

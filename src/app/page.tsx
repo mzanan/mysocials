@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 export default function HomePage() {
   return (
-    <div className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-[#15151f] px-4 text-center">
+    <div className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-app-bg px-4 text-center">
       <div
         aria-hidden
         className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_center,rgba(167,139,250,0.12),transparent_60%)]"

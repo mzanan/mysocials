@@ -4,9 +4,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { authClient } from '@/lib/auth-client'
-
-const inputClasses =
-  'w-full h-11 rounded-xl bg-white/[0.06] border border-white/10 px-4 text-[15px] text-white placeholder:text-white/35 outline-none transition focus:border-white/25 focus:bg-white/[0.08]'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
   const router = useRouter()
@@ -49,25 +48,25 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
 
         <form onSubmit={handleSubmit} className="mt-7 flex flex-col gap-3">
           {isSignup && (
-            <input
+            <Input
               type="text"
               autoComplete="name"
               placeholder="Display name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className={inputClasses}
+              className="h-11 px-4"
             />
           )}
-          <input
+          <Input
             type="email"
             required
             autoComplete="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className={inputClasses}
+            className="h-11 px-4"
           />
-          <input
+          <Input
             type="password"
             required
             minLength={8}
@@ -75,18 +74,19 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className={inputClasses}
+            className="h-11 px-4"
           />
 
           {error && <p className="text-sm text-red-300/90">{error}</p>}
 
-          <button
+          <Button
             type="submit"
+            variant="glass"
             disabled={loading}
-            className="link-btn mt-2 h-11 w-full rounded-xl border border-white/10 bg-white/[0.08] text-[15px] font-medium text-white transition hover:bg-white/[0.12] disabled:opacity-50"
+            className="link-btn mt-2 h-11 w-full rounded-xl text-[15px]"
           >
             {loading ? '…' : isSignup ? 'Sign up' : 'Sign in'}
-          </button>
+          </Button>
         </form>
 
         <p className="mt-6 text-center text-sm text-white/50">

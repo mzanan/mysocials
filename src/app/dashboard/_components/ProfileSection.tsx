@@ -1,57 +1,34 @@
 'use client'
 
-import { useRef, useState, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { updateProfile, updateUsername } from '../actions'
-import { Card, Field, btnCls, btnPrimaryCls, inputCls } from './ui'
-import type { DashboardData } from './types'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Field } from '@/components/ui/field'
+import { Input, inputBase } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
+import type { DashboardData } from '@/types/dashboard'
+import { useProfileSection } from './useProfileSection'
 
 const SWATCHES = ['#a78bfa', '#f472b6', '#60a5fa', '#34d399', '#fbbf24', '#f87171']
 
 export function ProfileSection({ data }: { data: DashboardData }) {
-  const router = useRouter()
-  const [pending, startTransition] = useTransition()
-
-  const [displayName, setDisplayName] = useState(data.displayName ?? '')
-  const [bio, setBio] = useState(data.bio ?? '')
-  const [accent, setAccent] = useState(data.accent)
-  const [username, setUsername] = useState(data.username)
-  const [avatarUrl, setAvatarUrl] = useState(data.avatarUrl)
-  const [msg, setMsg] = useState<string | null>(null)
-  const fileRef = useRef<HTMLInputElement>(null)
-
-  function saveProfile() {
-    setMsg(null)
-    startTransition(async () => {
-      const res = await updateProfile({ displayName: displayName || null, bio: bio || null, accent })
-      setMsg(res.ok ? 'Saved' : res.error)
-      if (res.ok) router.refresh()
-    })
-  }
-
-  function saveUsername() {
-    setMsg(null)
-    startTransition(async () => {
-      const res = await updateUsername(username)
-      setMsg(res.ok ? 'Username updated' : res.error)
-      if (res.ok) router.refresh()
-    })
-  }
-
-  async function onAvatar(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const fd = new FormData()
-    fd.append('file', file)
-    const res = await fetch('/api/upload/avatar', { method: 'POST', body: fd })
-    if (res.ok) {
-      const { url } = await res.json()
-      setAvatarUrl(url)
-      router.refresh()
-    }
-    if (fileRef.current) fileRef.current.value = ''
-  }
+  const {
+    pending,
+    displayName,
+    setDisplayName,
+    bio,
+    setBio,
+    accent,
+    setAccent,
+    username,
+    setUsername,
+    avatarUrl,
+    msg,
+    fileRef,
+    saveProfile,
+    saveUsername,
+    onAvatar,
+  } = useProfileSection(data)
 
   return (
     <Card title="Profile" desc="How your page introduces you.">
@@ -62,9 +39,9 @@ export function ProfileSection({ data }: { data: DashboardData }) {
           </div>
           <div>
             <input ref={fileRef} type="file" accept="image/*" hidden onChange={onAvatar} />
-            <button className={btnCls} onClick={() => fileRef.current?.click()}>
+            <Button variant="glass" onClick={() => fileRef.current?.click()}>
               Change avatar
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -78,14 +55,14 @@ export function ProfileSection({ data }: { data: DashboardData }) {
                 className="h-10 flex-1 bg-transparent px-1 text-[15px] text-white outline-none"
               />
             </div>
-            <button className={btnCls} onClick={saveUsername} disabled={pending}>
+            <Button variant="glass" onClick={saveUsername} disabled={pending}>
               Save
-            </button>
+            </Button>
           </div>
         </Field>
 
         <Field label="Display name">
-          <input value={displayName} onChange={(e) => setDisplayName(e.target.value)} className={inputCls} />
+          <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
         </Field>
 
         <Field label="Bio">
@@ -93,7 +70,7 @@ export function ProfileSection({ data }: { data: DashboardData }) {
             value={bio}
             onChange={(e) => setBio(e.target.value)}
             rows={2}
-            className={`${inputCls} h-auto resize-none py-2`}
+            className={cn(inputBase, 'h-auto resize-none py-2')}
           />
         </Field>
 
@@ -118,9 +95,9 @@ export function ProfileSection({ data }: { data: DashboardData }) {
         </Field>
 
         <div className="flex items-center gap-3">
-          <button className={btnPrimaryCls} onClick={saveProfile} disabled={pending}>
+          <Button variant="glassPrimary" onClick={saveProfile} disabled={pending}>
             Save profile
-          </button>
+          </Button>
           {msg && <span className="text-sm text-white/55">{msg}</span>}
         </div>
       </div>

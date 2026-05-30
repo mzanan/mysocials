@@ -18,7 +18,7 @@ const DevBackground = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="fixed inset-0 bg-gradient-to-br from-[#15151f] via-[#16131d] to-[#0e0e16]" />
+      <div className="fixed inset-0 bg-gradient-to-br from-app-bg via-app-bg-2 to-app-bg-3" />
     ),
   },
 )
@@ -50,7 +50,7 @@ export function PublicProfile({ profile }: { profile: ProfilePublic }) {
   return (
     <LazyMotion features={domAnimation}>
       <div
-        className="relative flex h-dvh flex-col items-center justify-center overflow-hidden bg-[#15151f]"
+        className="relative flex h-dvh flex-col items-center justify-center overflow-hidden bg-app-bg"
         style={{ ['--accent-glow' as string]: profile.accent }}
       >
         {tabs.map((tab) =>

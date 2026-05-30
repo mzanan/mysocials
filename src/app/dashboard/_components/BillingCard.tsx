@@ -1,7 +1,8 @@
 'use client'
 
 import { authClient } from '@/lib/auth-client'
-import { Card, btnCls, btnPrimaryCls } from './ui'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 
 const label: Record<string, string> = {
   active: 'Active',
@@ -19,13 +20,13 @@ export function BillingCard({ status }: { status: string | null }) {
           Status: <span className="text-white">{status ? (label[status] ?? status) : 'No subscription'}</span>
         </span>
         {active ? (
-          <button className={btnCls} onClick={() => authClient.customer.portal()}>
+          <Button variant="glass" onClick={() => authClient.customer.portal()}>
             Manage billing
-          </button>
+          </Button>
         ) : (
-          <button className={btnPrimaryCls} onClick={() => authClient.checkout({ slug: 'pro' })}>
+          <Button variant="glassPrimary" onClick={() => authClient.checkout({ slug: 'pro' })}>
             Subscribe
-          </button>
+          </Button>
         )}
       </div>
     </Card>

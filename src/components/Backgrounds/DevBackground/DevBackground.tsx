@@ -27,7 +27,7 @@ export function DevBackground({
   }, [isActive, animationKey, onReady])
 
   return (
-    <div className="bg-fixed-overlay bg-gradient-to-br from-[#15151f] via-[#16131d] to-[#0e0e16]">
+    <div className="bg-fixed-overlay bg-gradient-to-br from-app-bg via-app-bg-2 to-app-bg-3">
       <m.div
         className="grid h-full grid-cols-1 items-center justify-center gap-6 p-6 md:grid-cols-2"
         variants={containerVariants}

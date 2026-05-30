@@ -9,8 +9,9 @@ import { ProfileSection } from './ProfileSection'
 import { TabsSection } from './TabsSection'
 import { LinksSection } from './LinksSection'
 import { BillingCard } from './BillingCard'
-import { btnPrimaryCls } from './ui'
-import type { DashboardData } from './types'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import type { DashboardData } from '@/types/dashboard'
 
 function PublishBar({ data, billingEnabled }: { data: DashboardData; billingEnabled: boolean }) {
   const router = useRouter()
@@ -35,25 +36,27 @@ function PublishBar({ data, billingEnabled }: { data: DashboardData; billingEnab
   }
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.04] p-5 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <p className="text-xs text-white/45">Your public page</p>
-        <Link
-          href={`/${data.username}`}
-          target="_blank"
-          className="inline-flex items-center gap-1.5 text-lg font-medium text-white underline-offset-4 hover:underline"
-        >
-          /{data.username} <ExternalLink size={15} className="text-white/40" />
-        </Link>
-        {error && <p className="mt-1 text-sm text-red-300/90">{error}</p>}
-        {billingEnabled && !active && (
-          <p className="mt-1 text-sm text-white/45">A subscription is required to publish.</p>
-        )}
+    <Card>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-xs text-white/45">Your public page</p>
+          <Link
+            href={`/${data.username}`}
+            target="_blank"
+            className="inline-flex items-center gap-1.5 text-lg font-medium text-white underline-offset-4 hover:underline"
+          >
+            /{data.username} <ExternalLink size={15} className="text-white/40" />
+          </Link>
+          {error && <p className="mt-1 text-sm text-red-300/90">{error}</p>}
+          {billingEnabled && !active && (
+            <p className="mt-1 text-sm text-white/45">A subscription is required to publish.</p>
+          )}
+        </div>
+        <Button variant="glassPrimary" onClick={toggle} disabled={pending}>
+          {published ? 'Published — unpublish' : 'Publish page'}
+        </Button>
       </div>
-      <button onClick={toggle} disabled={pending} className={btnPrimaryCls}>
-        {published ? 'Published — unpublish' : 'Publish page'}
-      </button>
-    </div>
+    </Card>
   )
 }
 

@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { authClient } from '@/lib/auth-client'
+import { Button } from '@/components/ui/button'
 
 interface AdminUser {
   id: string
@@ -60,8 +61,11 @@ export function UserRow({ user }: { user: AdminUser }) {
         {role === 'admin' ? <span className="text-violet-300">admin</span> : 'user'}
       </td>
       <td className="px-4 py-3">
-        <div className="flex flex-wrap gap-2 text-xs">
-          <button
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="glass"
+            size="sm"
+            className="h-7 px-2 text-xs"
             disabled={pending}
             onClick={() =>
               run(async () => {
@@ -74,11 +78,13 @@ export function UserRow({ user }: { user: AdminUser }) {
                 }
               })
             }
-            className="rounded border border-white/10 bg-white/[0.06] px-2 py-1 hover:bg-white/[0.1]"
           >
             {banned ? 'Unban' : 'Ban'}
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="glass"
+            size="sm"
+            className="h-7 px-2 text-xs"
             disabled={pending}
             onClick={() =>
               run(async () => {
@@ -87,11 +93,13 @@ export function UserRow({ user }: { user: AdminUser }) {
                 setRole(next)
               })
             }
-            className="rounded border border-white/10 bg-white/[0.06] px-2 py-1 hover:bg-white/[0.1]"
           >
             {role === 'admin' ? 'Make user' : 'Make admin'}
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="glass"
+            size="sm"
+            className="h-7 px-2 text-xs"
             disabled={pending}
             onClick={() =>
               run(async () => {
@@ -99,10 +107,9 @@ export function UserRow({ user }: { user: AdminUser }) {
                 router.push('/dashboard')
               })
             }
-            className="rounded border border-white/10 bg-white/[0.06] px-2 py-1 hover:bg-white/[0.1]"
           >
             Impersonate
-          </button>
+          </Button>
         </div>
       </td>
     </tr>
