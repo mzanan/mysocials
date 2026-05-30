@@ -172,7 +172,9 @@ export function PublicProfile({ profile }: { profile: ProfilePublic }) {
                               />
                             </div>
                           ) : (
-                            <SocialIcon url={link.url} size={32} />
+                            <span className={`${iconContainerClasses} text-white/85`}>
+                              <SocialIcon url={link.url} size={22} />
+                            </span>
                           )}
                           <span className="flex-1 text-left">{link.title}</span>
                           <ChevronRight className="link-chev size-5 -translate-x-1 text-white/40 opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100" />
