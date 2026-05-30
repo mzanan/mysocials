@@ -117,7 +117,7 @@ export function PersonalBackground({
                     fill
                     className="object-cover"
                     sizes={`${Math.ceil(100 / grid.cols)}vw`}
-                    loading="eager"
+                    {...(i === 0 ? { priority: true } : { loading: 'eager' as const })}
                     onLoad={() => markLoaded(i)}
                     onError={() => markLoaded(i)}
                   />
