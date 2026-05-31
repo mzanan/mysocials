@@ -2,7 +2,7 @@ import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { auth } from '@/lib/auth'
-import { SignOutButton } from '@/components/auth/SignOutButton'
+import { UserMenu } from '@/components/account/UserMenu'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await auth.api.getSession({ headers: await headers() })
@@ -19,10 +19,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <Link href="/dashboard" className="text-sm font-semibold tracking-tight">
             mySocials
           </Link>
-          <div className="flex items-center gap-3">
-            <span className="hidden text-sm text-white/45 sm:inline">{session.user.email}</span>
-            <SignOutButton />
-          </div>
+          <UserMenu email={session.user.email} />
         </div>
       </header>
       <main className="relative z-10 mx-auto max-w-3xl px-4 py-8">{children}</main>
