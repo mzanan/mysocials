@@ -4,7 +4,7 @@ import { LazyMotion, domAnimation, m } from 'motion/react'
 import { SyntheticGrid } from './SyntheticGrid'
 import { HeroCard } from './HeroCard'
 
-export function LandingHero() {
+export function LandingHero({ isAuthed = false }: { isAuthed?: boolean }) {
   return (
     <LazyMotion features={domAnimation}>
       <div className="relative flex h-dvh w-full items-center justify-center overflow-hidden bg-app-bg">
@@ -20,7 +20,7 @@ export function LandingHero() {
           transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
           <div className="absolute inset-0 rounded-3xl border border-white/[0.12] bg-white/[0.06] backdrop-blur-2xl [box-shadow:inset_0_1px_0_0_rgba(255,255,255,0.18)]" />
-          <HeroCard className="relative p-8" />
+          <HeroCard className="relative p-8" isAuthed={isAuthed} />
         </m.div>
         <div aria-hidden className="grain-overlay" />
       </div>
