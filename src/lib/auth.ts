@@ -10,6 +10,18 @@ import { generateUniqueUsername } from '@/lib/profile/username'
 const adminUserIds = process.env.ADMIN_USER_ID ? [process.env.ADMIN_USER_ID] : []
 const polarPlugin = buildPolarPlugin()
 
+const googleProvider =
+  process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+    ? {
+        google: {
+          clientId: process.env.GOOGLE_CLIENT_ID,
+          clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        },
+      }
+    : undefined
+
+export const googleAuthEnabled = Boolean(googleProvider)
+
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: 'sqlite',
@@ -31,6 +43,7 @@ export const auth = betterAuth({
     enabled: true,
     autoSignIn: true,
   },
+  ...(googleProvider ? { socialProviders: googleProvider } : {}),
   databaseHooks: {
     user: {
       create: {

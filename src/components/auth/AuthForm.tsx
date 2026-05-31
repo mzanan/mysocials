@@ -6,8 +6,15 @@ import Link from 'next/link'
 import { authClient } from '@/lib/auth-client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { GoogleSignInButton } from './GoogleSignInButton'
 
-export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
+export function AuthForm({
+  mode,
+  googleEnabled = false,
+}: {
+  mode: 'login' | 'signup'
+  googleEnabled?: boolean
+}) {
   const router = useRouter()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -46,7 +53,21 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
           {isSignup ? 'Start building your link page' : 'Sign in to your dashboard'}
         </p>
 
-        <form onSubmit={handleSubmit} className="mt-7 flex flex-col gap-3">
+        {googleEnabled && (
+          <div className="mt-7">
+            <GoogleSignInButton label={isSignup ? 'Sign up with Google' : 'Continue with Google'} />
+            <div className="my-5 flex items-center gap-3 text-xs text-white/40">
+              <span className="h-px flex-1 bg-white/10" />
+              or
+              <span className="h-px flex-1 bg-white/10" />
+            </div>
+          </div>
+        )}
+
+        <form
+          onSubmit={handleSubmit}
+          className={`flex flex-col gap-3 ${googleEnabled ? '' : 'mt-7'}`}
+        >
           {isSignup && (
             <Input
               type="text"
