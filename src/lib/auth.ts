@@ -1,14 +1,19 @@
-import { betterAuth } from 'better-auth'
-import { drizzleAdapter } from 'better-auth/adapters/drizzle'
-import { nextCookies } from 'better-auth/next-js'
-import { admin } from 'better-auth/plugins'
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { nextCookies } from "better-auth/next-js";
+import { admin } from "better-auth/plugins";
 
-import { db, schema } from '@/lib/db'
-import { buildPolarPlugin } from '@/lib/polar'
-import { generateUniqueUsername } from '@/lib/profile/username'
+import { db, schema } from "@/lib/db";
+import { buildPolarPlugin } from "@/lib/polar";
+import { generateUniqueUsername } from "@/lib/profile/username";
+import { mailerEnabled, sendMail } from "@/lib/mailer";
+import { verifyEmail } from "@/emails/verifyEmail";
+import { resetPassword } from "@/emails/resetPassword";
 
-const adminUserIds = process.env.ADMIN_USER_ID ? [process.env.ADMIN_USER_ID] : []
-const polarPlugin = buildPolarPlugin()
+const adminUserIds = process.env.ADMIN_USER_ID
+  ? [process.env.ADMIN_USER_ID]
+  : [];
+const polarPlugin = buildPolarPlugin();
 
 const googleProvider =
   process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
@@ -18,13 +23,13 @@ const googleProvider =
           clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         },
       }
-    : undefined
+    : undefined;
 
-export const googleAuthEnabled = Boolean(googleProvider)
+export const googleAuthEnabled = Boolean(googleProvider);
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
-    provider: 'sqlite',
+    provider: "sqlite",
     schema: {
       user: schema.user,
       session: schema.session,
@@ -42,24 +47,59 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
+    ...(mailerEnabled
+      ? {
+          sendResetPassword: async ({
+            user,
+            url,
+          }: {
+            user: { name?: string | null; email: string };
+            url: string;
+          }) => {
+            const { subject, html } = resetPassword({ name: user.name, url });
+            await sendMail({ to: user.email, subject, html });
+          },
+        }
+      : {}),
   },
+  ...(mailerEnabled
+    ? {
+        emailVerification: {
+          sendOnSignUp: true,
+          sendVerificationEmail: async ({
+            user,
+            url,
+          }: {
+            user: { name?: string; email: string };
+            url: string;
+          }) => {
+            const { subject, html } = verifyEmail({ name: user.name, url });
+            await sendMail({ to: user.email, subject, html });
+          },
+        },
+      }
+    : {}),
   ...(googleProvider ? { socialProviders: googleProvider } : {}),
   databaseHooks: {
     user: {
       create: {
         after: async (createdUser) => {
-          const username = await generateUniqueUsername(createdUser.email)
+          const username = await generateUniqueUsername(createdUser.email);
           await db.insert(schema.profiles).values({
             user_id: createdUser.id,
             username,
             display_name: createdUser.name ?? null,
             avatar_url: createdUser.image ?? null,
-          })
+          });
         },
       },
     },
   },
-  plugins: [admin({ adminUserIds }), ...(polarPlugin ? [polarPlugin] : []), nextCookies()],
-})
+  plugins: [
+    admin({ adminUserIds }),
+    ...(polarPlugin ? [polarPlugin] : []),
+    nextCookies(),
+  ],
+});
 
-export type Auth = typeof auth
+export type Auth = typeof auth;
