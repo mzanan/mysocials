@@ -34,7 +34,7 @@ export function UserMenu({ email }: { email: string }) {
           <DropdownMenu.Content
             align="end"
             sideOffset={8}
-            className="z-50 min-w-[200px] rounded-xl border border-white/10 bg-app-bg/95 p-1 text-white shadow-[0_16px_50px_-30px_rgba(0,0,0,0.7)] backdrop-blur-xl"
+            className="z-50 min-w-[200px] rounded-xl border border-white/10 bg-app-bg/95 p-1 text-white shadow-glass backdrop-blur-xl"
           >
             <div className="truncate px-3 py-2 text-xs text-white/45 sm:hidden">{email}</div>
             <DropdownMenu.Item className={itemClass} onSelect={() => setPwOpen(true)}>

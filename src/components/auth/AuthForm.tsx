@@ -36,7 +36,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
   }
 
   return (
-    <div className="relative w-[360px] max-w-[calc(100vw-2rem)] rounded-3xl shadow-[0_24px_70px_-25px_rgba(0,0,0,0.8)]">
+    <div className="relative w-[360px] max-w-[calc(100vw-2rem)] rounded-3xl shadow-glass-lg">
       <div className="absolute inset-0 rounded-3xl border border-white/[0.12] bg-white/[0.06] backdrop-blur-2xl [box-shadow:inset_0_1px_0_0_rgba(255,255,255,0.18)]" />
       <div className="relative p-8">
         <h1 className="text-center text-[1.6rem] font-semibold tracking-tight text-white">

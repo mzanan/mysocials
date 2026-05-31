@@ -14,7 +14,7 @@ export function LandingHero({ isAuthed = false }: { isAuthed?: boolean }) {
           className="pointer-events-none absolute inset-0 z-[5] bg-[radial-gradient(ellipse_at_center,transparent_22%,rgba(0,0,0,0.72)_100%)]"
         />
         <m.div
-          className="relative z-10 w-[380px] max-w-[calc(100vw-2rem)] rounded-3xl shadow-[0_24px_70px_-25px_rgba(0,0,0,0.8)]"
+          className="relative z-10 w-[380px] max-w-[calc(100vw-2rem)] rounded-3xl shadow-glass-lg"
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}

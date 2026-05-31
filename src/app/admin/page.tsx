@@ -30,7 +30,7 @@ export default async function AdminPage() {
         <p className="mt-1 text-sm text-white/50">{rows.length} total</p>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.05] backdrop-blur-xl shadow-[0_16px_50px_-30px_rgba(0,0,0,0.7)]">
+      <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.05] backdrop-blur-xl shadow-glass">
         <table className="w-full text-left text-sm">
           <thead className="bg-white/[0.06] text-xs uppercase tracking-wide text-white/45">
             <tr>

@@ -9,6 +9,8 @@
   --color-app-bg: #15151f;
   --color-app-bg-2: #16131d;
   --color-app-bg-3: #0e0e16;
+  --shadow-glass: 0 16px 50px -30px rgba(0, 0, 0, 0.7);
+  --shadow-glass-lg: 0 24px 70px -25px rgba(0, 0, 0, 0.8);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);

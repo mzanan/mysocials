@@ -85,7 +85,7 @@ export function PublicProfile({ profile }: { profile: ProfilePublic }) {
           className="relative z-10 flex flex-col items-center justify-center"
           style={{ visibility: showCard ? 'visible' : 'hidden', pointerEvents: showCard ? 'auto' : 'none' }}
         >
-          <div className="relative w-[340px] rounded-3xl shadow-[0_24px_70px_-25px_rgba(0,0,0,0.8)]">
+          <div className="relative w-[340px] rounded-3xl shadow-glass-lg">
             <div className="absolute inset-0 rounded-3xl border border-white/[0.12] bg-white/[0.06] backdrop-blur-2xl [box-shadow:inset_0_1px_0_0_rgba(255,255,255,0.18)]" />
             <m.div
               className="relative p-8"
