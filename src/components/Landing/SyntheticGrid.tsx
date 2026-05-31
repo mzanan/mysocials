@@ -27,20 +27,27 @@ export function SyntheticGrid({
         gridAutoRows: `clamp(72px, ${Math.round(100 / cols)}vw, 150px)`,
       }}
     >
-      {Array.from({ length: count }).map((_, i) => (
-        <m.div
-          key={i}
-          className="rounded-lg border border-white/10"
-          style={{ backgroundImage: tileGradient(i) }}
-          initial={{ opacity: 0, scale: 0.82 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{
-            duration: 0.5,
-            delay: (i % cols) * 0.03 + Math.floor(i / cols) * 0.05,
-            ease: [0, 0, 0.2, 1],
-          }}
-        />
-      ))}
+      {Array.from({ length: count }).map((_, i) => {
+        const entrance = (i % cols) * 0.03 + Math.floor(i / cols) * 0.05
+        return (
+          <m.div
+            key={i}
+            className="rounded-lg border border-white/10"
+            style={{ backgroundImage: tileGradient(i) }}
+            initial={{ opacity: 0, scale: 0.82 }}
+            animate={{ opacity: [0.5, 0.95, 0.5], scale: 1 }}
+            transition={{
+              scale: { duration: 0.5, delay: entrance, ease: [0, 0, 0.2, 1] },
+              opacity: {
+                duration: 7 + (i % 6),
+                delay: entrance,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              },
+            }}
+          />
+        )
+      })}
     </div>
   )
 }
