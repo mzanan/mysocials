@@ -1,19 +1,20 @@
-import { headers } from 'next/headers'
-import { redirect } from 'next/navigation'
-import { eq } from 'drizzle-orm'
-import { auth } from '@/lib/auth'
-import { db } from '@/lib/db'
-import { ig_connections, profiles } from '@/lib/db/schema'
-import { instagramEnabled } from '@/lib/ig'
-import { billingEnabled } from '@/lib/subscription'
-import { DashboardEditor } from './_components/DashboardEditor'
-import type { DashboardData } from '@/types/dashboard'
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { eq } from "drizzle-orm";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { ig_connections, profiles } from "@/lib/db/schema";
+import { instagramEnabled } from "@/lib/ig";
+import { billingEnabled } from "@/lib/subscription";
+import { agentEnabled } from "@/lib/agent/planner";
+import { DashboardEditor } from "./_components/DashboardEditor";
+import type { DashboardData } from "@/types/dashboard";
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
-  const session = await auth.api.getSession({ headers: await headers() })
-  if (!session) redirect('/login')
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) redirect("/login");
 
   const profile = await db.query.profiles.findFirst({
     where: eq(profiles.user_id, session.user.id),
@@ -24,14 +25,14 @@ export default async function DashboardPage() {
       },
       links: { orderBy: (l, { asc }) => [asc(l.position)] },
     },
-  })
-  if (!profile) redirect('/login')
+  });
+  if (!profile) redirect("/login");
 
   const igConn = instagramEnabled()
     ? await db.query.ig_connections.findFirst({
         where: eq(ig_connections.user_id, session.user.id),
       })
-    : null
+    : null;
 
   const data: DashboardData = {
     username: profile.username,
@@ -46,7 +47,12 @@ export default async function DashboardPage() {
       id: t.id,
       label: t.label,
       type: t.type,
-      media: t.media.map((m) => ({ id: m.id, kind: m.kind, url: m.url, posterUrl: m.poster_url })),
+      media: t.media.map((m) => ({
+        id: m.id,
+        kind: m.kind,
+        url: m.url,
+        posterUrl: m.poster_url,
+      })),
     })),
     links: profile.links.map((l) => ({
       id: l.id,
@@ -55,13 +61,14 @@ export default async function DashboardPage() {
       url: l.url,
       icon: l.icon,
     })),
-  }
+  };
 
   return (
     <DashboardEditor
       data={data}
       billingEnabled={billingEnabled()}
       instagramEnabled={instagramEnabled()}
+      agentEnabled={agentEnabled}
     />
-  )
+  );
 }
