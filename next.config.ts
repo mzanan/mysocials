@@ -54,7 +54,7 @@ const nextConfig: NextConfig = {
         : []),
     ],
   },
-  serverExternalPackages: ['canvas', 'jsdom', 'sharp'],
+  serverExternalPackages: ['canvas', 'jsdom', 'sharp', 'heic-convert'],
   turbopack: {},
   experimental: {
     optimizePackageImports: ['motion', 'lucide-react'],

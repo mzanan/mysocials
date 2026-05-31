@@ -8,6 +8,7 @@ import sharp from 'sharp'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { profiles } from '@/lib/db/schema'
+import { toDecodableImage } from '@/lib/media/decode'
 import { storage } from '@/lib/storage'
 
 export const runtime = 'nodejs'
@@ -25,7 +26,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Image is too large' }, { status: 413 })
   }
 
-  const { data } = await sharp(Buffer.from(await file.arrayBuffer()))
+  const { data } = await sharp(await toDecodableImage(Buffer.from(await file.arrayBuffer())))
     .rotate()
     .resize(256, 256, { fit: 'cover' })
     .webp({ quality: 80 })

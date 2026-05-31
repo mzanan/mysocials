@@ -14,6 +14,8 @@ export function useProfileSection(data: DashboardData) {
   const [accent, setAccent] = useState(data.accent)
   const [username, setUsername] = useState(data.username)
   const [avatarUrl, setAvatarUrl] = useState(data.avatarUrl)
+  const [avatarBusy, setAvatarBusy] = useState(false)
+  const [avatarMsg, setAvatarMsg] = useState<string | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -38,14 +40,21 @@ export function useProfileSection(data: DashboardData) {
   async function onAvatar(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+    setAvatarBusy(true)
+    setAvatarMsg(null)
     const fd = new FormData()
     fd.append('file', file)
     const res = await fetch('/api/upload/avatar', { method: 'POST', body: fd })
     if (res.ok) {
       const { url } = await res.json()
       setAvatarUrl(url)
+      setAvatarMsg('Avatar updated')
       router.refresh()
+    } else {
+      const body = (await res.json().catch(() => ({}))) as { error?: string }
+      setAvatarMsg(body.error ?? 'Upload failed')
     }
+    setAvatarBusy(false)
     if (fileRef.current) fileRef.current.value = ''
   }
 
@@ -60,6 +69,8 @@ export function useProfileSection(data: DashboardData) {
     username,
     setUsername,
     avatarUrl,
+    avatarBusy,
+    avatarMsg,
     msg,
     fileRef,
     saveProfile,

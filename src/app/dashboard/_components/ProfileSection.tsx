@@ -23,6 +23,8 @@ export function ProfileSection({ data }: { data: DashboardData }) {
     username,
     setUsername,
     avatarUrl,
+    avatarBusy,
+    avatarMsg,
     msg,
     fileRef,
     saveProfile,
@@ -37,11 +39,12 @@ export function ProfileSection({ data }: { data: DashboardData }) {
           <div className="relative h-16 w-16 overflow-hidden rounded-full border border-white/15 bg-white/[0.06]">
             {avatarUrl && <Image src={avatarUrl} alt="avatar" fill className="object-cover" sizes="64px" />}
           </div>
-          <div>
+          <div className="flex flex-col gap-1.5">
             <input ref={fileRef} type="file" accept="image/*" hidden onChange={onAvatar} />
-            <Button variant="glass" onClick={() => fileRef.current?.click()}>
-              Change avatar
+            <Button variant="glass" disabled={avatarBusy} onClick={() => fileRef.current?.click()}>
+              {avatarBusy ? 'Uploading…' : 'Change avatar'}
             </Button>
+            {avatarMsg && <span className="text-xs text-white/55">{avatarMsg}</span>}
           </div>
         </div>
 
