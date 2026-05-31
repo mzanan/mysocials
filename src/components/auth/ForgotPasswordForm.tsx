@@ -3,9 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AuthCard } from "./AuthCard";
+import { AuthSubmit } from "./AuthSubmit";
 
 export function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
@@ -47,14 +47,9 @@ export function ForgotPasswordForm() {
             onChange={(e) => setEmail(e.target.value)}
             className="h-11 px-4"
           />
-          <Button
-            type="submit"
-            variant="glass"
-            disabled={loading}
-            className="link-btn mt-2 h-11 w-full rounded-xl text-[15px]"
-          >
+          <AuthSubmit disabled={loading}>
             {loading ? "…" : "Send reset link"}
-          </Button>
+          </AuthSubmit>
         </form>
       )}
 

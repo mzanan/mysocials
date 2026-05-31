@@ -4,10 +4,10 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/lib/toast";
 import { AuthCard } from "./AuthCard";
+import { AuthSubmit } from "./AuthSubmit";
 
 export function ResetPasswordForm() {
   const router = useRouter();
@@ -70,14 +70,9 @@ export function ResetPasswordForm() {
             className="h-11 px-4"
           />
           {error && <p className="text-sm text-red-300/90">{error}</p>}
-          <Button
-            type="submit"
-            variant="glass"
-            disabled={loading}
-            className="link-btn mt-2 h-11 w-full rounded-xl text-[15px]"
-          >
+          <AuthSubmit disabled={loading}>
             {loading ? "…" : "Update password"}
-          </Button>
+          </AuthSubmit>
         </form>
       ) : (
         <p className="mt-7 text-center text-sm text-red-300/90">

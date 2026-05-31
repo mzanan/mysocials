@@ -4,10 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GoogleSignInButton } from "./GoogleSignInButton";
 import { AuthCard } from "./AuthCard";
+import { AuthSubmit } from "./AuthSubmit";
 
 export function AuthForm({
   mode,
@@ -112,14 +112,9 @@ export function AuthForm({
 
         {error && <p className="text-sm text-red-300/90">{error}</p>}
 
-        <Button
-          type="submit"
-          variant="glass"
-          disabled={loading}
-          className="link-btn mt-2 h-11 w-full rounded-xl text-[15px]"
-        >
+        <AuthSubmit disabled={loading}>
           {loading ? "…" : isSignup ? "Sign up" : "Sign in"}
-        </Button>
+        </AuthSubmit>
       </form>
 
       <p className="mt-6 text-center text-sm text-white/50">

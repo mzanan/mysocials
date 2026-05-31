@@ -1,23 +1,23 @@
-'use client'
+"use client";
 
-import { m } from 'motion/react'
+import { m } from "motion/react";
 
-const HUES = [265, 282, 232, 312, 248, 205, 292, 222, 258, 300]
+const HUES = [265, 282, 232, 312, 248, 205, 292, 222, 258, 300];
 
 function tileGradient(i: number) {
-  const h1 = HUES[i % HUES.length]
-  const h2 = (h1 + 38) % 360
-  return `linear-gradient(135deg, hsl(${h1} 72% 62% / 0.55), hsl(${h2} 64% 42% / 0.32))`
+  const h1 = HUES[i % HUES.length];
+  const h2 = (h1 + 38) % 360;
+  return `linear-gradient(135deg, hsl(${h1} 72% 62% / 0.55), hsl(${h2} 64% 42% / 0.32))`;
 }
 
 export function SyntheticGrid({
   count = 120,
   cols = 12,
-  className = '',
+  className = "",
 }: {
-  count?: number
-  cols?: number
-  className?: string
+  count?: number;
+  cols?: number;
+  className?: string;
 }) {
   return (
     <div
@@ -28,7 +28,7 @@ export function SyntheticGrid({
       }}
     >
       {Array.from({ length: count }).map((_, i) => {
-        const entrance = (i % cols) * 0.03 + Math.floor(i / cols) * 0.05
+        const entrance = (i % cols) * 0.03 + Math.floor(i / cols) * 0.05;
         return (
           <m.div
             key={i}
@@ -42,12 +42,12 @@ export function SyntheticGrid({
                 duration: 7 + (i % 6),
                 delay: entrance,
                 repeat: Infinity,
-                ease: 'easeInOut',
+                ease: "easeInOut",
               },
             }}
           />
-        )
+        );
       })}
     </div>
-  )
+  );
 }

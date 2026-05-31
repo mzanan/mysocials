@@ -27,6 +27,11 @@ const googleProvider =
 
 export const googleAuthEnabled = Boolean(googleProvider);
 
+type MailCallbackArgs = {
+  user: { name?: string | null; email: string };
+  url: string;
+};
+
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "sqlite",
@@ -49,13 +54,7 @@ export const auth = betterAuth({
     autoSignIn: true,
     ...(mailerEnabled
       ? {
-          sendResetPassword: async ({
-            user,
-            url,
-          }: {
-            user: { name?: string | null; email: string };
-            url: string;
-          }) => {
+          sendResetPassword: async ({ user, url }: MailCallbackArgs) => {
             const { subject, html } = resetPassword({ name: user.name, url });
             await sendMail({ to: user.email, subject, html });
           },
@@ -66,13 +65,7 @@ export const auth = betterAuth({
     ? {
         emailVerification: {
           sendOnSignUp: true,
-          sendVerificationEmail: async ({
-            user,
-            url,
-          }: {
-            user: { name?: string; email: string };
-            url: string;
-          }) => {
+          sendVerificationEmail: async ({ user, url }: MailCallbackArgs) => {
             const { subject, html } = verifyEmail({ name: user.name, url });
             await sendMail({ to: user.email, subject, html });
           },
