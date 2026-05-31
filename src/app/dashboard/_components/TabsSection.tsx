@@ -1,16 +1,18 @@
 'use client'
 
-import { useState, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRef, useState, useTransition } from 'react'
 import Image from 'next/image'
-import { ChevronUp, ChevronDown, Trash2, Plus, Upload, Instagram } from 'lucide-react'
+import { ChevronUp, ChevronDown, Trash2, Plus, Upload, Instagram, RotateCcw, X } from 'lucide-react'
 import { createTab, deleteTab, reorderTabs, updateTab } from '../actions'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input, inputBase } from '@/components/ui/input'
 import { moveItem } from '@/lib/array'
+import { toast } from '@/lib/toast'
 import { cn } from '@/lib/utils'
-import type { DashTab, DashboardData } from '@/types/dashboard'
+import type { DashTab } from '@/types/dashboard'
+import { useDashboardStore } from './DashboardStore'
+import { useImageUploader } from './useImageUploader'
 import { useMediaManager } from './useMediaManager'
 
 function MediaManager({
@@ -22,8 +24,21 @@ function MediaManager({
   instagramEnabled: boolean
   igConnected: boolean
 }) {
-  const { busy, videoStep, error, imgRef, vidRef, onImages, onVideo, reorder, removeMedia, onImport } =
-    useMediaManager(tab)
+  const { busy, videoStep, error, vidRef, onVideo, reorder, removeMedia } = useMediaManager(tab)
+  const up = useImageUploader(tab)
+  const imgRef = useRef<HTMLInputElement>(null)
+  const [importing, setImporting] = useState(false)
+
+  async function onImport() {
+    setImporting(true)
+    const res = await fetch('/api/import/instagram', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ tabId: tab.id }),
+    })
+    setImporting(false)
+    if (res.ok) window.location.reload()
+  }
 
   return (
     <div className="mt-3">
@@ -64,29 +79,35 @@ function MediaManager({
           ))}
         </div>
       )}
-      <div className="mt-3 flex gap-2">
+      <div className="mt-3 flex flex-wrap gap-2">
         {tab.type === 'video' ? (
           <>
             <input ref={vidRef} type="file" accept="video/*" hidden onChange={onVideo} />
             <Button variant="glass" disabled={busy} onClick={() => vidRef.current?.click()}>
               <Upload size={14} />{' '}
-              {videoStep === 'optimizing'
-                ? 'Optimizing…'
-                : videoStep === 'uploading'
-                  ? 'Uploading…'
-                  : 'Add video'}
+              {videoStep === 'optimizing' ? 'Optimizing…' : videoStep === 'uploading' ? 'Uploading…' : 'Add video'}
             </Button>
           </>
         ) : (
           <>
-            <input ref={imgRef} type="file" accept="image/*" multiple hidden onChange={onImages} />
-            <Button variant="glass" disabled={busy} onClick={() => imgRef.current?.click()}>
-              <Upload size={14} /> {busy ? 'Uploading…' : 'Add photos'}
+            <input
+              ref={imgRef}
+              type="file"
+              accept="image/*"
+              multiple
+              hidden
+              onChange={(e) => {
+                up.enqueue(Array.from(e.target.files ?? []))
+                e.target.value = ''
+              }}
+            />
+            <Button variant="glass" disabled={up.active} onClick={() => imgRef.current?.click()}>
+              <Upload size={14} /> {up.active ? `Uploading ${up.done + 1}/${up.total}…` : 'Add photos'}
             </Button>
             {instagramEnabled &&
               (igConnected ? (
-                <Button variant="glass" disabled={busy} onClick={onImport}>
-                  <Instagram size={14} /> {busy ? 'Importing…' : 'Import from Instagram'}
+                <Button variant="glass" disabled={importing} onClick={onImport}>
+                  <Instagram size={14} /> {importing ? 'Importing…' : 'Import from Instagram'}
                 </Button>
               ) : (
                 <Button
@@ -101,6 +122,30 @@ function MediaManager({
           </>
         )}
       </div>
+
+      {!up.active && up.total > 0 && (
+        <div className="mt-2 flex flex-col gap-1.5 text-xs">
+          <div className="flex items-center gap-2 text-white/55">
+            <span>
+              {up.done} uploaded
+              {up.failed.length > 0 && ` · ${up.failed.length} failed`}
+            </span>
+            {up.failed.length > 0 && (
+              <Button variant="glass" className="h-7 px-2 text-xs" onClick={up.retry}>
+                <RotateCcw size={12} /> Retry failed ({up.failed.length})
+              </Button>
+            )}
+            <button onClick={up.clear} className="text-white/40 hover:text-white/70" aria-label="Dismiss">
+              <X size={13} />
+            </button>
+          </div>
+          {up.failed.map((it, i) => (
+            <p key={i} className="text-red-300/80">
+              {it.file.name}: {it.error}
+            </p>
+          ))}
+        </div>
+      )}
       {error && <p className="mt-2 text-xs text-red-300">{error}</p>}
     </div>
   )
@@ -121,16 +166,22 @@ function TabRow({
   instagramEnabled: boolean
   igConnected: boolean
 }) {
-  const router = useRouter()
+  const { setTabs, patchTab } = useDashboardStore()
   const [label, setLabel] = useState(tab.label)
   const [type, setType] = useState(tab.type)
   const [pending, startTransition] = useTransition()
 
   function save() {
     startTransition(async () => {
-      await updateTab(tab.id, { label, type })
-      router.refresh()
+      const res = await updateTab(tab.id, { label, type })
+      if (res.ok) patchTab(tab.id, { label, type })
     })
+  }
+
+  function remove() {
+    setTabs((prev) => prev.filter((t) => t.id !== tab.id))
+    deleteTab(tab.id)
+    toast.success(`Tab “${tab.label}” deleted`)
   }
 
   return (
@@ -153,12 +204,7 @@ function TabRow({
           <Button variant="glass" disabled={index === total - 1} onClick={() => onReorder(index, 1)} aria-label="Move down">
             <ChevronDown size={15} />
           </Button>
-          <Button
-            variant="glass"
-            className="text-red-300"
-            onClick={() => deleteTab(tab.id).then(() => router.refresh())}
-            aria-label="Delete tab"
-          >
+          <Button variant="glass" className="text-red-300" onClick={remove} aria-label="Delete tab">
             <Trash2 size={15} />
           </Button>
         </div>
@@ -170,46 +216,55 @@ function TabRow({
 }
 
 export function TabsSection({
-  data,
   instagramEnabled,
+  igConnected,
 }: {
-  data: DashboardData
   instagramEnabled: boolean
+  igConnected: boolean
 }) {
-  const router = useRouter()
+  const { tabs, setTabs } = useDashboardStore()
   const [newLabel, setNewLabel] = useState('')
   const [newType, setNewType] = useState<'grid' | 'video'>('grid')
+  const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
 
   function add() {
     if (!newLabel.trim()) return
+    setError(null)
     startTransition(async () => {
-      await createTab({ label: newLabel.trim(), type: newType })
+      const res = await createTab({ label: newLabel.trim(), type: newType })
+      if (!res.ok) {
+        setError(res.error)
+        toast.error(res.error)
+        return
+      }
+      setTabs((prev) => [...prev, res.tab])
       setNewLabel('')
-      router.refresh()
+      toast.success(`Tab “${res.tab.label}” created`)
     })
   }
 
   function handleReorder(index: number, dir: -1 | 1) {
-    const ordered = moveItem(data.tabs, index, dir).map((t) => t.id)
-    reorderTabs(ordered).then(() => router.refresh())
+    const ordered = moveItem(tabs, index, dir)
+    setTabs(ordered)
+    reorderTabs(ordered.map((t) => t.id))
   }
 
   return (
     <Card title="Tabs & media" desc="Each tab is a background — a photo grid or a video showcase.">
       <div className="flex flex-col gap-3">
-        {data.tabs.map((tab, i) => (
+        {tabs.map((tab, i) => (
           <TabRow
             key={tab.id}
             tab={tab}
             index={i}
-            total={data.tabs.length}
+            total={tabs.length}
             onReorder={handleReorder}
             instagramEnabled={instagramEnabled}
-            igConnected={data.instagramConnected}
+            igConnected={igConnected}
           />
         ))}
-        {data.tabs.length === 0 && <p className="text-sm text-white/45">No tabs yet. Add one below.</p>}
+        {tabs.length === 0 && <p className="text-sm text-white/45">No tabs yet. Add one below.</p>}
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-white/[0.06] pt-4">
@@ -231,6 +286,7 @@ export function TabsSection({
           <Plus size={15} /> Add tab
         </Button>
       </div>
+      {error && <p className="mt-2 text-sm text-red-300/90">{error}</p>}
     </Card>
   )
 }

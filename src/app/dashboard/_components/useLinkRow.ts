@@ -1,12 +1,12 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
 import { deleteLink, updateLink } from '../actions'
 import type { DashLink } from '@/types/dashboard'
+import { useDashboardStore } from './DashboardStore'
 
 export function useLinkRow(link: DashLink) {
-  const router = useRouter()
+  const { setLinks } = useDashboardStore()
   const [title, setTitle] = useState(link.title)
   const [url, setUrl] = useState(link.url)
   const [icon, setIcon] = useState(link.icon ?? '')
@@ -15,13 +15,20 @@ export function useLinkRow(link: DashLink) {
 
   function save() {
     startTransition(async () => {
-      await updateLink(link.id, { title, url, icon: icon || null, tabId: tabId || null })
-      router.refresh()
+      const res = await updateLink(link.id, { title, url, icon: icon || null, tabId: tabId || null })
+      if (res.ok) {
+        setLinks((prev) =>
+          prev.map((l) =>
+            l.id === link.id ? { ...l, title, url, icon: icon || null, tabId: tabId || null } : l,
+          ),
+        )
+      }
     })
   }
 
   function remove() {
-    deleteLink(link.id).then(() => router.refresh())
+    setLinks((prev) => prev.filter((l) => l.id !== link.id))
+    deleteLink(link.id)
   }
 
   return { title, setTitle, url, setUrl, icon, setIcon, tabId, setTabId, pending, save, remove }

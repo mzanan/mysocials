@@ -1,15 +1,16 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
 import { ChevronUp, ChevronDown, Trash2, Plus } from 'lucide-react'
 import { createLink, reorderLinks } from '../actions'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input, inputBase } from '@/components/ui/input'
 import { moveItem } from '@/lib/array'
+import { toast } from '@/lib/toast'
 import { cn } from '@/lib/utils'
-import type { DashLink, DashboardData } from '@/types/dashboard'
+import type { DashLink, DashTab } from '@/types/dashboard'
+import { useDashboardStore } from './DashboardStore'
 import { useLinkRow } from './useLinkRow'
 
 const ICONS = [
@@ -29,7 +30,7 @@ function LinkRow({
   link: DashLink
   index: number
   total: number
-  tabs: DashboardData['tabs']
+  tabs: DashTab[]
   onReorder: (index: number, dir: -1 | 1) => void
 }) {
   const { title, setTitle, url, setUrl, icon, setIcon, tabId, setTabId, pending, save, remove } =
@@ -70,8 +71,8 @@ function LinkRow({
   )
 }
 
-export function LinksSection({ data }: { data: DashboardData }) {
-  const router = useRouter()
+export function LinksSection() {
+  const { tabs, links, setLinks } = useDashboardStore()
   const [title, setTitle] = useState('')
   const [url, setUrl] = useState('')
   const [icon, setIcon] = useState('')
@@ -85,27 +86,30 @@ export function LinksSection({ data }: { data: DashboardData }) {
       const res = await createLink({ title, url, icon: icon || null, tabId: tabId || null })
       if (!res.ok) {
         setError(res.error)
+        toast.error(res.error)
         return
       }
+      setLinks((prev) => [...prev, res.link])
       setTitle('')
       setUrl('')
       setIcon('')
-      router.refresh()
+      toast.success('Link added')
     })
   }
 
   function handleReorder(index: number, dir: -1 | 1) {
-    const ordered = moveItem(data.links, index, dir).map((l) => l.id)
-    reorderLinks(ordered).then(() => router.refresh())
+    const ordered = moveItem(links, index, dir)
+    setLinks(ordered)
+    reorderLinks(ordered.map((l) => l.id))
   }
 
   return (
     <Card title="Links" desc="Buttons on your page. Assign to a tab or show on all.">
       <div className="flex flex-col gap-2">
-        {data.links.map((link, i) => (
-          <LinkRow key={link.id} link={link} index={i} total={data.links.length} tabs={data.tabs} onReorder={handleReorder} />
+        {links.map((link, i) => (
+          <LinkRow key={link.id} link={link} index={i} total={links.length} tabs={tabs} onReorder={handleReorder} />
         ))}
-        {data.links.length === 0 && <p className="text-sm text-white/45">No links yet.</p>}
+        {links.length === 0 && <p className="text-sm text-white/45">No links yet.</p>}
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-white/[0.06] pt-4">
@@ -120,7 +124,7 @@ export function LinksSection({ data }: { data: DashboardData }) {
         </select>
         <select value={tabId} onChange={(e) => setTabId(e.target.value)} className={cn(inputBase, 'h-9 w-32')}>
           <option value="">All tabs</option>
-          {data.tabs.map((t) => (
+          {tabs.map((t) => (
             <option key={t.id} value={t.id}>
               {t.label}
             </option>

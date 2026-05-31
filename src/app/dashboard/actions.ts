@@ -11,8 +11,11 @@ import { links, media, profiles, tabs } from '@/lib/db/schema'
 import { isUsernameAvailable } from '@/lib/profile/username'
 import { requirePublishAccess } from '@/lib/subscription'
 import { storage } from '@/lib/storage'
+import type { DashLink, DashTab } from '@/types/dashboard'
 
 type Result = { ok: true } | { ok: false; error: string }
+type TabResult = { ok: true; tab: DashTab } | { ok: false; error: string }
+type LinkResult = { ok: true; link: DashLink } | { ok: false; error: string }
 
 async function requireUserId(): Promise<string> {
   const session = await auth.api.getSession({ headers: await headers() })
@@ -73,7 +76,7 @@ const tabSchema = z.object({
   type: z.enum(['grid', 'video']),
 })
 
-export async function createTab(input: z.infer<typeof tabSchema>): Promise<Result> {
+export async function createTab(input: z.infer<typeof tabSchema>): Promise<TabResult> {
   const uid = await requireUserId()
   const parsed = tabSchema.safeParse(input)
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message }
@@ -81,14 +84,17 @@ export async function createTab(input: z.infer<typeof tabSchema>): Promise<Resul
     .select({ max: sql<number>`coalesce(max(${tabs.position}), -1)` })
     .from(tabs)
     .where(eq(tabs.user_id, uid))
-  await db.insert(tabs).values({
-    user_id: uid,
-    label: parsed.data.label,
-    type: parsed.data.type,
-    position: (max ?? -1) + 1,
-  })
+  const [row] = await db
+    .insert(tabs)
+    .values({
+      user_id: uid,
+      label: parsed.data.label,
+      type: parsed.data.type,
+      position: (max ?? -1) + 1,
+    })
+    .returning()
   revalidate()
-  return { ok: true }
+  return { ok: true, tab: { id: row.id, label: row.label, type: row.type, media: [] } }
 }
 
 export async function updateTab(
@@ -175,7 +181,7 @@ const linkSchema = z.object({
   icon: z.string().trim().max(40).nullable(),
 })
 
-export async function createLink(input: z.infer<typeof linkSchema>): Promise<Result> {
+export async function createLink(input: z.infer<typeof linkSchema>): Promise<LinkResult> {
   const uid = await requireUserId()
   const parsed = linkSchema.safeParse(input)
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message }
@@ -186,16 +192,22 @@ export async function createLink(input: z.infer<typeof linkSchema>): Promise<Res
     .select({ max: sql<number>`coalesce(max(${links.position}), -1)` })
     .from(links)
     .where(eq(links.user_id, uid))
-  await db.insert(links).values({
-    user_id: uid,
-    tab_id: parsed.data.tabId,
-    title: parsed.data.title,
-    url: parsed.data.url,
-    icon: parsed.data.icon || null,
-    position: (max ?? -1) + 1,
-  })
+  const [row] = await db
+    .insert(links)
+    .values({
+      user_id: uid,
+      tab_id: parsed.data.tabId,
+      title: parsed.data.title,
+      url: parsed.data.url,
+      icon: parsed.data.icon || null,
+      position: (max ?? -1) + 1,
+    })
+    .returning()
   revalidate()
-  return { ok: true }
+  return {
+    ok: true,
+    link: { id: row.id, tabId: row.tab_id, title: row.title, url: row.url, icon: row.icon },
+  }
 }
 
 export async function updateLink(

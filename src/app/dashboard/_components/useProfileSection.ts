@@ -3,6 +3,7 @@
 import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { updateProfile, updateUsername } from '../actions'
+import { toast } from '@/lib/toast'
 import type { DashboardData } from '@/types/dashboard'
 
 export function useProfileSection(data: DashboardData) {
@@ -49,10 +50,13 @@ export function useProfileSection(data: DashboardData) {
       const { url } = await res.json()
       setAvatarUrl(url)
       setAvatarMsg('Avatar updated')
+      toast.success('Avatar updated')
       router.refresh()
     } else {
       const body = (await res.json().catch(() => ({}))) as { error?: string }
-      setAvatarMsg(body.error ?? 'Upload failed')
+      const m = body.error ?? 'Upload failed'
+      setAvatarMsg(m)
+      toast.error(m)
     }
     setAvatarBusy(false)
     if (fileRef.current) fileRef.current.value = ''

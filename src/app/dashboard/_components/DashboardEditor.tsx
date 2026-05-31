@@ -9,6 +9,7 @@ import { ProfileSection } from './ProfileSection'
 import { TabsSection } from './TabsSection'
 import { LinksSection } from './LinksSection'
 import { BillingCard } from './BillingCard'
+import { DashboardStore } from './DashboardStore'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import type { DashboardData } from '@/types/dashboard'
@@ -78,8 +79,10 @@ export function DashboardEditor({
       <PublishBar data={data} billingEnabled={billingEnabled} />
       {billingEnabled && <BillingCard status={data.subscriptionStatus} />}
       <ProfileSection data={data} />
-      <TabsSection data={data} instagramEnabled={instagramEnabled} />
-      <LinksSection data={data} />
+      <DashboardStore initial={data}>
+        <TabsSection instagramEnabled={instagramEnabled} igConnected={data.instagramConnected} />
+        <LinksSection />
+      </DashboardStore>
     </div>
   )
 }
