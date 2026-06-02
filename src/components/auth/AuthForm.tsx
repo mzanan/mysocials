@@ -1,105 +1,115 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { authClient } from "@/lib/auth-client";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import { GoogleSignInButton } from "./GoogleSignInButton";
 import { AuthCard } from "./AuthCard";
 import { AuthSubmit } from "./AuthSubmit";
+import { useAuthForm } from "./useAuthForm";
 
 export function AuthForm({
-  mode,
   googleEnabled = false,
 }: {
-  mode: "login" | "signup";
   googleEnabled?: boolean;
 }) {
-  const router = useRouter();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const f = useAuthForm();
 
-  const isSignup = mode === "signup";
+  if (f.step === "email") {
+    return (
+      <AuthCard
+        title={
+          <>
+            Your whole world,{" "}
+            <span style={{ color: "var(--accent-glow)" }}>one link.</span>
+          </>
+        }
+        hero
+      >
+        {googleEnabled && (
+          <div className="mt-8">
+            <GoogleSignInButton label="Continue with Google" />
+            <div className="my-5 flex items-center gap-3 text-xs text-white/40">
+              <span className="h-px flex-1 bg-white/10" />
+              or
+              <span className="h-px flex-1 bg-white/10" />
+            </div>
+          </div>
+        )}
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
+        <form
+          onSubmit={f.continueWithEmail}
+          noValidate
+          className={`flex flex-col gap-3 ${googleEnabled ? "" : "mt-8"}`}
+        >
+          <div className="flex flex-col gap-1.5">
+            <Input
+              type="email"
+              autoComplete="email"
+              placeholder="Email"
+              value={f.email}
+              onChange={(e) => f.setEmail(e.target.value)}
+              aria-invalid={!!f.emailError}
+              className={cn(
+                "h-11 px-4",
+                f.emailError && "border-red-400/60 focus:border-red-400/70"
+              )}
+            />
+            {f.emailError && (
+              <p className="text-xs text-red-300/90">{f.emailError}</p>
+            )}
+          </div>
 
-    const { error } = isSignup
-      ? await authClient.signUp.email({
-          name: name || email.split("@")[0],
-          email,
-          password,
-        })
-      : await authClient.signIn.email({ email, password });
+          {f.error && <p className="text-sm text-red-300/90">{f.error}</p>}
 
-    setLoading(false);
-    if (error) {
-      setError(error.message ?? "Something went wrong");
-      return;
-    }
-    router.push("/dashboard");
-    router.refresh();
+          <AuthSubmit disabled={f.loading}>
+            {f.loading ? "…" : "Continue"}
+          </AuthSubmit>
+        </form>
+      </AuthCard>
+    );
   }
+
+  const isSignup = f.mode === "signup";
 
   return (
     <AuthCard
       title={isSignup ? "Create your page" : "Welcome back"}
-      subtitle={
-        isSignup ? "Start building your link page" : "Sign in to your dashboard"
-      }
+      subtitle={f.email}
     >
-      {googleEnabled && (
-        <div className="mt-7">
-          <GoogleSignInButton
-            label={isSignup ? "Sign up with Google" : "Continue with Google"}
-          />
-          <div className="my-5 flex items-center gap-3 text-xs text-white/40">
-            <span className="h-px flex-1 bg-white/10" />
-            or
-            <span className="h-px flex-1 bg-white/10" />
-          </div>
-        </div>
-      )}
-
       <form
-        onSubmit={handleSubmit}
-        className={`flex flex-col gap-3 ${googleEnabled ? "" : "mt-7"}`}
+        onSubmit={f.submitPassword}
+        noValidate
+        className="mt-7 flex flex-col gap-3"
       >
         {isSignup && (
           <Input
             type="text"
             autoComplete="name"
             placeholder="Display name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={f.name}
+            onChange={(e) => f.setName(e.target.value)}
             className="h-11 px-4"
           />
         )}
-        <Input
-          type="email"
-          required
-          autoComplete="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="h-11 px-4"
-        />
-        <Input
-          type="password"
-          required
-          minLength={8}
-          autoComplete={isSignup ? "new-password" : "current-password"}
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="h-11 px-4"
-        />
+        <div className="flex flex-col gap-1.5">
+          <Input
+            type="password"
+            autoFocus
+            autoComplete={isSignup ? "new-password" : "current-password"}
+            placeholder="Password"
+            value={f.password}
+            onChange={(e) => f.setPassword(e.target.value)}
+            aria-invalid={!!f.passwordError}
+            className={cn(
+              "h-11 px-4",
+              f.passwordError && "border-red-400/60 focus:border-red-400/70"
+            )}
+          />
+          {f.passwordError && (
+            <p className="text-xs text-red-300/90">{f.passwordError}</p>
+          )}
+        </div>
 
         {!isSignup && (
           <Link
@@ -110,22 +120,20 @@ export function AuthForm({
           </Link>
         )}
 
-        {error && <p className="text-sm text-red-300/90">{error}</p>}
+        {f.error && <p className="text-sm text-red-300/90">{f.error}</p>}
 
-        <AuthSubmit disabled={loading}>
-          {loading ? "…" : isSignup ? "Sign up" : "Sign in"}
+        <AuthSubmit disabled={f.loading}>
+          {f.loading ? "…" : isSignup ? "Create account" : "Sign in"}
         </AuthSubmit>
       </form>
 
-      <p className="mt-6 text-center text-sm text-white/50">
-        {isSignup ? "Already have an account? " : "Don't have an account? "}
-        <Link
-          href={isSignup ? "/login" : "/signup"}
-          className="text-white/80 underline-offset-4 hover:underline"
-        >
-          {isSignup ? "Sign in" : "Sign up"}
-        </Link>
-      </p>
+      <button
+        type="button"
+        onClick={f.useDifferentEmail}
+        className="mt-6 w-full text-center text-sm text-white/50 transition-colors hover:text-white/80"
+      >
+        ← Use a different email
+      </button>
     </AuthCard>
   );
 }

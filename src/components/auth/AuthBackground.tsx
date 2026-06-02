@@ -1,7 +1,7 @@
 'use client'
 
 import { LazyMotion, domAnimation } from 'motion/react'
-import { SyntheticGrid } from '@/components/Landing/SyntheticGrid'
+import { SyntheticGrid } from '@/components/auth/SyntheticGrid'
 
 export function AuthBackground() {
   return (

@@ -2,12 +2,15 @@
 
 import { m } from "motion/react";
 
-const HUES = [265, 282, 232, 312, 248, 205, 292, 222, 258, 300];
+const FACE_COUNT = 60;
+const FACES = Array.from(
+  { length: FACE_COUNT },
+  (_, i) => `/people/p${String(i + 1).padStart(2, "0")}.webp`
+);
 
-function tileGradient(i: number) {
-  const h1 = HUES[i % HUES.length];
-  const h2 = (h1 + 38) % 360;
-  return `linear-gradient(135deg, hsl(${h1} 72% 62% / 0.55), hsl(${h2} 64% 42% / 0.32))`;
+function faceFor(i: number) {
+  const block = Math.floor(i / FACE_COUNT);
+  return FACES[(i * 23 + block * 7) % FACE_COUNT];
 }
 
 export function SyntheticGrid({
@@ -32,10 +35,10 @@ export function SyntheticGrid({
         return (
           <m.div
             key={i}
-            className="rounded-lg border border-white/10"
-            style={{ backgroundImage: tileGradient(i) }}
+            className="rounded-lg border border-white/10 bg-white/[0.04] bg-cover bg-center"
+            style={{ backgroundImage: `url(${faceFor(i)})` }}
             initial={{ opacity: 0, scale: 0.82 }}
-            animate={{ opacity: [0.5, 0.95, 0.5], scale: 1 }}
+            animate={{ opacity: [0.55, 0.92, 0.55], scale: 1 }}
             transition={{
               scale: { duration: 0.5, delay: entrance, ease: [0, 0, 0.2, 1] },
               opacity: {
