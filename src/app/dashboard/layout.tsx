@@ -6,7 +6,7 @@ import { UserMenu } from '@/components/account/UserMenu'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session) redirect('/login')
+  if (!session) redirect('/')
 
   return (
     <div className="relative min-h-dvh overflow-hidden bg-app-bg text-white">

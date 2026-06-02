@@ -17,7 +17,7 @@ export function UserMenu({ email }: { email: string }) {
 
   async function signOut() {
     await authClient.signOut()
-    router.push('/login')
+    router.push('/')
     router.refresh()
   }
 

@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
   const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) redirect("/login");
+  if (!session) redirect("/");
 
   const profile = await db.query.profiles.findFirst({
     where: eq(profiles.user_id, session.user.id),
@@ -26,7 +26,7 @@ export default async function DashboardPage() {
       links: { orderBy: (l, { asc }) => [asc(l.position)] },
     },
   });
-  if (!profile) redirect("/login");
+  if (!profile) redirect("/");
 
   const igConn = instagramEnabled()
     ? await db.query.ig_connections.findFirst({

@@ -7,7 +7,7 @@ import { SignOutButton } from '@/components/auth/SignOutButton'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session) redirect('/login')
+  if (!session) redirect('/')
   if (!isAdminUser(session.user)) notFound()
 
   return (

@@ -39,7 +39,7 @@ export function ResetPasswordForm() {
       return;
     }
     toast.success("Password updated — sign in with your new password");
-    router.push("/login");
+    router.push("/");
   }
 
   return (
@@ -82,7 +82,7 @@ export function ResetPasswordForm() {
 
       <p className="mt-6 text-center text-sm text-white/50">
         <Link
-          href="/login"
+          href="/"
           className="text-white/80 underline-offset-4 hover:underline"
         >
           Back to sign in

@@ -11,7 +11,7 @@ export function SignOutButton() {
       variant="glass"
       onClick={async () => {
         await authClient.signOut()
-        router.push('/login')
+        router.push('/')
         router.refresh()
       }}
     >
