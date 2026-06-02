@@ -27,7 +27,7 @@ export function GoogleSignInButton({ label }: { label: string }) {
       size="auth"
       disabled={loading}
       onClick={handleClick}
-      className="w-full"
+      className="w-full hover:border-white/20 hover:bg-white/[0.1]"
     >
       <svg viewBox="0 0 24 24" className="size-[18px]" aria-hidden>
         <path

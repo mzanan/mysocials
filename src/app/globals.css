@@ -190,6 +190,7 @@
   }
 }
 
+
 @media (prefers-reduced-motion: reduce) {
   .skeleton-shimmer::before {
     animation: none;
