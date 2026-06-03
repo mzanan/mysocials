@@ -69,21 +69,21 @@ export function ResetPasswordForm() {
             onChange={(e) => setConfirm(e.target.value)}
             className="h-11 px-4"
           />
-          {error && <p className="text-sm text-red-300/90">{error}</p>}
+          {error && <p className="text-sm text-danger">{error}</p>}
           <AuthSubmit disabled={loading}>
             {loading ? "…" : "Update password"}
           </AuthSubmit>
         </form>
       ) : (
-        <p className="mt-7 text-center text-sm text-red-300/90">
+        <p className="mt-7 text-center text-sm text-danger">
           This reset link is invalid or has expired.
         </p>
       )}
 
-      <p className="mt-6 text-center text-sm text-white/50">
+      <p className="mt-6 text-center text-sm text-fg-subtle">
         <Link
           href="/"
-          className="text-white/80 underline-offset-4 hover:underline"
+          className="text-fg-muted underline-offset-4 hover:underline"
         >
           Back to sign in
         </Link>

@@ -47,18 +47,18 @@ function PublishBar({
     <Card>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-xs text-white/45">Your public page</p>
+          <p className="text-xs text-fg-subtle">Your public page</p>
           <Link
             href={`/${data.username}`}
             target="_blank"
-            className="inline-flex items-center gap-1.5 text-lg font-medium text-white underline-offset-4 hover:underline"
+            className="inline-flex items-center gap-1.5 text-lg font-medium text-fg underline-offset-4 hover:underline"
           >
             /{data.username}{" "}
-            <ExternalLink size={15} className="text-white/40" />
+            <ExternalLink size={15} className="text-fg-subtle" />
           </Link>
-          {error && <p className="mt-1 text-sm text-red-300/90">{error}</p>}
+          {error && <p className="mt-1 text-sm text-danger">{error}</p>}
           {billingEnabled && !active && (
-            <p className="mt-1 text-sm text-white/45">
+            <p className="mt-1 text-sm text-fg-subtle">
               A subscription is required to publish.
             </p>
           )}
@@ -85,10 +85,10 @@ export function DashboardEditor({
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-white">
+        <h1 className="text-2xl font-semibold tracking-tight text-fg">
           Dashboard
         </h1>
-        <p className="mt-1 text-sm text-white/50">
+        <p className="mt-1 text-sm text-fg-subtle">
           Build your page. Changes save as you go.
         </p>
       </div>

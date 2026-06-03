@@ -47,7 +47,7 @@ function MediaManager({
           {tab.media.map((m, i) => (
             <div
               key={m.id}
-              className="group relative aspect-square overflow-hidden rounded-lg border border-white/10 bg-white/[0.04]"
+              className="group relative aspect-square overflow-hidden rounded-lg border border-hairline bg-surface-subtle"
             >
               <Image
                 src={m.posterUrl ?? m.url}
@@ -58,20 +58,20 @@ function MediaManager({
                 unoptimized={m.kind === 'video' && !m.posterUrl}
               />
               {m.kind === 'video' && (
-                <span className="absolute left-1 top-1 rounded bg-black/60 px-1 text-[10px] text-white">▶</span>
+                <span className="absolute left-1 top-1 rounded bg-black/60 px-1 text-[10px] text-fg">▶</span>
               )}
               <div className="absolute inset-x-0 bottom-0 flex justify-between bg-black/50 p-1 opacity-0 transition group-hover:opacity-100">
-                <button onClick={() => reorder(i, -1)} className="text-white/70 hover:text-white" aria-label="Move left">
+                <button onClick={() => reorder(i, -1)} className="text-fg-muted hover:text-fg" aria-label="Move left">
                   <ChevronUp size={14} className="-rotate-90" />
                 </button>
                 <button
                   onClick={() => removeMedia(m.id)}
-                  className="text-red-300 hover:text-red-200"
+                  className="text-danger hover:text-danger"
                   aria-label="Delete"
                 >
                   <Trash2 size={14} />
                 </button>
-                <button onClick={() => reorder(i, 1)} className="text-white/70 hover:text-white" aria-label="Move right">
+                <button onClick={() => reorder(i, 1)} className="text-fg-muted hover:text-fg" aria-label="Move right">
                   <ChevronDown size={14} className="-rotate-90" />
                 </button>
               </div>
@@ -125,7 +125,7 @@ function MediaManager({
 
       {!up.active && up.total > 0 && (
         <div className="mt-2 flex flex-col gap-1.5 text-xs">
-          <div className="flex items-center gap-2 text-white/55">
+          <div className="flex items-center gap-2 text-fg-subtle">
             <span>
               {up.done} uploaded
               {up.failed.length > 0 && ` · ${up.failed.length} failed`}
@@ -135,18 +135,18 @@ function MediaManager({
                 <RotateCcw size={12} /> Retry failed ({up.failed.length})
               </Button>
             )}
-            <button onClick={up.clear} className="text-white/40 hover:text-white/70" aria-label="Dismiss">
+            <button onClick={up.clear} className="text-fg-subtle hover:text-fg-muted" aria-label="Dismiss">
               <X size={13} />
             </button>
           </div>
           {up.failed.map((it, i) => (
-            <p key={i} className="text-red-300/80">
+            <p key={i} className="text-danger">
               {it.file.name}: {it.error}
             </p>
           ))}
         </div>
       )}
-      {error && <p className="mt-2 text-xs text-red-300">{error}</p>}
+      {error && <p className="mt-2 text-xs text-danger">{error}</p>}
     </div>
   )
 }
@@ -185,7 +185,7 @@ function TabRow({
   }
 
   return (
-    <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] p-3">
+    <div className="rounded-xl border border-hairline-subtle bg-surface-subtle p-3">
       <div className="flex flex-wrap items-center gap-2">
         <Input value={label} onChange={(e) => setLabel(e.target.value)} onBlur={save} className="h-9 w-40" />
         <select
@@ -204,12 +204,12 @@ function TabRow({
           <Button variant="glass" disabled={index === total - 1} onClick={() => onReorder(index, 1)} aria-label="Move down">
             <ChevronDown size={15} />
           </Button>
-          <Button variant="glass" className="text-red-300" onClick={remove} aria-label="Delete tab">
+          <Button variant="glass" className="text-danger" onClick={remove} aria-label="Delete tab">
             <Trash2 size={15} />
           </Button>
         </div>
       </div>
-      {pending && <span className="text-xs text-white/40">Saving…</span>}
+      {pending && <span className="text-xs text-fg-subtle">Saving…</span>}
       <MediaManager tab={tab} instagramEnabled={instagramEnabled} igConnected={igConnected} />
     </div>
   )
@@ -264,10 +264,10 @@ export function TabsSection({
             igConnected={igConnected}
           />
         ))}
-        {tabs.length === 0 && <p className="text-sm text-white/45">No tabs yet. Add one below.</p>}
+        {tabs.length === 0 && <p className="text-sm text-fg-subtle">No tabs yet. Add one below.</p>}
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-white/[0.06] pt-4">
+      <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-hairline-subtle pt-4">
         <Input
           value={newLabel}
           onChange={(e) => setNewLabel(e.target.value)}
@@ -286,7 +286,7 @@ export function TabsSection({
           <Plus size={15} /> Add tab
         </Button>
       </div>
-      {error && <p className="mt-2 text-sm text-red-300/90">{error}</p>}
+      {error && <p className="mt-2 text-sm text-danger">{error}</p>}
     </Card>
   )
 }

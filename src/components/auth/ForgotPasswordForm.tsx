@@ -31,9 +31,9 @@ export function ForgotPasswordForm() {
       }
     >
       {sent ? (
-        <p className="mt-7 text-center text-sm text-white/55">
+        <p className="mt-7 text-center text-sm text-fg-subtle">
           If an account exists for{" "}
-          <span className="text-white/80">{email}</span>, a reset link is on its
+          <span className="text-fg-muted">{email}</span>, a reset link is on its
           way.
         </p>
       ) : (
@@ -53,10 +53,10 @@ export function ForgotPasswordForm() {
         </form>
       )}
 
-      <p className="mt-6 text-center text-sm text-white/50">
+      <p className="mt-6 text-center text-sm text-fg-subtle">
         <Link
           href="/"
-          className="text-white/80 underline-offset-4 hover:underline"
+          className="text-fg-muted underline-offset-4 hover:underline"
         >
           Back to sign in
         </Link>

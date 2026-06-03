@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { ChangePasswordDialog } from './ChangePasswordDialog'
 
 const itemClass =
-  'flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm outline-none transition data-[highlighted]:bg-white/[0.08]'
+  'flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm outline-none transition data-[highlighted]:bg-surface-strong'
 
 export function UserMenu({ email }: { email: string }) {
   const router = useRouter()
@@ -25,22 +25,22 @@ export function UserMenu({ email }: { email: string }) {
     <>
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
-          <Button variant="glass" className="px-3 font-normal text-white/80">
+          <Button variant="glass" className="px-3 font-normal text-fg-muted">
             <span className="hidden max-w-[160px] truncate sm:inline">{email}</span>
-            <ChevronDown className="text-white/45" />
+            <ChevronDown className="text-fg-subtle" />
           </Button>
         </DropdownMenu.Trigger>
         <DropdownMenu.Portal>
           <DropdownMenu.Content
             align="end"
             sideOffset={8}
-            className="z-50 min-w-[200px] rounded-xl border border-white/10 bg-app-bg/95 p-1 text-white shadow-glass backdrop-blur-xl"
+            className="z-50 min-w-[200px] rounded-xl border border-hairline bg-app-bg/95 p-1 text-fg shadow-glass backdrop-blur-xl"
           >
-            <div className="truncate px-3 py-2 text-xs text-white/45 sm:hidden">{email}</div>
+            <div className="truncate px-3 py-2 text-xs text-fg-subtle sm:hidden">{email}</div>
             <DropdownMenu.Item className={itemClass} onSelect={() => setPwOpen(true)}>
               <KeyRound size={15} /> Change password
             </DropdownMenu.Item>
-            <DropdownMenu.Item className={`${itemClass} text-red-300`} onSelect={signOut}>
+            <DropdownMenu.Item className={`${itemClass} text-danger`} onSelect={signOut}>
               <LogOut size={15} /> Sign out
             </DropdownMenu.Item>
           </DropdownMenu.Content>

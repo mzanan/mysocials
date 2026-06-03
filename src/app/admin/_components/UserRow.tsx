@@ -22,7 +22,7 @@ const subColor: Record<string, string> = {
   active: 'text-emerald-300',
   canceled: 'text-amber-300',
   past_due: 'text-amber-300',
-  revoked: 'text-red-300',
+  revoked: 'text-danger',
 }
 
 export function UserRow({ user }: { user: AdminUser }) {
@@ -39,14 +39,14 @@ export function UserRow({ user }: { user: AdminUser }) {
   }
 
   return (
-    <tr className="text-white/80">
+    <tr className="text-fg-muted">
       <td className="px-4 py-3">
-        <div className="font-medium text-white">{user.name || '—'}</div>
-        <div className="text-xs text-white/40">{user.email}</div>
+        <div className="font-medium text-fg">{user.name || '—'}</div>
+        <div className="text-xs text-fg-subtle">{user.email}</div>
       </td>
       <td className="px-4 py-3">
         {user.username ? (
-          <Link href={`/${user.username}`} target="_blank" className="text-white/70 hover:underline">
+          <Link href={`/${user.username}`} target="_blank" className="text-fg-muted hover:underline">
             /{user.username}
             {user.published ? '' : ' (draft)'}
           </Link>
@@ -54,7 +54,7 @@ export function UserRow({ user }: { user: AdminUser }) {
           '—'
         )}
       </td>
-      <td className={`px-4 py-3 ${subColor[user.subscriptionStatus ?? ''] ?? 'text-white/40'}`}>
+      <td className={`px-4 py-3 ${subColor[user.subscriptionStatus ?? ''] ?? 'text-fg-subtle'}`}>
         {user.subscriptionStatus ?? 'none'}
       </td>
       <td className="px-4 py-3">

@@ -8,7 +8,7 @@ export function PhoneMockup({ className = "" }: { className?: string }) {
 
   return (
     <m.div
-      className={`relative aspect-[9/16] h-[64vh] max-h-[560px] min-h-[400px] rounded-[44px] border-[9px] border-neutral-700 bg-transparent shadow-[0_0_0_1.5px_rgba(0,0,0,0.7),0_30px_80px_-20px_rgba(0,0,0,0.85)] ring-1 ring-white/20 ${className}`}
+      className={`relative aspect-[9/16] h-[64vh] max-h-[560px] min-h-[400px] rounded-[44px] border-[9px] border-neutral-700 bg-transparent shadow-[0_0_0_1.5px_rgba(0,0,0,0.7),0_30px_80px_-20px_rgba(0,0,0,0.85)] ring-1 ring-hairline-strong ${className}`}
       initial={{ opacity: 0, y: 40 }}
       animate={loop}
       transition={loopTransition}
@@ -20,7 +20,7 @@ export function PhoneMockup({ className = "" }: { className?: string }) {
       <div className="absolute top-[190px] -left-[9px] h-9 w-[5px] rounded-l-lg bg-neutral-600" />
       <div className="absolute top-[232px] -left-[9px] h-9 w-[5px] rounded-l-lg bg-neutral-600" />
 
-      <div className="pointer-events-none absolute inset-0 rounded-[32px] bg-gradient-to-tr from-transparent via-white/5 to-white/10 ring-1 ring-white/10 ring-inset" />
+      <div className="pointer-events-none absolute inset-0 rounded-[32px] bg-gradient-to-tr from-transparent via-surface to-surface-strong ring-1 ring-hairline ring-inset" />
     </m.div>
   );
 }

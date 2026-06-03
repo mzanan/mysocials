@@ -27,14 +27,14 @@ export function AgentChat({
   }
 
   return (
-    <div className="bg-app-bg/95 shadow-glass-lg fixed right-5 bottom-5 z-40 flex h-[460px] w-[360px] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-2xl border border-white/10 backdrop-blur-xl">
-      <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-        <span className="flex items-center gap-2 text-sm font-medium text-white">
-          <Sparkles size={15} className="text-white/60" /> Assistant
+    <div className="bg-app-bg/95 shadow-glass-lg fixed right-5 bottom-5 z-40 flex h-[460px] w-[360px] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-2xl border border-hairline backdrop-blur-xl">
+      <div className="flex items-center justify-between border-b border-hairline px-4 py-3">
+        <span className="flex items-center gap-2 text-sm font-medium text-fg">
+          <Sparkles size={15} className="text-fg-subtle" /> Assistant
         </span>
         <button
           onClick={() => setOpen(false)}
-          className="rounded-md p-1 text-white/45 transition hover:bg-white/10 hover:text-white/80"
+          className="rounded-md p-1 text-fg-subtle transition hover:bg-surface-strong hover:text-fg-muted"
           aria-label="Close assistant"
         >
           <X size={16} />
@@ -43,7 +43,7 @@ export function AgentChat({
 
       <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
         {chat.messages.length === 0 && (
-          <p className="text-sm text-white/45">
+          <p className="text-sm text-fg-subtle">
             Ask me to set things up — e.g. “add an Instagram tab and a video
             tab”, or “connect my Instagram”.
           </p>
@@ -53,14 +53,14 @@ export function AgentChat({
             key={i}
             className={`max-w-[85%] rounded-xl px-3 py-2 text-sm whitespace-pre-line ${
               m.role === "user"
-                ? "ml-auto bg-white/[0.12] text-white"
-                : "bg-white/[0.05] text-white/80"
+                ? "ml-auto bg-surface-strong text-fg"
+                : "bg-surface text-fg-muted"
             }`}
           >
             {m.text}
           </div>
         ))}
-        {chat.busy && <p className="text-sm text-white/40">Thinking…</p>}
+        {chat.busy && <p className="text-sm text-fg-subtle">Thinking…</p>}
       </div>
 
       <form
@@ -68,7 +68,7 @@ export function AgentChat({
           e.preventDefault();
           chat.send();
         }}
-        className="flex items-center gap-2 border-t border-white/10 p-3"
+        className="flex items-center gap-2 border-t border-hairline p-3"
       >
         {chat.micSupported && (
           <Button
@@ -76,7 +76,7 @@ export function AgentChat({
             variant="glass"
             size="icon"
             onClick={chat.toggleMic}
-            className={chat.listening ? "text-red-300" : "text-white/70"}
+            className={chat.listening ? "text-danger" : "text-fg-muted"}
             aria-label="Voice input"
           >
             <Mic size={16} />

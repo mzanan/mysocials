@@ -8,7 +8,7 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-app-bg relative min-h-dvh overflow-hidden text-white">
+    <div className="bg-app-bg relative min-h-dvh overflow-hidden text-fg">
       <AuthAmbient />
 
       <div className="absolute inset-0 overflow-hidden lg:left-1/2">

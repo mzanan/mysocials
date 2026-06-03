@@ -21,7 +21,7 @@ export function AuthForm({
         title={
           <>
             Your whole world,{" "}
-            <span style={{ color: "var(--accent-glow)" }}>one link.</span>
+            <span className="text-accent">one link.</span>
           </>
         }
         hero
@@ -29,10 +29,10 @@ export function AuthForm({
         {googleEnabled && (
           <div className="mt-8">
             <GoogleSignInButton label="Continue with Google" />
-            <div className="my-5 flex items-center gap-3 text-xs text-white/40">
-              <span className="h-px flex-1 bg-white/10" />
+            <div className="my-5 flex items-center gap-3 text-xs text-fg-subtle">
+              <span className="h-px flex-1 bg-surface-strong" />
               or
-              <span className="h-px flex-1 bg-white/10" />
+              <span className="h-px flex-1 bg-surface-strong" />
             </div>
           </div>
         )}
@@ -52,15 +52,15 @@ export function AuthForm({
               aria-invalid={!!f.emailError}
               className={cn(
                 "h-11 px-4",
-                f.emailError && "border-red-400/60 focus:border-red-400/70"
+                f.emailError && "border-danger-strong focus:border-danger-strong"
               )}
             />
             {f.emailError && (
-              <p className="text-xs text-red-300/90">{f.emailError}</p>
+              <p className="text-xs text-danger">{f.emailError}</p>
             )}
           </div>
 
-          {f.error && <p className="text-sm text-red-300/90">{f.error}</p>}
+          {f.error && <p className="text-sm text-danger">{f.error}</p>}
 
           <AuthSubmit disabled={f.loading}>
             {f.loading ? "…" : "Continue"}
@@ -103,24 +103,24 @@ export function AuthForm({
             aria-invalid={!!f.passwordError}
             className={cn(
               "h-11 px-4",
-              f.passwordError && "border-red-400/60 focus:border-red-400/70"
+              f.passwordError && "border-danger-strong focus:border-danger-strong"
             )}
           />
           {f.passwordError && (
-            <p className="text-xs text-red-300/90">{f.passwordError}</p>
+            <p className="text-xs text-danger">{f.passwordError}</p>
           )}
         </div>
 
         {!isSignup && (
           <Link
             href="/forgot-password"
-            className="-mt-1 self-end text-xs text-white/45 underline-offset-4 hover:text-white/70 hover:underline"
+            className="-mt-1 self-end text-xs text-fg-subtle underline-offset-4 hover:text-fg-muted hover:underline"
           >
             Forgot password?
           </Link>
         )}
 
-        {f.error && <p className="text-sm text-red-300/90">{f.error}</p>}
+        {f.error && <p className="text-sm text-danger">{f.error}</p>}
 
         <AuthSubmit disabled={f.loading}>
           {f.loading ? "…" : isSignup ? "Create account" : "Sign in"}
@@ -130,7 +130,7 @@ export function AuthForm({
       <button
         type="button"
         onClick={f.useDifferentEmail}
-        className="mt-6 w-full text-center text-sm text-white/50 transition-colors hover:text-white/80"
+        className="mt-6 w-full text-center text-sm text-fg-subtle transition-colors hover:text-fg-muted"
       >
         ← Use a different email
       </button>

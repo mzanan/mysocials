@@ -35,7 +35,7 @@ export function SyntheticGrid({
         return (
           <m.div
             key={i}
-            className="rounded-lg border border-white/10 bg-white/[0.04] bg-cover bg-center"
+            className="rounded-lg border border-hairline bg-surface-subtle bg-cover bg-center"
             style={{ backgroundImage: `url(${faceFor(i)})` }}
             initial={{ opacity: 0, scale: 0.82 }}
             animate={{ opacity: [0.55, 0.92, 0.55], scale: 1 }}

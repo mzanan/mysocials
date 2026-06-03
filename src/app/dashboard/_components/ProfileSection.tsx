@@ -36,7 +36,7 @@ export function ProfileSection({ data }: { data: DashboardData }) {
     <Card title="Profile" desc="How your page introduces you.">
       <div className="flex flex-col gap-4">
         <div className="flex items-center gap-4">
-          <div className="relative h-16 w-16 overflow-hidden rounded-full border border-white/15 bg-white/[0.06]">
+          <div className="relative h-16 w-16 overflow-hidden rounded-full border border-hairline-strong bg-surface">
             {avatarUrl && <Image src={avatarUrl} alt="avatar" fill className="object-cover" sizes="64px" />}
           </div>
           <div className="flex flex-col gap-1.5">
@@ -44,18 +44,18 @@ export function ProfileSection({ data }: { data: DashboardData }) {
             <Button variant="glass" disabled={avatarBusy} onClick={() => fileRef.current?.click()}>
               {avatarBusy ? 'Uploading…' : 'Change avatar'}
             </Button>
-            {avatarMsg && <span className="text-xs text-white/55">{avatarMsg}</span>}
+            {avatarMsg && <span className="text-xs text-fg-subtle">{avatarMsg}</span>}
           </div>
         </div>
 
         <Field label="Username (your public URL)">
           <div className="flex gap-2">
-            <div className="flex flex-1 items-center rounded-xl border border-white/10 bg-white/[0.06] pl-3">
-              <span className="text-sm text-white/35">/</span>
+            <div className="flex flex-1 items-center rounded-xl border border-hairline bg-surface pl-3">
+              <span className="text-sm text-fg-faint">/</span>
               <input
                 value={username}
                 onChange={(e) => setUsername(e.target.value.toLowerCase())}
-                className="h-10 flex-1 bg-transparent px-1 text-[15px] text-white outline-none"
+                className="h-10 flex-1 bg-transparent px-1 text-[15px] text-fg outline-none"
               />
             </div>
             <Button variant="glass" onClick={saveUsername} disabled={pending}>
@@ -84,7 +84,7 @@ export function ProfileSection({ data }: { data: DashboardData }) {
                 key={c}
                 type="button"
                 onClick={() => setAccent(c)}
-                className={`h-7 w-7 rounded-full border ${accent === c ? 'border-white' : 'border-white/20'}`}
+                className={`h-7 w-7 rounded-full border ${accent === c ? 'border-fg' : 'border-hairline-strong'}`}
                 style={{ backgroundColor: c }}
               />
             ))}
@@ -92,7 +92,7 @@ export function ProfileSection({ data }: { data: DashboardData }) {
               type="color"
               value={accent}
               onChange={(e) => setAccent(e.target.value)}
-              className="h-7 w-9 cursor-pointer rounded border border-white/20 bg-transparent"
+              className="h-7 w-9 cursor-pointer rounded border border-hairline-strong bg-transparent"
             />
           </div>
         </Field>
@@ -101,7 +101,7 @@ export function ProfileSection({ data }: { data: DashboardData }) {
           <Button variant="glassPrimary" onClick={saveProfile} disabled={pending}>
             Save profile
           </Button>
-          {msg && <span className="text-sm text-white/55">{msg}</span>}
+          {msg && <span className="text-sm text-fg-subtle">{msg}</span>}
         </div>
       </div>
     </Card>

@@ -27,12 +27,12 @@ export default async function AdminPage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Users</h1>
-        <p className="mt-1 text-sm text-white/50">{rows.length} total</p>
+        <p className="mt-1 text-sm text-fg-subtle">{rows.length} total</p>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.05] backdrop-blur-xl shadow-glass">
+      <div className="overflow-hidden rounded-2xl border border-hairline bg-surface backdrop-blur-xl shadow-glass">
         <table className="w-full text-left text-sm">
-          <thead className="bg-white/[0.06] text-xs uppercase tracking-wide text-white/45">
+          <thead className="bg-surface text-xs uppercase tracking-wide text-fg-subtle">
             <tr>
               <th className="px-4 py-3 font-medium">User</th>
               <th className="px-4 py-3 font-medium">Page</th>

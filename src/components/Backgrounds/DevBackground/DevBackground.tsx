@@ -38,7 +38,7 @@ export function DevBackground({
         {videos.map((video) => (
           <m.div
             key={video.url}
-            className="relative aspect-video overflow-hidden rounded-xl border-2 border-white/10 shadow-2xl"
+            className="relative aspect-video overflow-hidden rounded-xl border-2 border-hairline shadow-2xl"
             variants={itemVariants}
             whileHover={{ scale: 1.02, zIndex: 10 }}
             transition={{ duration: 0.3 }}
@@ -55,7 +55,7 @@ export function DevBackground({
             />
             {video.title && (
               <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/90 via-black/50 to-transparent p-6">
-                <p className="text-lg font-bold text-white">{video.title}</p>
+                <p className="text-lg font-bold text-fg">{video.title}</p>
               </div>
             )}
           </m.div>

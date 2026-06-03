@@ -21,9 +21,9 @@ export function ChangePasswordDialog({
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[360px] max-w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-white/[0.12] bg-app-bg/95 p-6 text-white backdrop-blur-2xl shadow-glass-lg">
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[360px] max-w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-hairline-strong bg-app-bg/95 p-6 text-fg backdrop-blur-2xl shadow-glass-lg">
           <Dialog.Title className="text-base font-semibold">Change password</Dialog.Title>
-          <Dialog.Description className="mt-1 text-sm text-white/55">
+          <Dialog.Description className="mt-1 text-sm text-fg-subtle">
             Enter your current password and a new one.
           </Dialog.Description>
           <form
