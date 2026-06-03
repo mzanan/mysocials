@@ -10,8 +10,8 @@ export function Toaster() {
       toastOptions={{
         classNames: {
           toast:
-            'rounded-xl border border-white/10 bg-app-bg/90 text-white backdrop-blur-xl shadow-glass',
-          description: 'text-white/55',
+            'rounded-xl border border-hairline bg-app-bg/90 text-fg backdrop-blur-xl shadow-glass',
+          description: 'text-fg-subtle',
         },
       }}
     />
