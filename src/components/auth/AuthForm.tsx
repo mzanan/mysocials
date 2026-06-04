@@ -20,7 +20,8 @@ export function AuthForm({
       <AuthCard
         title={
           <>
-            Your whole world,{" "}
+            Your whole world,
+            <br className="lg:hidden" />{" "}
             <span className="text-accent">one link.</span>
           </>
         }

@@ -15,7 +15,7 @@ export default function AuthLayout({
         <AuthBackground />
         <div
           aria-hidden
-          className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.5)_25%,rgba(0,0,0,0.88)_100%)] lg:bg-[linear-gradient(to_right,var(--color-app-bg)_0%,transparent_62%)]"
+          className="absolute inset-0 hidden lg:block lg:bg-[linear-gradient(to_right,var(--color-app-bg)_0%,transparent_62%)]"
         />
         <PhoneShowcase />
       </div>
@@ -23,6 +23,18 @@ export default function AuthLayout({
       <div className="relative z-10 flex min-h-dvh items-center justify-center px-6 py-12 lg:w-1/2 lg:px-16">
         <div className="w-full max-w-sm">{children}</div>
       </div>
+
+      <footer className="absolute bottom-6 left-6 z-10 text-xs text-fg-faint lg:bottom-8 lg:left-8">
+        A product by{" "}
+        <a
+          href="https://itsmatias.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline-offset-4 transition-colors hover:text-fg-muted hover:underline"
+        >
+          itsmatias.com
+        </a>
+      </footer>
 
       <div aria-hidden className="grain-overlay" />
     </div>

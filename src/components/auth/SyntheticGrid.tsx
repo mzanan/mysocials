@@ -2,7 +2,7 @@
 
 import { m } from "motion/react";
 
-const FACE_COUNT = 60;
+const FACE_COUNT = 55;
 const FACES = Array.from(
   { length: FACE_COUNT },
   (_, i) => `/people/p${String(i + 1).padStart(2, "0")}.webp`
@@ -38,15 +38,10 @@ export function SyntheticGrid({
             className="rounded-lg border border-hairline bg-surface-subtle bg-cover bg-center"
             style={{ backgroundImage: `url(${faceFor(i)})` }}
             initial={{ opacity: 0, scale: 0.82 }}
-            animate={{ opacity: [0.55, 0.92, 0.55], scale: 1 }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{
               scale: { duration: 0.5, delay: entrance, ease: [0, 0, 0.2, 1] },
-              opacity: {
-                duration: 7 + (i % 6),
-                delay: entrance,
-                repeat: Infinity,
-                ease: "easeInOut",
-              },
+              opacity: { duration: 0.5, delay: entrance, ease: [0, 0, 0.2, 1] },
             }}
           />
         );
