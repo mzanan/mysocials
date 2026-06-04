@@ -74,6 +74,7 @@ export async function setPublished(published: boolean): Promise<Result> {
 const tabSchema = z.object({
   label: z.string().trim().min(1).max(24),
   type: z.enum(['grid', 'video']),
+  gridMode: z.enum(['cycle', 'masonry']).optional(),
 })
 
 export async function createTab(input: z.infer<typeof tabSchema>): Promise<TabResult> {
@@ -90,11 +91,21 @@ export async function createTab(input: z.infer<typeof tabSchema>): Promise<TabRe
       user_id: uid,
       label: parsed.data.label,
       type: parsed.data.type,
+      grid_mode: parsed.data.gridMode ?? 'cycle',
       position: (max ?? -1) + 1,
     })
     .returning()
   revalidate()
-  return { ok: true, tab: { id: row.id, label: row.label, type: row.type, media: [] } }
+  return {
+    ok: true,
+    tab: {
+      id: row.id,
+      label: row.label,
+      type: row.type,
+      gridMode: row.grid_mode,
+      media: [],
+    },
+  }
 }
 
 export async function updateTab(
@@ -104,9 +115,14 @@ export async function updateTab(
   const uid = await requireUserId()
   const parsed = tabSchema.safeParse(input)
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message }
+  const patch: { label: string; type: 'grid' | 'video'; grid_mode?: 'cycle' | 'masonry' } = {
+    label: parsed.data.label,
+    type: parsed.data.type,
+  }
+  if (parsed.data.gridMode) patch.grid_mode = parsed.data.gridMode
   await db
     .update(tabs)
-    .set({ label: parsed.data.label, type: parsed.data.type })
+    .set(patch)
     .where(and(eq(tabs.id, id), eq(tabs.user_id, uid)))
   revalidate()
   return { ok: true }

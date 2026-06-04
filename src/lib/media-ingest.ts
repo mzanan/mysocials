@@ -13,8 +13,8 @@ export async function ingestImageBuffer(
 ) {
   const { data, info } = await sharp(await toDecodableImage(input))
     .rotate()
-    .resize({ width: 480, withoutEnlargement: true })
-    .webp({ quality: 70 })
+    .resize({ width: 720, withoutEnlargement: true })
+    .webp({ quality: 72 })
     .toBuffer({ resolveWithObject: true })
 
   const key = `media/${opts.userId}/${opts.tabId}/${randomUUID()}.webp`

@@ -69,6 +69,8 @@ export function PublicProfile({ profile }: { profile: ProfilePublic }) {
                 <PersonalBackground
                   isActive={tab.id === activeTabId}
                   initialImages={tab.media.map((md) => md.url)}
+                  initialMedia={tab.media}
+                  gridMode={tab.gridMode}
                   onReady={revealCard}
                 />
               )}

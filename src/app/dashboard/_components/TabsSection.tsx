@@ -169,12 +169,14 @@ function TabRow({
   const { setTabs, patchTab } = useDashboardStore()
   const [label, setLabel] = useState(tab.label)
   const [type, setType] = useState(tab.type)
+  const [gridMode, setGridMode] = useState(tab.gridMode)
   const [pending, startTransition] = useTransition()
 
-  function save() {
+  function save(next?: { gridMode?: 'cycle' | 'masonry' }) {
+    const nextGridMode = next?.gridMode ?? gridMode
     startTransition(async () => {
-      const res = await updateTab(tab.id, { label, type })
-      if (res.ok) patchTab(tab.id, { label, type })
+      const res = await updateTab(tab.id, { label, type, gridMode: nextGridMode })
+      if (res.ok) patchTab(tab.id, { label, type, gridMode: nextGridMode })
     })
   }
 
@@ -187,16 +189,48 @@ function TabRow({
   return (
     <div className="rounded-xl border border-hairline-subtle bg-surface-subtle p-3">
       <div className="flex flex-wrap items-center gap-2">
-        <Input value={label} onChange={(e) => setLabel(e.target.value)} onBlur={save} className="h-9 w-40" />
+        <Input value={label} onChange={(e) => setLabel(e.target.value)} onBlur={() => save()} className="h-9 w-40" />
         <select
           value={type}
           onChange={(e) => setType(e.target.value as 'grid' | 'video')}
-          onBlur={save}
+          onBlur={() => save()}
           className={cn(inputBase, 'h-9 w-28')}
         >
           <option value="grid">Photo grid</option>
           <option value="video">Video</option>
         </select>
+        {type === 'grid' && (
+          <div
+            role="radiogroup"
+            aria-label="Grid layout"
+            className="flex h-9 items-center rounded-md border border-hairline bg-surface-subtle p-0.5"
+          >
+            {(
+              [
+                { v: 'cycle', label: 'Cycle' },
+                { v: 'masonry', label: 'Masonry' },
+              ] as const
+            ).map(({ v, label: optLabel }) => (
+              <button
+                key={v}
+                role="radio"
+                aria-checked={gridMode === v}
+                onClick={() => {
+                  setGridMode(v)
+                  save({ gridMode: v })
+                }}
+                className={cn(
+                  'h-8 rounded px-3 text-xs transition-colors',
+                  gridMode === v
+                    ? 'bg-surface-stronger text-fg'
+                    : 'text-fg-subtle hover:text-fg-muted',
+                )}
+              >
+                {optLabel}
+              </button>
+            ))}
+          </div>
+        )}
         <div className="ml-auto flex items-center gap-1">
           <Button variant="glass" disabled={index === 0} onClick={() => onReorder(index, -1)} aria-label="Move up">
             <ChevronUp size={15} />
@@ -232,7 +266,7 @@ export function TabsSection({
     if (!newLabel.trim()) return
     setError(null)
     startTransition(async () => {
-      const res = await createTab({ label: newLabel.trim(), type: newType })
+      const res = await createTab({ label: newLabel.trim(), type: newType, gridMode: 'cycle' })
       if (!res.ok) {
         setError(res.error)
         toast.error(res.error)
