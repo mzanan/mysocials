@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
-import { ChevronDown, KeyRound, LogOut } from 'lucide-react'
+import { ChevronDown, CreditCard, KeyRound, LogOut } from 'lucide-react'
 import { authClient } from '@/lib/auth-client'
 import { Button } from '@/components/ui/button'
 import { ChangePasswordDialog } from './ChangePasswordDialog'
@@ -11,7 +11,7 @@ import { ChangePasswordDialog } from './ChangePasswordDialog'
 const itemClass =
   'flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm outline-none transition data-[highlighted]:bg-surface-strong'
 
-export function UserMenu({ email }: { email: string }) {
+export function UserMenu({ email, hasBilling }: { email: string; hasBilling: boolean }) {
   const router = useRouter()
   const [pwOpen, setPwOpen] = useState(false)
 
@@ -37,6 +37,14 @@ export function UserMenu({ email }: { email: string }) {
             className="z-50 min-w-[200px] rounded-xl border border-hairline bg-app-bg/95 p-1 text-fg shadow-glass backdrop-blur-xl"
           >
             <div className="truncate px-3 py-2 text-xs text-fg-subtle sm:hidden">{email}</div>
+            {hasBilling && (
+              <DropdownMenu.Item
+                className={itemClass}
+                onSelect={() => authClient.customer.portal()}
+              >
+                <CreditCard size={15} /> Manage subscription
+              </DropdownMenu.Item>
+            )}
             <DropdownMenu.Item className={itemClass} onSelect={() => setPwOpen(true)}>
               <KeyRound size={15} /> Change password
             </DropdownMenu.Item>

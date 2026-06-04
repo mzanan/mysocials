@@ -1,0 +1,1 @@
+ALTER TABLE `tabs` ADD `grid_mode` text DEFAULT 'cycle' NOT NULL;

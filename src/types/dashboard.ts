@@ -9,6 +9,7 @@ export interface DashTab {
   id: string
   label: string
   type: 'grid' | 'video'
+  gridMode: 'cycle' | 'masonry'
   media: DashMedia[]
 }
 
@@ -28,6 +29,7 @@ export interface DashboardData {
   avatarUrl: string | null
   published: boolean
   subscriptionStatus: string | null
+  trialEndsAt: number | null
   instagramConnected: boolean
   tabs: DashTab[]
   links: DashLink[]

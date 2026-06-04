@@ -9,6 +9,7 @@ import { ProfileSection } from "./ProfileSection";
 import { TabsSection } from "./TabsSection";
 import { LinksSection } from "./LinksSection";
 import { BillingCard } from "./BillingCard";
+import { TrialBanner } from "./TrialBanner";
 import { DashboardStore } from "./DashboardStore";
 import { AgentChat } from "./AgentChat";
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,13 @@ function PublishBar({
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
-  const active = data.subscriptionStatus === "active";
+  const status = data.subscriptionStatus;
+  const [now] = useState(() => Date.now());
+  const trialActive =
+    status === "trialing" &&
+    data.trialEndsAt !== null &&
+    data.trialEndsAt > now;
+  const canPublish = !billingEnabled || status === "active" || trialActive;
 
   function toggle() {
     setError(null);
@@ -57,13 +64,17 @@ function PublishBar({
             <ExternalLink size={15} className="text-fg-subtle" />
           </Link>
           {error && <p className="mt-1 text-sm text-danger">{error}</p>}
-          {billingEnabled && !active && (
+          {billingEnabled && !canPublish && (
             <p className="mt-1 text-sm text-fg-subtle">
-              A subscription is required to publish.
+              Subscribe to publish your page.
             </p>
           )}
         </div>
-        <Button variant="glassPrimary" onClick={toggle} disabled={pending}>
+        <Button
+          variant="glassPrimary"
+          onClick={toggle}
+          disabled={pending || !canPublish}
+        >
           {published ? "Published — unpublish" : "Publish page"}
         </Button>
       </div>
@@ -93,7 +104,12 @@ export function DashboardEditor({
         </p>
       </div>
       <PublishBar data={data} billingEnabled={billingEnabled} />
-      {billingEnabled && <BillingCard status={data.subscriptionStatus} />}
+      {billingEnabled && data.subscriptionStatus === "trialing" && (
+        <TrialBanner trialEndsAt={data.trialEndsAt} />
+      )}
+      {billingEnabled && data.subscriptionStatus !== "trialing" && (
+        <BillingCard status={data.subscriptionStatus} />
+      )}
       <ProfileSection data={data} />
       <DashboardStore initial={data}>
         <TabsSection

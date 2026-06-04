@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 
 const label: Record<string, string> = {
+  trialing: 'Free trial',
   active: 'Active',
   canceled: 'Canceling at period end',
   past_due: 'Past due',

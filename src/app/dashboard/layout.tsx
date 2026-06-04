@@ -1,12 +1,21 @@
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { eq } from 'drizzle-orm'
 import { auth } from '@/lib/auth'
+import { db } from '@/lib/db'
+import { profiles } from '@/lib/db/schema'
 import { UserMenu } from '@/components/account/UserMenu'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session) redirect('/')
+
+  const profile = await db.query.profiles.findFirst({
+    where: eq(profiles.user_id, session.user.id),
+    columns: { polar_customer_id: true },
+  })
+  const hasBilling = Boolean(profile?.polar_customer_id)
 
   return (
     <div className="relative min-h-dvh overflow-hidden bg-app-bg text-fg">
@@ -19,7 +28,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <Link href="/dashboard" className="text-sm font-semibold tracking-tight">
             mySocials
           </Link>
-          <UserMenu email={session.user.email} />
+          <UserMenu email={session.user.email} hasBilling={hasBilling} />
         </div>
       </header>
       <main className="relative z-10 mx-auto max-w-3xl px-4 py-8">{children}</main>

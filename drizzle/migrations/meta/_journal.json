@@ -15,6 +15,20 @@
       "when": 1780034147201,
       "tag": "0001_brief_jackpot",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1780500118202,
+      "tag": "0002_ambitious_fat_cobra",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1780554177349,
+      "tag": "0003_nebulous_black_queen",
+      "breakpoints": true
     }
   ]
 }

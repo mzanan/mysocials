@@ -1,12 +1,6 @@
 import { relations, sql } from 'drizzle-orm'
 import { index, integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core'
 
-// ---------------------------------------------------------------------------
-// Better Auth tables. Column names must match Better Auth's Drizzle adapter
-// expectations (camelCase). Includes the admin plugin fields
-// (role/banned/banReason/banExpires on user, impersonatedBy on session).
-// ---------------------------------------------------------------------------
-
 export const user = sqliteTable('user', {
   id: text('id').primaryKey(),
   name: text('name'),
@@ -62,11 +56,6 @@ export const verification = sqliteTable('verification', {
   updatedAt: integer('updatedAt', { mode: 'timestamp_ms' }).notNull(),
 })
 
-// ---------------------------------------------------------------------------
-// App tables (snake_case). One profile per user; profiles own tabs; tabs own
-// media; links belong to a profile and optionally scope to a single tab.
-// ---------------------------------------------------------------------------
-
 export const profiles = sqliteTable(
   'profiles',
   {
@@ -81,13 +70,14 @@ export const profiles = sqliteTable(
     accent: text('accent').notNull().default('#a78bfa'),
     published: integer('published', { mode: 'boolean' }).notNull().default(false),
     subscription_status: text('subscription_status', {
-      enum: ['active', 'canceled', 'past_due', 'revoked'],
+      enum: ['trialing', 'active', 'canceled', 'past_due', 'revoked'],
     }),
     subscription_id: text('subscription_id'),
     polar_customer_id: text('polar_customer_id'),
     subscription_current_period_end: integer('subscription_current_period_end', {
       mode: 'timestamp_ms',
     }),
+    trial_ends_at: integer('trial_ends_at', { mode: 'timestamp_ms' }),
     created_at: text('created_at')
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
@@ -112,6 +102,9 @@ export const tabs = sqliteTable(
     type: text('type', { enum: ['grid', 'video'] })
       .notNull()
       .default('grid'),
+    grid_mode: text('grid_mode', { enum: ['cycle', 'masonry'] })
+      .notNull()
+      .default('cycle'),
     position: integer('position').notNull().default(0),
     created_at: text('created_at')
       .notNull()

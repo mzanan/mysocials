@@ -42,11 +42,13 @@ export default async function DashboardPage() {
     avatarUrl: profile.avatar_url,
     published: profile.published,
     subscriptionStatus: profile.subscription_status,
+    trialEndsAt: profile.trial_ends_at ? profile.trial_ends_at.getTime() : null,
     instagramConnected: Boolean(igConn),
     tabs: profile.tabs.map((t) => ({
       id: t.id,
       label: t.label,
       type: t.type,
+      gridMode: t.grid_mode,
       media: t.media.map((m) => ({
         id: m.id,
         kind: m.kind,

@@ -13,10 +13,13 @@ export interface MediaPublic {
   height?: number | null
 }
 
+export type GridMode = 'cycle' | 'masonry'
+
 export interface TabPublic {
   id: string
   label: string
   type: 'grid' | 'video'
+  gridMode: GridMode
   media: MediaPublic[]
   links: LinkPublic[]
 }
@@ -28,4 +31,20 @@ export interface ProfilePublic {
   bio: string | null
   accent: string
   tabs: TabPublic[]
+}
+
+export interface SuspendedProfilePublic {
+  status: 'suspended'
+  username: string
+  displayName: string | null
+  avatarUrl: string | null
+  accent: string
+}
+
+export type PublicProfileResult = ProfilePublic | SuspendedProfilePublic
+
+export function isSuspended(
+  p: PublicProfileResult,
+): p is SuspendedProfilePublic {
+  return 'status' in p && p.status === 'suspended'
 }
