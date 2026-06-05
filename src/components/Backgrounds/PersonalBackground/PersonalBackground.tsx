@@ -10,8 +10,9 @@ const GAP = 4
 const CYCLE_MIN_CELL = 150
 const CYCLE_MAX_CELL = 240
 const MASONRY_GAP = 6
-const MASONRY_BREAKPOINTS = { md: 768, lg: 1280 }
-const MASONRY_COLS = { sm: 2, md: 3, lg: 4 }
+const MASONRY_TARGET_COL_W = 180
+const MASONRY_MIN_COLS = 2
+const MASONRY_MAX_COLS = 8
 
 interface CycleGrid {
   cols: number
@@ -63,18 +64,14 @@ function useCycleGrid(images: string[]): CycleGrid | null {
 }
 
 function useMasonryColumns(media: MediaPublic[]): MasonryColumn[][] {
-  const [viewport, setViewport] = useState({ w: 0, h: 0, cols: MASONRY_COLS.sm })
+  const [viewport, setViewport] = useState({ w: 0, h: 0, cols: MASONRY_MIN_COLS })
 
   useEffect(() => {
     const compute = () => {
       const w = window.innerWidth
       const h = window.innerHeight
-      const cols =
-        w >= MASONRY_BREAKPOINTS.lg
-          ? MASONRY_COLS.lg
-          : w >= MASONRY_BREAKPOINTS.md
-            ? MASONRY_COLS.md
-            : MASONRY_COLS.sm
+      const ideal = Math.round(w / MASONRY_TARGET_COL_W)
+      const cols = Math.max(MASONRY_MIN_COLS, Math.min(MASONRY_MAX_COLS, ideal))
       setViewport({ w, h, cols })
     }
     compute()
@@ -254,7 +251,7 @@ export function PersonalBackground({
                         alt=""
                         fill
                         className="object-cover"
-                        sizes="50vw"
+                        sizes={`${MASONRY_TARGET_COL_W}px`}
                         loading="eager"
                         onLoad={() => markLoaded(flatIndex)}
                         onError={() => markLoaded(flatIndex)}
