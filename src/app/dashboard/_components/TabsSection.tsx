@@ -28,16 +28,49 @@ function MediaManager({
   const up = useImageUploader(tab)
   const imgRef = useRef<HTMLInputElement>(null)
   const [importing, setImporting] = useState(false)
+  const [progress, setProgress] = useState<{ imported: number; total: number } | null>(null)
 
   async function onImport() {
     setImporting(true)
+    setProgress(null)
     const res = await fetch('/api/import/instagram', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ tabId: tab.id }),
     })
-    setImporting(false)
-    if (res.ok) window.location.reload()
+    if (!res.ok) {
+      setImporting(false)
+      return
+    }
+    const { jobId } = (await res.json()) as { jobId: string }
+
+    while (true) {
+      await new Promise((r) => setTimeout(r, 1500))
+      const r = await fetch('/api/import/instagram/poll', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ jobId }),
+      })
+      if (!r.ok) {
+        setImporting(false)
+        return
+      }
+      const data = (await r.json()) as {
+        status: 'pending' | 'running' | 'processing' | 'done' | 'failed'
+        total: number
+        imported: number
+        error: string | null
+      }
+      setProgress({ imported: data.imported, total: data.total })
+      if (data.status === 'done') {
+        window.location.reload()
+        return
+      }
+      if (data.status === 'failed') {
+        setImporting(false)
+        return
+      }
+    }
   }
 
   return (
@@ -107,7 +140,12 @@ function MediaManager({
             {instagramEnabled &&
               (igConnected ? (
                 <Button variant="glass" disabled={importing} onClick={onImport}>
-                  <Instagram size={14} /> {importing ? 'Importing…' : 'Import from Instagram'}
+                  <Instagram size={14} />{' '}
+                  {importing
+                    ? progress && progress.total > 0
+                      ? `Importing ${progress.imported}/${progress.total}…`
+                      : 'Fetching from Instagram…'
+                    : 'Import from Instagram'}
                 </Button>
               ) : (
                 <Button

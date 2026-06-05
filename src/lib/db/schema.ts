@@ -186,6 +186,31 @@ export const ig_connections = sqliteTable('ig_connections', {
     .$onUpdate(() => new Date().toISOString()),
 })
 
+export const import_jobs = sqliteTable('import_jobs', {
+  id: text('id').primaryKey(),
+  user_id: text('user_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
+  tab_id: text('tab_id')
+    .notNull()
+    .references(() => tabs.id, { onDelete: 'cascade' }),
+  source: text('source', { enum: ['instagram'] }).notNull(),
+  status: text('status', { enum: ['pending', 'running', 'processing', 'done', 'failed'] })
+    .notNull()
+    .default('pending'),
+  pending_items: text('pending_items'),
+  total: integer('total').notNull().default(0),
+  imported: integer('imported').notNull().default(0),
+  error: text('error'),
+  created_at: text('created_at')
+    .notNull()
+    .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+  updated_at: text('updated_at')
+    .notNull()
+    .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`)
+    .$onUpdate(() => new Date().toISOString()),
+})
+
 export const userRelations = relations(user, ({ one }) => ({
   profile: one(profiles, { fields: [user.id], references: [profiles.user_id] }),
 }))
