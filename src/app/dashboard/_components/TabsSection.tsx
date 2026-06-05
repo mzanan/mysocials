@@ -15,6 +15,8 @@ import { useDashboardStore } from './DashboardStore'
 import { useImageUploader } from './useImageUploader'
 import { useMediaManager } from './useMediaManager'
 
+const IMPORT_POLL_INTERVAL_MS = 1500
+
 function MediaManager({
   tab,
   instagramEnabled,
@@ -45,7 +47,7 @@ function MediaManager({
     const { jobId } = (await res.json()) as { jobId: string }
 
     while (true) {
-      await new Promise((r) => setTimeout(r, 1500))
+      await new Promise((r) => setTimeout(r, IMPORT_POLL_INTERVAL_MS))
       const r = await fetch('/api/import/instagram/poll', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },

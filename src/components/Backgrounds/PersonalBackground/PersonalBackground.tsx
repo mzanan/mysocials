@@ -7,6 +7,9 @@ import { usePersonalBackground, itemVariants } from './usePersonalBackground'
 import type { GridSize } from '@/types/profile'
 
 const GAP = 4
+const READY_FALLBACK_MS = 2500
+const READY_PER_TILE_MS = 30
+const READY_BASE_MS = 500
 const SIZE_CELL: Record<GridSize, { min: number; max: number }> = {
   small: { min: 100, max: 150 },
   medium: { min: 150, max: 220 },
@@ -96,7 +99,7 @@ export function PersonalBackground({
 
   useEffect(() => {
     if (total === 0) return
-    const t = setTimeout(() => setReadyCount(total), 2500)
+    const t = setTimeout(() => setReadyCount(total), READY_FALLBACK_MS)
     return () => clearTimeout(t)
   }, [total, animationKey])
 
@@ -105,7 +108,7 @@ export function PersonalBackground({
       const t = setTimeout(() => {
         readyFiredRef.current = true
         onReady?.()
-      }, total * 30 + 500)
+      }, total * READY_PER_TILE_MS + READY_BASE_MS)
       return () => clearTimeout(t)
     }
   }, [isActive, readyCount, total, onReady])
