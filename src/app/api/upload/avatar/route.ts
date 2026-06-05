@@ -1,15 +1,8 @@
-import { randomUUID } from 'node:crypto'
-
 import { headers } from 'next/headers'
 import { NextResponse } from 'next/server'
-import { eq } from 'drizzle-orm'
-import sharp from 'sharp'
 
 import { auth } from '@/lib/auth'
-import { db } from '@/lib/db'
-import { profiles } from '@/lib/db/schema'
-import { toDecodableImage } from '@/lib/media/decode'
-import { storage } from '@/lib/storage'
+import { setAvatarFromBuffer } from '@/lib/avatar'
 
 export const runtime = 'nodejs'
 
@@ -26,25 +19,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Image is too large' }, { status: 413 })
   }
 
-  const { data } = await sharp(await toDecodableImage(Buffer.from(await file.arrayBuffer())))
-    .rotate()
-    .resize(256, 256, { fit: 'cover' })
-    .webp({ quality: 80 })
-    .toBuffer({ resolveWithObject: true })
-
-  const key = `avatar/${session.user.id}/${randomUUID()}.webp`
-  await storage.put(key, data, 'image/webp')
-
-  const existing = await db.query.profiles.findFirst({
-    where: eq(profiles.user_id, session.user.id),
-  })
-  if (existing?.avatar_key) await storage.delete(existing.avatar_key).catch(() => {})
-
-  const url = storage.publicUrl(key)
-  await db
-    .update(profiles)
-    .set({ avatar_url: url, avatar_key: key })
-    .where(eq(profiles.user_id, session.user.id))
-
+  const url = await setAvatarFromBuffer(session.user.id, Buffer.from(await file.arrayBuffer()))
   return NextResponse.json({ url })
 }

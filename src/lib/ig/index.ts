@@ -57,12 +57,23 @@ export async function getLongLivedToken(
 
 export async function fetchProfile(
   token: string,
-): Promise<{ id: string; username: string | null }> {
-  const params = new URLSearchParams({ fields: 'id,username', access_token: token })
+): Promise<{ id: string; username: string | null; profilePictureUrl: string | null }> {
+  const params = new URLSearchParams({
+    fields: 'id,username,profile_picture_url',
+    access_token: token,
+  })
   const res = await fetch(`${IG_GRAPH}/${IG_API_VERSION}/me?${params.toString()}`)
   if (!res.ok) throw new Error(`IG profile fetch failed: ${res.status}`)
-  const json = (await res.json()) as { id: string; username?: string }
-  return { id: json.id, username: json.username ?? null }
+  const json = (await res.json()) as {
+    id: string
+    username?: string
+    profile_picture_url?: string
+  }
+  return {
+    id: json.id,
+    username: json.username ?? null,
+    profilePictureUrl: json.profile_picture_url ?? null,
+  }
 }
 
 export interface IgMedia {

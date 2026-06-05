@@ -60,14 +60,14 @@ export async function getPublicProfileByUsername(
           height: m.height,
         }))
       const ownLinks = t.links.map(toLinkPublic)
-      return { id: t.id, label: t.label, type: t.type, gridMode: t.grid_mode, media, ownLinks }
+      return { id: t.id, label: t.label, type: t.type, gridSize: t.grid_size, media, ownLinks }
     })
     .filter((t) => t.media.length > 0 || t.ownLinks.length > 0)
     .map((t) => ({
       id: t.id,
       label: t.label,
       type: t.type,
-      gridMode: t.gridMode,
+      gridSize: t.gridSize,
       media: t.media,
       links: [...globalLinks, ...t.ownLinks],
     }))

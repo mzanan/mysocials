@@ -13,13 +13,13 @@ export interface MediaPublic {
   height?: number | null
 }
 
-export type GridMode = 'cycle' | 'masonry'
+export type GridSize = 'small' | 'medium' | 'large'
 
 export interface TabPublic {
   id: string
   label: string
   type: 'grid' | 'video'
-  gridMode: GridMode
+  gridSize: GridSize
   media: MediaPublic[]
   links: LinkPublic[]
 }

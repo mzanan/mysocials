@@ -1,9 +1,12 @@
 import { cookies, headers } from 'next/headers'
 import { NextResponse } from 'next/server'
 
+import { eq } from 'drizzle-orm'
+
 import { auth } from '@/lib/auth'
+import { setAvatarFromBuffer } from '@/lib/avatar'
 import { db } from '@/lib/db'
-import { ig_connections } from '@/lib/db/schema'
+import { ig_connections, profiles } from '@/lib/db/schema'
 import { exchangeCodeForToken, fetchProfile, getLongLivedToken, instagramEnabled } from '@/lib/ig'
 
 export const runtime = 'nodejs'
@@ -53,6 +56,17 @@ export async function GET(req: Request) {
           token_expires_at: values.token_expires_at,
         },
       })
+
+    const userProfile = await db.query.profiles.findFirst({
+      where: eq(profiles.user_id, session.user.id),
+    })
+    if (!userProfile?.avatar_url && profile.profilePictureUrl) {
+      try {
+        const r = await fetch(profile.profilePictureUrl)
+        if (r.ok) await setAvatarFromBuffer(session.user.id, Buffer.from(await r.arrayBuffer()))
+      } catch {}
+    }
+
     return finish('connected')
   } catch {
     return finish('error')

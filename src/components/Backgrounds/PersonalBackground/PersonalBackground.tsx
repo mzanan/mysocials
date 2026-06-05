@@ -1,18 +1,17 @@
 'use client'
 
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { m } from 'motion/react'
 import Image from 'next/image'
 import { usePersonalBackground, itemVariants } from './usePersonalBackground'
-import type { GridMode, MediaPublic } from '@/types/profile'
+import type { GridSize } from '@/types/profile'
 
 const GAP = 4
-const CYCLE_MIN_CELL = 150
-const CYCLE_MAX_CELL = 240
-const MASONRY_GAP = 6
-const MASONRY_TARGET_COL_W = 180
-const MASONRY_MIN_COLS = 2
-const MASONRY_MAX_COLS = 8
+const SIZE_CELL: Record<GridSize, { min: number; max: number }> = {
+  small: { min: 100, max: 150 },
+  medium: { min: 150, max: 220 },
+  large: { min: 220, max: 320 },
+}
 
 interface CycleGrid {
   cols: number
@@ -20,13 +19,7 @@ interface CycleGrid {
   items: { src: string; key: number }[]
 }
 
-interface MasonryColumn {
-  src: string
-  aspectRatio: string
-  key: number
-}
-
-function useCycleGrid(images: string[]): CycleGrid | null {
+function useCycleGrid(images: string[], size: GridSize): CycleGrid | null {
   const [grid, setGrid] = useState<CycleGrid | null>(null)
 
   useEffect(() => {
@@ -36,14 +29,15 @@ function useCycleGrid(images: string[]): CycleGrid | null {
     }
 
     const calculate = () => {
+      const { min, max } = SIZE_CELL[size]
       const W = window.innerWidth
       const H = window.innerHeight
       const N = images.length
       let cols = Math.round(Math.sqrt((N * W) / H))
       cols = Math.max(1, cols)
       let cellW = W / cols
-      if (cellW < CYCLE_MIN_CELL) cols = Math.max(1, Math.floor(W / CYCLE_MIN_CELL))
-      else if (cellW > CYCLE_MAX_CELL) cols = Math.ceil(W / CYCLE_MAX_CELL)
+      if (cellW < min) cols = Math.max(1, Math.floor(W / min))
+      else if (cellW > max) cols = Math.ceil(W / max)
       cellW = W / cols
       const rows = Math.max(1, Math.ceil(H / cellW))
       const total = cols * rows
@@ -58,67 +52,20 @@ function useCycleGrid(images: string[]): CycleGrid | null {
     calculate()
     window.addEventListener('resize', calculate)
     return () => window.removeEventListener('resize', calculate)
-  }, [images])
+  }, [images, size])
 
   return grid
-}
-
-function useMasonryColumns(media: MediaPublic[]): MasonryColumn[][] {
-  const [viewport, setViewport] = useState({ w: 0, h: 0, cols: MASONRY_MIN_COLS })
-
-  useEffect(() => {
-    const compute = () => {
-      const w = window.innerWidth
-      const h = window.innerHeight
-      const ideal = Math.round(w / MASONRY_TARGET_COL_W)
-      const cols = Math.max(MASONRY_MIN_COLS, Math.min(MASONRY_MAX_COLS, ideal))
-      setViewport({ w, h, cols })
-    }
-    compute()
-    window.addEventListener('resize', compute)
-    return () => window.removeEventListener('resize', compute)
-  }, [])
-
-  return useMemo(() => {
-    if (media.length === 0 || viewport.w === 0) return []
-    const { w, h, cols } = viewport
-    const colWidth = (w - (cols + 1) * MASONRY_GAP) / cols
-    const out: MasonryColumn[][] = Array.from({ length: cols }, () => [])
-    const colHeights = new Array(cols).fill(0)
-    let i = 0
-    let safety = 0
-    while (colHeights.some((ch) => ch < h) && safety < 1000) {
-      const m = media[i % media.length]
-      const ratio = m.width && m.height ? m.width / m.height : 4 / 5
-      const tileHeight = colWidth / ratio
-      let target = 0
-      for (let c = 1; c < cols; c++) {
-        if (colHeights[c] < colHeights[target]) target = c
-      }
-      out[target].push({
-        src: m.url,
-        aspectRatio: m.width && m.height ? `${m.width} / ${m.height}` : '4 / 5',
-        key: i,
-      })
-      colHeights[target] += tileHeight + MASONRY_GAP
-      i++
-      safety++
-    }
-    return out
-  }, [media, viewport])
 }
 
 export function PersonalBackground({
   isActive,
   initialImages,
-  initialMedia,
-  gridMode = 'cycle',
+  gridSize = 'medium',
   onReady,
 }: {
   isActive: boolean
   initialImages: string[]
-  initialMedia?: MediaPublic[]
-  gridMode?: GridMode
+  gridSize?: GridSize
   onReady?: () => void
 }) {
   const { images, animationKey } = usePersonalBackground(isActive, initialImages)
@@ -144,14 +91,8 @@ export function PersonalBackground({
     })
   }
 
-  const cycleGrid = useCycleGrid(gridMode === 'cycle' ? images : [])
-  const masonryColumns = useMasonryColumns(
-    gridMode === 'masonry' ? (initialMedia ?? []) : [],
-  )
-
-  const totalCycle = cycleGrid ? cycleGrid.items.length : 0
-  const totalMasonry = masonryColumns.reduce((n, c) => n + c.length, 0)
-  const total = gridMode === 'cycle' ? totalCycle : totalMasonry
+  const cycleGrid = useCycleGrid(images, gridSize)
+  const total = cycleGrid ? cycleGrid.items.length : 0
 
   useEffect(() => {
     if (total === 0) return
@@ -171,7 +112,7 @@ export function PersonalBackground({
 
   return (
     <div className="bg-fixed-overlay bg-grid-base">
-      {gridMode === 'cycle' && cycleGrid && (
+      {cycleGrid && (
         <div
           key={animationKey}
           className="absolute inset-0 grid"
@@ -213,55 +154,6 @@ export function PersonalBackground({
               </div>
             )
           })}
-        </div>
-      )}
-
-      {gridMode === 'masonry' && totalMasonry > 0 && (
-        <div
-          key={animationKey}
-          className="absolute inset-0 flex items-start overflow-hidden"
-          style={{ gap: MASONRY_GAP, padding: MASONRY_GAP }}
-        >
-          {masonryColumns.map((col, ci) => (
-            <div
-              key={ci}
-              className="flex min-w-0 flex-1 flex-col"
-              style={{ gap: MASONRY_GAP }}
-            >
-              {col.map(({ src, aspectRatio, key }) => {
-                const flatIndex = key
-                const revealed = isActive && flatIndex < readyCount
-                return (
-                  <div
-                    key={key}
-                    className="relative overflow-hidden rounded-sm skeleton-shimmer"
-                    style={{ aspectRatio }}
-                  >
-                    <m.div
-                      className="absolute inset-0"
-                      variants={itemVariants}
-                      custom={flatIndex}
-                      initial="hidden"
-                      animate={revealed ? 'visible' : 'hidden'}
-                      whileHover={{ scale: 1.03, zIndex: 10 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <Image
-                        src={src}
-                        alt=""
-                        fill
-                        className="object-cover"
-                        sizes={`${MASONRY_TARGET_COL_W}px`}
-                        loading="eager"
-                        onLoad={() => markLoaded(flatIndex)}
-                        onError={() => markLoaded(flatIndex)}
-                      />
-                    </m.div>
-                  </div>
-                )
-              })}
-            </div>
-          ))}
         </div>
       )}
 

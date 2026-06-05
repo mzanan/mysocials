@@ -6,8 +6,11 @@ import { and, eq, inArray, sql } from 'drizzle-orm'
 import { z } from 'zod'
 
 import { auth } from '@/lib/auth'
+import { setAvatarFromBuffer } from '@/lib/avatar'
 import { db } from '@/lib/db'
-import { links, media, profiles, tabs } from '@/lib/db/schema'
+import { ig_connections, links, media, profiles, tabs } from '@/lib/db/schema'
+import { fetchProfile } from '@/lib/ig'
+import { buildLinkTitle, buildLinkUrl, isNetworkSlug } from '@/lib/networks'
 import { isUsernameAvailable } from '@/lib/profile/username'
 import { requirePublishAccess } from '@/lib/subscription'
 import { storage } from '@/lib/storage'
@@ -60,6 +63,45 @@ export async function updateUsername(username: string): Promise<Result> {
   return { ok: true }
 }
 
+type AvatarResult = { ok: true; url: string } | { ok: false; error: string }
+
+export async function setAvatarFromInstagram(): Promise<AvatarResult> {
+  const uid = await requireUserId()
+  const conn = await db.query.ig_connections.findFirst({
+    where: eq(ig_connections.user_id, uid),
+  })
+  if (!conn) return { ok: false, error: 'Instagram not connected' }
+  try {
+    const profile = await fetchProfile(conn.access_token)
+    if (!profile.profilePictureUrl) return { ok: false, error: 'No Instagram profile picture' }
+    const res = await fetch(profile.profilePictureUrl)
+    if (!res.ok) return { ok: false, error: 'Could not fetch Instagram picture' }
+    const url = await setAvatarFromBuffer(uid, Buffer.from(await res.arrayBuffer()))
+    revalidate()
+    return { ok: true, url }
+  } catch {
+    return { ok: false, error: 'Instagram avatar fetch failed' }
+  }
+}
+
+export async function setAvatarFromMedia(mediaId: string): Promise<AvatarResult> {
+  const uid = await requireUserId()
+  const row = await db.query.media.findFirst({
+    where: and(eq(media.id, mediaId), eq(media.kind, 'image')),
+    with: { tab: { columns: { user_id: true } } },
+  })
+  if (!row || row.tab.user_id !== uid) return { ok: false, error: 'Photo not found' }
+  try {
+    const res = await fetch(row.url)
+    if (!res.ok) return { ok: false, error: 'Could not load photo' }
+    const url = await setAvatarFromBuffer(uid, Buffer.from(await res.arrayBuffer()))
+    revalidate()
+    return { ok: true, url }
+  } catch {
+    return { ok: false, error: 'Avatar update failed' }
+  }
+}
+
 export async function setPublished(published: boolean): Promise<Result> {
   const uid = await requireUserId()
   if (published) {
@@ -74,7 +116,7 @@ export async function setPublished(published: boolean): Promise<Result> {
 const tabSchema = z.object({
   label: z.string().trim().min(1).max(24),
   type: z.enum(['grid', 'video']),
-  gridMode: z.enum(['cycle', 'masonry']).optional(),
+  gridSize: z.enum(['small', 'medium', 'large']).optional(),
 })
 
 export async function createTab(input: z.infer<typeof tabSchema>): Promise<TabResult> {
@@ -91,7 +133,7 @@ export async function createTab(input: z.infer<typeof tabSchema>): Promise<TabRe
       user_id: uid,
       label: parsed.data.label,
       type: parsed.data.type,
-      grid_mode: parsed.data.gridMode ?? 'cycle',
+      grid_size: parsed.data.gridSize ?? 'medium',
       position: (max ?? -1) + 1,
     })
     .returning()
@@ -102,7 +144,7 @@ export async function createTab(input: z.infer<typeof tabSchema>): Promise<TabRe
       id: row.id,
       label: row.label,
       type: row.type,
-      gridMode: row.grid_mode,
+      gridSize: row.grid_size,
       media: [],
     },
   }
@@ -115,11 +157,11 @@ export async function updateTab(
   const uid = await requireUserId()
   const parsed = tabSchema.safeParse(input)
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message }
-  const patch: { label: string; type: 'grid' | 'video'; grid_mode?: 'cycle' | 'masonry' } = {
+  const patch: { label: string; type: 'grid' | 'video'; grid_size?: 'small' | 'medium' | 'large' } = {
     label: parsed.data.label,
     type: parsed.data.type,
   }
-  if (parsed.data.gridMode) patch.grid_mode = parsed.data.gridMode
+  if (parsed.data.gridSize) patch.grid_size = parsed.data.gridSize
   await db
     .update(tabs)
     .set(patch)
@@ -190,12 +232,65 @@ export async function reorderMedia(tabId: string, orderedIds: string[]): Promise
   return { ok: true }
 }
 
-const linkSchema = z.object({
-  tabId: z.string().nullable(),
-  title: z.string().trim().min(1).max(40),
-  url: z.string().trim().url().max(500),
-  icon: z.string().trim().max(40).nullable(),
-})
+const linkSchema = z
+  .object({
+    tabId: z.string().nullable(),
+    network: z.string().trim().nullable(),
+    handle: z.string().trim().nullable(),
+    title: z.string().trim().max(40).optional(),
+    url: z.string().trim().max(500).optional(),
+    icon: z.string().trim().max(40).nullable(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.network) {
+      if (!isNetworkSlug(data.network)) {
+        ctx.addIssue({ code: 'custom', message: 'Unknown network', path: ['network'] })
+      }
+      if (!data.handle || !data.handle.trim()) {
+        ctx.addIssue({ code: 'custom', message: 'Handle is required', path: ['handle'] })
+      }
+    } else {
+      if (!data.title || data.title.trim().length === 0) {
+        ctx.addIssue({ code: 'custom', message: 'Title is required', path: ['title'] })
+      }
+      if (!data.url || data.url.trim().length === 0) {
+        ctx.addIssue({ code: 'custom', message: 'URL is required', path: ['url'] })
+      } else {
+        try {
+          new URL(data.url)
+        } catch {
+          ctx.addIssue({ code: 'custom', message: 'Invalid URL', path: ['url'] })
+        }
+      }
+    }
+  })
+
+type LinkFields = {
+  network: string | null
+  handle: string | null
+  title: string
+  url: string
+  icon: string | null
+}
+
+function deriveLinkFields(input: z.infer<typeof linkSchema>): LinkFields {
+  if (input.network && isNetworkSlug(input.network) && input.handle) {
+    return {
+      network: input.network,
+      handle: input.handle.trim().replace(/^@+/, ''),
+      title: buildLinkTitle(input.handle),
+      url: buildLinkUrl(input.network, input.handle),
+      icon: null,
+    }
+  }
+  return {
+    network: null,
+    handle: null,
+    title: (input.title ?? '').trim(),
+    url: (input.url ?? '').trim(),
+    icon: input.icon?.trim() || null,
+  }
+}
 
 export async function createLink(input: z.infer<typeof linkSchema>): Promise<LinkResult> {
   const uid = await requireUserId()
@@ -204,6 +299,7 @@ export async function createLink(input: z.infer<typeof linkSchema>): Promise<Lin
   if (parsed.data.tabId && !(await assertTabOwned(parsed.data.tabId, uid))) {
     return { ok: false, error: 'Tab not found' }
   }
+  const fields = deriveLinkFields(parsed.data)
   const [{ max }] = await db
     .select({ max: sql<number>`coalesce(max(${links.position}), -1)` })
     .from(links)
@@ -213,16 +309,22 @@ export async function createLink(input: z.infer<typeof linkSchema>): Promise<Lin
     .values({
       user_id: uid,
       tab_id: parsed.data.tabId,
-      title: parsed.data.title,
-      url: parsed.data.url,
-      icon: parsed.data.icon || null,
+      ...fields,
       position: (max ?? -1) + 1,
     })
     .returning()
   revalidate()
   return {
     ok: true,
-    link: { id: row.id, tabId: row.tab_id, title: row.title, url: row.url, icon: row.icon },
+    link: {
+      id: row.id,
+      tabId: row.tab_id,
+      network: row.network,
+      handle: row.handle,
+      title: row.title,
+      url: row.url,
+      icon: row.icon,
+    },
   }
 }
 
@@ -236,13 +338,12 @@ export async function updateLink(
   if (parsed.data.tabId && !(await assertTabOwned(parsed.data.tabId, uid))) {
     return { ok: false, error: 'Tab not found' }
   }
+  const fields = deriveLinkFields(parsed.data)
   await db
     .update(links)
     .set({
       tab_id: parsed.data.tabId,
-      title: parsed.data.title,
-      url: parsed.data.url,
-      icon: parsed.data.icon || null,
+      ...fields,
     })
     .where(and(eq(links.id, id), eq(links.user_id, uid)))
   revalidate()

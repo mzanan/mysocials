@@ -2,7 +2,12 @@
 
 import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { updateProfile, updateUsername } from '../actions'
+import {
+  setAvatarFromInstagram,
+  setAvatarFromMedia,
+  updateProfile,
+  updateUsername,
+} from '../actions'
 import { toast } from '@/lib/toast'
 import type { DashboardData } from '@/types/dashboard'
 
@@ -62,6 +67,38 @@ export function useProfileSection(data: DashboardData) {
     if (fileRef.current) fileRef.current.value = ''
   }
 
+  async function useInstagramAvatar() {
+    setAvatarBusy(true)
+    setAvatarMsg(null)
+    const res = await setAvatarFromInstagram()
+    if (res.ok) {
+      setAvatarUrl(res.url)
+      setAvatarMsg('Avatar updated')
+      toast.success('Avatar updated from Instagram')
+      router.refresh()
+    } else {
+      setAvatarMsg(res.error)
+      toast.error(res.error)
+    }
+    setAvatarBusy(false)
+  }
+
+  async function pickAvatarFromMedia(mediaId: string) {
+    setAvatarBusy(true)
+    setAvatarMsg(null)
+    const res = await setAvatarFromMedia(mediaId)
+    if (res.ok) {
+      setAvatarUrl(res.url)
+      setAvatarMsg('Avatar updated')
+      toast.success('Avatar updated')
+      router.refresh()
+    } else {
+      setAvatarMsg(res.error)
+      toast.error(res.error)
+    }
+    setAvatarBusy(false)
+  }
+
   return {
     pending,
     displayName,
@@ -80,5 +117,7 @@ export function useProfileSection(data: DashboardData) {
     saveProfile,
     saveUsername,
     onAvatar,
+    useInstagramAvatar,
+    pickAvatarFromMedia,
   }
 }

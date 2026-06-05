@@ -1,15 +1,21 @@
 'use client'
 
+import { useState } from 'react'
 import Image from 'next/image'
+import { Instagram, Images } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Field } from '@/components/ui/field'
 import { Input, inputBase } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
-import type { DashboardData } from '@/types/dashboard'
+import type { DashboardData, DashMedia } from '@/types/dashboard'
 import { useProfileSection } from './useProfileSection'
 
 const SWATCHES = ['#a78bfa', '#f472b6', '#60a5fa', '#34d399', '#fbbf24', '#f87171']
+
+function getImageMedia(data: DashboardData): DashMedia[] {
+  return data.tabs.flatMap((t) => t.media).filter((m) => m.kind === 'image')
+}
 
 export function ProfileSection({ data }: { data: DashboardData }) {
   const {
@@ -30,7 +36,17 @@ export function ProfileSection({ data }: { data: DashboardData }) {
     saveProfile,
     saveUsername,
     onAvatar,
+    useInstagramAvatar,
+    pickAvatarFromMedia,
   } = useProfileSection(data)
+
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const imageMedia = getImageMedia(data)
+
+  async function onPick(id: string) {
+    setPickerOpen(false)
+    await pickAvatarFromMedia(id)
+  }
 
   return (
     <Card title="Profile" desc="How your page introduces you.">
@@ -41,12 +57,56 @@ export function ProfileSection({ data }: { data: DashboardData }) {
           </div>
           <div className="flex flex-col gap-1.5">
             <input ref={fileRef} type="file" accept="image/*" hidden onChange={onAvatar} />
-            <Button variant="glass" disabled={avatarBusy} onClick={() => fileRef.current?.click()}>
-              {avatarBusy ? 'Uploading…' : 'Change avatar'}
-            </Button>
+            <div className="flex flex-wrap gap-1.5">
+              <Button variant="glass" disabled={avatarBusy} onClick={() => fileRef.current?.click()}>
+                {avatarBusy ? 'Updating…' : 'Upload'}
+              </Button>
+              {data.instagramConnected && (
+                <Button variant="glass" disabled={avatarBusy} onClick={useInstagramAvatar}>
+                  <Instagram size={14} /> Use Instagram avatar
+                </Button>
+              )}
+              {imageMedia.length > 0 && (
+                <Button variant="glass" disabled={avatarBusy} onClick={() => setPickerOpen(true)}>
+                  <Images size={14} /> Pick from photos
+                </Button>
+              )}
+            </div>
             {avatarMsg && <span className="text-xs text-fg-subtle">{avatarMsg}</span>}
           </div>
         </div>
+
+        {pickerOpen && (
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+            onClick={() => setPickerOpen(false)}
+          >
+            <div
+              className="max-h-[80vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-hairline bg-surface p-5"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-sm font-medium text-fg">Pick avatar from your photos</h3>
+                <Button variant="glass" onClick={() => setPickerOpen(false)}>
+                  Close
+                </Button>
+              </div>
+              <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
+                {imageMedia.map((m) => (
+                  <button
+                    key={m.id}
+                    onClick={() => onPick(m.id)}
+                    className="group relative aspect-square overflow-hidden rounded-lg border border-hairline-subtle bg-surface-subtle transition hover:border-accent"
+                  >
+                    <Image src={m.url} alt="" fill className="object-cover" sizes="120px" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         <Field label="Username (your public URL)">
           <div className="flex gap-2">

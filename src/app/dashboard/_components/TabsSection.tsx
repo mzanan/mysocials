@@ -207,14 +207,14 @@ function TabRow({
   const { setTabs, patchTab } = useDashboardStore()
   const [label, setLabel] = useState(tab.label)
   const [type, setType] = useState(tab.type)
-  const [gridMode, setGridMode] = useState(tab.gridMode)
+  const [gridSize, setGridSize] = useState(tab.gridSize)
   const [pending, startTransition] = useTransition()
 
-  function save(next?: { gridMode?: 'cycle' | 'masonry' }) {
-    const nextGridMode = next?.gridMode ?? gridMode
+  function save(next?: { gridSize?: 'small' | 'medium' | 'large' }) {
+    const nextGridSize = next?.gridSize ?? gridSize
     startTransition(async () => {
-      const res = await updateTab(tab.id, { label, type, gridMode: nextGridMode })
-      if (res.ok) patchTab(tab.id, { label, type, gridMode: nextGridMode })
+      const res = await updateTab(tab.id, { label, type, gridSize: nextGridSize })
+      if (res.ok) patchTab(tab.id, { label, type, gridSize: nextGridSize })
     })
   }
 
@@ -240,26 +240,27 @@ function TabRow({
         {type === 'grid' && (
           <div
             role="radiogroup"
-            aria-label="Grid layout"
+            aria-label="Grid size"
             className="flex h-9 items-center rounded-md border border-hairline bg-surface-subtle p-0.5"
           >
             {(
               [
-                { v: 'cycle', label: 'Cycle' },
-                { v: 'masonry', label: 'Masonry' },
+                { v: 'small', label: 'Small' },
+                { v: 'medium', label: 'Medium' },
+                { v: 'large', label: 'Large' },
               ] as const
             ).map(({ v, label: optLabel }) => (
               <button
                 key={v}
                 role="radio"
-                aria-checked={gridMode === v}
+                aria-checked={gridSize === v}
                 onClick={() => {
-                  setGridMode(v)
-                  save({ gridMode: v })
+                  setGridSize(v)
+                  save({ gridSize: v })
                 }}
                 className={cn(
                   'h-8 rounded px-3 text-xs transition-colors',
-                  gridMode === v
+                  gridSize === v
                     ? 'bg-surface-stronger text-fg'
                     : 'text-fg-subtle hover:text-fg-muted',
                 )}
@@ -304,7 +305,7 @@ export function TabsSection({
     if (!newLabel.trim()) return
     setError(null)
     startTransition(async () => {
-      const res = await createTab({ label: newLabel.trim(), type: newType, gridMode: 'cycle' })
+      const res = await createTab({ label: newLabel.trim(), type: newType, gridSize: 'medium' })
       if (!res.ok) {
         setError(res.error)
         toast.error(res.error)

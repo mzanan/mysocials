@@ -48,7 +48,7 @@ export default async function DashboardPage() {
       id: t.id,
       label: t.label,
       type: t.type,
-      gridMode: t.grid_mode,
+      gridSize: t.grid_size,
       media: t.media.map((m) => ({
         id: m.id,
         kind: m.kind,
@@ -59,6 +59,8 @@ export default async function DashboardPage() {
     links: profile.links.map((l) => ({
       id: l.id,
       tabId: l.tab_id,
+      network: l.network,
+      handle: l.handle,
       title: l.title,
       url: l.url,
       icon: l.icon,

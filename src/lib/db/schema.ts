@@ -102,9 +102,9 @@ export const tabs = sqliteTable(
     type: text('type', { enum: ['grid', 'video'] })
       .notNull()
       .default('grid'),
-    grid_mode: text('grid_mode', { enum: ['cycle', 'masonry'] })
+    grid_size: text('grid_size', { enum: ['small', 'medium', 'large'] })
       .notNull()
-      .default('cycle'),
+      .default('medium'),
     position: integer('position').notNull().default(0),
     created_at: text('created_at')
       .notNull()
@@ -153,6 +153,8 @@ export const links = sqliteTable(
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
     tab_id: text('tab_id').references(() => tabs.id, { onDelete: 'cascade' }),
+    network: text('network'),
+    handle: text('handle'),
     title: text('title').notNull(),
     url: text('url').notNull(),
     icon: text('icon'),

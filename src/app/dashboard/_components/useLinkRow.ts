@@ -7,6 +7,8 @@ import { useDashboardStore } from './DashboardStore'
 
 export function useLinkRow(link: DashLink) {
   const { setLinks } = useDashboardStore()
+  const [network, setNetwork] = useState(link.network ?? '')
+  const [handle, setHandle] = useState(link.handle ?? '')
   const [title, setTitle] = useState(link.title)
   const [url, setUrl] = useState(link.url)
   const [icon, setIcon] = useState(link.icon ?? '')
@@ -15,11 +17,29 @@ export function useLinkRow(link: DashLink) {
 
   function save() {
     startTransition(async () => {
-      const res = await updateLink(link.id, { title, url, icon: icon || null, tabId: tabId || null })
+      const payload = {
+        tabId: tabId || null,
+        network: network || null,
+        handle: handle || null,
+        title,
+        url,
+        icon: icon || null,
+      }
+      const res = await updateLink(link.id, payload)
       if (res.ok) {
         setLinks((prev) =>
           prev.map((l) =>
-            l.id === link.id ? { ...l, title, url, icon: icon || null, tabId: tabId || null } : l,
+            l.id === link.id
+              ? {
+                  ...l,
+                  tabId: tabId || null,
+                  network: network || null,
+                  handle: handle || null,
+                  title,
+                  url,
+                  icon: icon || null,
+                }
+              : l,
           ),
         )
       }
@@ -31,5 +51,21 @@ export function useLinkRow(link: DashLink) {
     deleteLink(link.id)
   }
 
-  return { title, setTitle, url, setUrl, icon, setIcon, tabId, setTabId, pending, save, remove }
+  return {
+    network,
+    setNetwork,
+    handle,
+    setHandle,
+    title,
+    setTitle,
+    url,
+    setUrl,
+    icon,
+    setIcon,
+    tabId,
+    setTabId,
+    pending,
+    save,
+    remove,
+  }
 }

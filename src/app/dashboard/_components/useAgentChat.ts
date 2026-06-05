@@ -47,6 +47,8 @@ export function useAgentChat({
         : null;
       const res = await createLink({
         tabId,
+        network: null,
+        handle: null,
         title: action.title,
         url: action.url,
         icon: null,
