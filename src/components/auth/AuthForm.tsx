@@ -25,6 +25,7 @@ export function AuthForm({
             <span className="text-accent">one link.</span>
           </>
         }
+        subtitle="Start free for 7 days · No card required"
         hero
       >
         {googleEnabled && (
