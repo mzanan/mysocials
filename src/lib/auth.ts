@@ -1,10 +1,11 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { createAuthMiddleware, getSessionFromCtx } from "better-auth/api";
 import { nextCookies } from "better-auth/next-js";
 import { admin } from "better-auth/plugins";
 
 import { db, schema } from "@/lib/db";
-import { buildPolarPlugin } from "@/lib/polar";
+import { buildPolarPlugin, ensurePolarCustomer } from "@/lib/polar";
 import { generateUniqueUsername } from "@/lib/profile/username";
 import { mailerEnabled, sendMail } from "@/lib/mailer";
 import { TRIAL_DURATION_MS } from "@/lib/subscription";
@@ -15,6 +16,7 @@ const adminUserIds = process.env.ADMIN_USER_ID
   ? [process.env.ADMIN_USER_ID]
   : [];
 const polarPlugin = buildPolarPlugin();
+const POLAR_CUSTOMER_PATHS = new Set(["/checkout", "/customer/portal"]);
 
 const googleProvider =
   process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
@@ -59,6 +61,18 @@ export const auth = betterAuth({
   },
   onAPIError: {
     errorURL: "/",
+  },
+  hooks: {
+    before: createAuthMiddleware(async (ctx) => {
+      if (!polarPlugin || !POLAR_CUSTOMER_PATHS.has(ctx.path)) return;
+      const session = await getSessionFromCtx(ctx);
+      if (!session) return;
+      try {
+        await ensurePolarCustomer(session.user);
+      } catch (e) {
+        console.error("ensurePolarCustomer failed", e);
+      }
+    }),
   },
   emailAndPassword: {
     enabled: true,

@@ -5,15 +5,46 @@ import { eq } from 'drizzle-orm'
 import { db } from '@/lib/db'
 import { profiles } from '@/lib/db/schema'
 
-export function buildPolarPlugin() {
+function buildPolarClient() {
   const accessToken = process.env.POLAR_ACCESS_TOKEN
-  const productId = process.env.POLAR_PRODUCT_ID
-  if (!accessToken || !productId) return null
+  if (!accessToken) return null
 
-  const client = new Polar({
+  return new Polar({
     accessToken,
     server: process.env.POLAR_SERVER === 'production' ? 'production' : 'sandbox',
   })
+}
+
+type PolarUser = { id: string; email: string; name?: string | null }
+
+export async function ensurePolarCustomer(user: PolarUser) {
+  const client = buildPolarClient()
+  if (!client) return
+
+  try {
+    await client.customers.getExternal({ externalId: user.id })
+  } catch {
+    const { result } = await client.customers.list({ email: user.email })
+    const existing = result.items[0]
+    if (existing) {
+      await client.customers.update({
+        id: existing.id,
+        customerUpdate: { externalId: user.id },
+      })
+    } else {
+      await client.customers.create({
+        email: user.email,
+        name: user.name ?? undefined,
+        externalId: user.id,
+      })
+    }
+  }
+}
+
+export function buildPolarPlugin() {
+  const client = buildPolarClient()
+  const productId = process.env.POLAR_PRODUCT_ID
+  if (!client || !productId) return null
 
   const successUrl = `${process.env.BETTER_AUTH_URL ?? ''}/dashboard?checkout=success`
   const webhookSecret = process.env.POLAR_WEBHOOK_SECRET
