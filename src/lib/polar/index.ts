@@ -95,5 +95,5 @@ export function buildPolarPlugin() {
     )
   }
 
-  return polar({ client, createCustomerOnSignUp: true, use })
+  return polar({ client, createCustomerOnSignUp: false, use })
 }
