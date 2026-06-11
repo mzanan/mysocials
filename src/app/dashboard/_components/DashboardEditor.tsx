@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { Suspense, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import { setPublished } from "../actions";
+import { IgConnectStatus } from "./IgConnectStatus";
 import { ProfileSection } from "./ProfileSection";
 import { TabsSection } from "./TabsSection";
 import { LinksSection } from "./LinksSection";
@@ -95,6 +96,11 @@ export function DashboardEditor({
 }) {
   return (
     <div className="flex flex-col gap-6">
+      {instagramEnabled && (
+        <Suspense fallback={null}>
+          <IgConnectStatus />
+        </Suspense>
+      )}
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-fg">
           Dashboard

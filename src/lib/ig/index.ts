@@ -55,11 +55,14 @@ export async function getLongLivedToken(
   }
 }
 
-export async function fetchProfile(
-  token: string,
-): Promise<{ id: string; username: string | null; profilePictureUrl: string | null }> {
+export async function fetchProfile(token: string): Promise<{
+  id: string
+  username: string | null
+  profilePictureUrl: string | null
+  accountType: string | null
+}> {
   const params = new URLSearchParams({
-    fields: 'id,username,profile_picture_url',
+    fields: 'id,username,profile_picture_url,account_type',
     access_token: token,
   })
   const res = await fetch(`${IG_GRAPH}/${IG_API_VERSION}/me?${params.toString()}`)
@@ -68,11 +71,13 @@ export async function fetchProfile(
     id: string
     username?: string
     profile_picture_url?: string
+    account_type?: string
   }
   return {
     id: json.id,
     username: json.username ?? null,
     profilePictureUrl: json.profile_picture_url ?? null,
+    accountType: json.account_type ?? null,
   }
 }
 

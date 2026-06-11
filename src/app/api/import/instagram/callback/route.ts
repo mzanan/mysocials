@@ -30,12 +30,14 @@ export async function GET(req: Request) {
     return res
   }
 
+  if (url.searchParams.get('error')) return finish('declined')
   if (!code || !state || !expected || state !== expected) return finish('error')
 
   try {
     const short = await exchangeCodeForToken(code)
     const long = await getLongLivedToken(short.accessToken)
     const profile = await fetchProfile(long.accessToken)
+    if (profile.accountType === 'PERSONAL') return finish('personal')
 
     const values = {
       user_id: session.user.id,
