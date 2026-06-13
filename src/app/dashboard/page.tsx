@@ -5,9 +5,10 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { ig_connections, profiles } from "@/lib/db/schema";
 import { instagramEnabled } from "@/lib/ig";
-import { billingEnabled } from "@/lib/subscription";
+import { billingEnabled, hasActiveSubscription } from "@/lib/subscription";
 import { agentEnabled } from "@/lib/agent/planner";
 import { DashboardEditor } from "./_components/DashboardEditor";
+import { SubscribeGate } from "./_components/SubscribeGate";
 import type { DashboardData } from "@/types/dashboard";
 
 export const dynamic = "force-dynamic";
@@ -42,7 +43,6 @@ export default async function DashboardPage() {
     avatarUrl: profile.avatar_url,
     published: profile.published,
     subscriptionStatus: profile.subscription_status,
-    trialEndsAt: profile.trial_ends_at ? profile.trial_ends_at.getTime() : null,
     instagramConnected: Boolean(igConn),
     tabs: profile.tabs.map((t) => ({
       id: t.id,

@@ -10,9 +10,9 @@ import { ProfileSection } from "./ProfileSection";
 import { TabsSection } from "./TabsSection";
 import { LinksSection } from "./LinksSection";
 import { BillingCard } from "./BillingCard";
-import { TrialBanner } from "./TrialBanner";
 import { DashboardStore } from "./DashboardStore";
 import { AgentChat } from "./AgentChat";
+import { SubscribeGate } from "./SubscribeGate";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import type { DashboardData } from "@/types/dashboard";
@@ -28,18 +28,20 @@ function PublishBar({
   const [published, setPublishedState] = useState(data.published);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const [showGate, setShowGate] = useState(false);
 
   const status = data.subscriptionStatus;
-  const [now] = useState(() => Date.now());
-  const trialActive =
-    status === "trialing" &&
-    data.trialEndsAt !== null &&
-    data.trialEndsAt > now;
-  const canPublish = !billingEnabled || status === "active" || trialActive;
+  const hasActiveSub = status === "active";
 
   function toggle() {
     setError(null);
     const next = !published;
+    
+    if (billingEnabled && next && !hasActiveSub) {
+      setShowGate(true);
+      return;
+    }
+    
     startTransition(async () => {
       const res = await setPublished(next);
       if (!res.ok) {
@@ -49,6 +51,10 @@ function PublishBar({
       setPublishedState(next);
       router.refresh();
     });
+  }
+
+  if (showGate) {
+    return <SubscribeGate username={data.username} />;
   }
 
   return (
@@ -65,7 +71,7 @@ function PublishBar({
             <ExternalLink size={15} className="text-fg-subtle" />
           </Link>
           {error && <p className="mt-1 text-sm text-danger">{error}</p>}
-          {billingEnabled && !canPublish && (
+          {billingEnabled && !hasActiveSub && (
             <p className="mt-1 text-sm text-fg-subtle">
               Subscribe to publish your page.
             </p>
@@ -74,7 +80,7 @@ function PublishBar({
         <Button
           variant="glassPrimary"
           onClick={toggle}
-          disabled={pending || !canPublish}
+          disabled={pending || (billingEnabled && !hasActiveSub && published === false)}
         >
           {published ? "Published — unpublish" : "Publish page"}
         </Button>
@@ -110,12 +116,7 @@ export function DashboardEditor({
         </p>
       </div>
       <PublishBar data={data} billingEnabled={billingEnabled} />
-      {billingEnabled && data.subscriptionStatus === "trialing" && (
-        <TrialBanner trialEndsAt={data.trialEndsAt} />
-      )}
-      {billingEnabled && data.subscriptionStatus !== "trialing" && (
-        <BillingCard status={data.subscriptionStatus} />
-      )}
+      {billingEnabled && <BillingCard status={data.subscriptionStatus} />}
       <ProfileSection data={data} />
       <DashboardStore initial={data}>
         <TabsSection
