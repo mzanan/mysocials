@@ -27,10 +27,12 @@ export async function ensurePolarCustomer(user: PolarUser) {
     const { result } = await client.customers.list({ email: user.email })
     const existing = result.items[0]
     if (existing) {
-      await client.customers.update({
-        id: existing.id,
-        customerUpdate: { externalId: user.id },
-      })
+      if (!existing.externalId) {
+        await client.customers.update({
+          id: existing.id,
+          customerUpdate: { externalId: user.id },
+        })
+      }
     } else {
       await client.customers.create({
         email: user.email,
@@ -63,10 +65,15 @@ export function buildPolarPlugin() {
       webhooks({
         secret: webhookSecret,
         onCustomerStateChanged: async ({ data }) => {
+          console.log('[Polar Webhook] customer.state_changed', JSON.stringify(data, null, 2))
           const userId = data.externalId
-          if (!userId) return
+          if (!userId) {
+            console.log('[Polar Webhook] No externalId, skipping')
+            return
+          }
           const sub = data.activeSubscriptions[0]
           if (sub) {
+            console.log('[Polar Webhook] Activating subscription for userId:', userId)
             await db
               .update(profiles)
               .set({

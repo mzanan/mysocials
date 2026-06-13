@@ -8,7 +8,6 @@ import { db, schema } from "@/lib/db";
 import { buildPolarPlugin, ensurePolarCustomer } from "@/lib/polar";
 import { generateUniqueUsername } from "@/lib/profile/username";
 import { mailerEnabled, sendMail } from "@/lib/mailer";
-import { TRIAL_DURATION_MS } from "@/lib/subscription";
 import { verifyEmail } from "@/emails/verifyEmail";
 import { resetPassword } from "@/emails/resetPassword";
 
@@ -108,8 +107,6 @@ export const auth = betterAuth({
             username,
             display_name: createdUser.name ?? null,
             avatar_url: createdUser.image ?? null,
-            subscription_status: "trialing",
-            trial_ends_at: new Date(Date.now() + TRIAL_DURATION_MS),
           });
         },
       },
