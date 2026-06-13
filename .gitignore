@@ -50,3 +50,4 @@ public/uploads
 *.tsbuildinfo
 next-env.d.ts
 public/instagram-cache/*
+dev.db
