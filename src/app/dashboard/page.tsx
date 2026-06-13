@@ -5,10 +5,9 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { ig_connections, profiles } from "@/lib/db/schema";
 import { instagramEnabled } from "@/lib/ig";
-import { billingEnabled, hasActiveSubscription } from "@/lib/subscription";
+import { billingEnabled } from "@/lib/subscription";
 import { agentEnabled } from "@/lib/agent/planner";
 import { DashboardEditor } from "./_components/DashboardEditor";
-import { SubscribeGate } from "./_components/SubscribeGate";
 import type { DashboardData } from "@/types/dashboard";
 
 export const dynamic = "force-dynamic";
