@@ -2,7 +2,7 @@ import { sql } from 'drizzle-orm'
 
 import { db } from '@/lib/db'
 import { profiles } from '@/lib/db/schema'
-import { billingEnabled, hasAccess } from '@/lib/subscription'
+import { billingEnabled, hasActiveSubscription } from '@/lib/subscription'
 import type {
   LinkPublic,
   PublicProfileResult,
@@ -35,7 +35,7 @@ export async function getPublicProfileByUsername(
 
   if (!row || !row.published) return null
 
-  if (billingEnabled() && !hasAccess(row)) {
+  if (billingEnabled() && !hasActiveSubscription(row)) {
     const suspended: SuspendedProfilePublic = {
       status: 'suspended',
       username: row.username,

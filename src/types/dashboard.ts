@@ -31,7 +31,6 @@ export interface DashboardData {
   avatarUrl: string | null
   published: boolean
   subscriptionStatus: string | null
-  trialEndsAt: number | null
   instagramConnected: boolean
   tabs: DashTab[]
   links: DashLink[]

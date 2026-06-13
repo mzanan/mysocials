@@ -70,14 +70,13 @@ export const profiles = sqliteTable(
     accent: text('accent').notNull().default('#a78bfa'),
     published: integer('published', { mode: 'boolean' }).notNull().default(false),
     subscription_status: text('subscription_status', {
-      enum: ['trialing', 'active', 'canceled', 'past_due', 'revoked'],
+      enum: ['active', 'canceled', 'past_due', 'revoked'],
     }),
     subscription_id: text('subscription_id'),
     polar_customer_id: text('polar_customer_id'),
     subscription_current_period_end: integer('subscription_current_period_end', {
       mode: 'timestamp_ms',
     }),
-    trial_ends_at: integer('trial_ends_at', { mode: 'timestamp_ms' }),
     created_at: text('created_at')
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
