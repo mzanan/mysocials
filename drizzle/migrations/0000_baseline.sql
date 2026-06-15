@@ -15,10 +15,39 @@ CREATE TABLE `account` (
 	FOREIGN KEY (`userId`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
+CREATE TABLE `ig_connections` (
+	`user_id` text PRIMARY KEY NOT NULL,
+	`ig_user_id` text NOT NULL,
+	`username` text,
+	`access_token` text NOT NULL,
+	`token_expires_at` integer,
+	`created_at` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL,
+	`updated_at` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL,
+	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE TABLE `import_jobs` (
+	`id` text PRIMARY KEY NOT NULL,
+	`user_id` text NOT NULL,
+	`tab_id` text NOT NULL,
+	`source` text NOT NULL,
+	`status` text DEFAULT 'pending' NOT NULL,
+	`pending_items` text,
+	`total` integer DEFAULT 0 NOT NULL,
+	`imported` integer DEFAULT 0 NOT NULL,
+	`error` text,
+	`created_at` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL,
+	`updated_at` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL,
+	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`tab_id`) REFERENCES `tabs`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
 CREATE TABLE `links` (
 	`id` text PRIMARY KEY NOT NULL,
 	`user_id` text NOT NULL,
 	`tab_id` text,
+	`network` text,
+	`handle` text,
 	`title` text NOT NULL,
 	`url` text NOT NULL,
 	`icon` text,
@@ -55,6 +84,7 @@ CREATE TABLE `profiles` (
 	`avatar_key` text,
 	`bio` text,
 	`accent` text DEFAULT '#a78bfa' NOT NULL,
+	`theme` text DEFAULT 'dark' NOT NULL,
 	`published` integer DEFAULT false NOT NULL,
 	`subscription_status` text,
 	`subscription_id` text,
@@ -85,6 +115,7 @@ CREATE TABLE `tabs` (
 	`user_id` text NOT NULL,
 	`label` text NOT NULL,
 	`type` text DEFAULT 'grid' NOT NULL,
+	`grid_size` text DEFAULT 'medium' NOT NULL,
 	`position` integer DEFAULT 0 NOT NULL,
 	`created_at` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL,
 	`updated_at` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL,

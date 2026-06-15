@@ -5,50 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1779981657077,
-      "tag": "0000_sweet_exiles",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1780034147201,
-      "tag": "0001_brief_jackpot",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1780500118202,
-      "tag": "0002_ambitious_fat_cobra",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1780554177349,
-      "tag": "0003_nebulous_black_queen",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "6",
-      "when": 1780647411196,
-      "tag": "0004_yellow_sandman",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "6",
-      "when": 1780650000000,
-      "tag": "0005_drop_grid_mode_add_grid_size",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "6",
-      "when": 1780650100000,
-      "tag": "0006_add_network_handle_to_links",
+      "when": 1781504712904,
+      "tag": "0000_baseline",
       "breakpoints": true
     }
   ]
