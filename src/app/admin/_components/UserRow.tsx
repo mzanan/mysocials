@@ -63,7 +63,7 @@ export function UserRow({ user }: { user: AdminUser }) {
       <td className="px-4 py-3">
         <div className="flex flex-wrap gap-2">
           <Button
-            variant="glass"
+            variant="secondary"
             size="sm"
             className="h-7 px-2 text-xs"
             disabled={pending}
@@ -82,7 +82,7 @@ export function UserRow({ user }: { user: AdminUser }) {
             {banned ? 'Unban' : 'Ban'}
           </Button>
           <Button
-            variant="glass"
+            variant="secondary"
             size="sm"
             className="h-7 px-2 text-xs"
             disabled={pending}
@@ -97,7 +97,7 @@ export function UserRow({ user }: { user: AdminUser }) {
             {role === 'admin' ? 'Make user' : 'Make admin'}
           </Button>
           <Button
-            variant="glass"
+            variant="secondary"
             size="sm"
             className="h-7 px-2 text-xs"
             disabled={pending}

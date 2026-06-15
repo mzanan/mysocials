@@ -60,11 +60,11 @@ export function ChangePasswordDialog({
           </Field>
           <DialogFooter>
             <DialogClose asChild>
-              <Button type="button" variant="glass">
+              <Button type="button" variant="secondary">
                 Cancel
               </Button>
             </DialogClose>
-            <Button type="submit" variant="glassPrimary" disabled={pending}>
+            <Button type="submit" variant="primary" disabled={pending}>
               {pending ? 'Saving…' : 'Update password'}
             </Button>
           </DialogFooter>

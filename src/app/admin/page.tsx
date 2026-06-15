@@ -30,7 +30,7 @@ export default async function AdminPage() {
         <p className="mt-1 text-sm text-fg-subtle">{rows.length} total</p>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-hairline bg-surface backdrop-blur-xl shadow-glass">
+      <div className="overflow-hidden rounded-[var(--radius-card)] border border-hairline bg-surface backdrop-blur-xl shadow-[var(--shadow-card)]">
         <table className="w-full text-left text-sm">
           <thead className="bg-surface text-xs uppercase tracking-wide text-fg-subtle">
             <tr>
@@ -41,7 +41,7 @@ export default async function AdminPage() {
               <th className="px-4 py-3 font-medium">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/[0.06]">
+          <tbody className="divide-y divide-hairline">
             {rows.map((r) => (
               <UserRow key={r.id} user={r} />
             ))}

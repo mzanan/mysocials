@@ -25,7 +25,7 @@ export function UserMenu({ email, hasBilling }: { email: string; hasBilling: boo
     <>
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
-          <Button variant="glass" className="px-3 font-normal text-fg-muted">
+          <Button variant="secondary" className="px-3 font-normal text-fg-muted">
             <span className="hidden max-w-[160px] truncate sm:inline">{email}</span>
             <ChevronDown className="text-fg-subtle" />
           </Button>
