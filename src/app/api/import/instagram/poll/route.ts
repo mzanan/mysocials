@@ -5,7 +5,7 @@ import { and, eq, sql } from 'drizzle-orm'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { ig_connections, import_jobs, media } from '@/lib/db/schema'
-import { fetchAllMedia, stillUrl } from '@/lib/ig'
+import { fetchAllMedia, IgAuthError, stillUrl } from '@/lib/ig'
 import { ingestImageBuffer } from '@/lib/media-ingest'
 import { MAX_IMAGES_PER_USER, countUserMedia } from '@/lib/media-quota'
 
@@ -137,6 +137,9 @@ export async function POST(req: Request) {
       error: null,
     })
   } catch (e) {
+    if (e instanceof IgAuthError) {
+      await db.delete(ig_connections).where(eq(ig_connections.user_id, session.user.id))
+    }
     await db
       .update(import_jobs)
       .set({ status: 'failed', error: e instanceof Error ? e.message : 'Import failed' })
@@ -146,6 +149,7 @@ export async function POST(req: Request) {
       total: job.total,
       imported: job.imported,
       error: e instanceof Error ? e.message : 'Import failed',
+      reauth: e instanceof IgAuthError,
     })
   }
 }

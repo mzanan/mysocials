@@ -64,10 +64,10 @@ export function IgConnectStatus() {
       </DialogBody>
       <DialogFooter>
         <DialogClose asChild>
-          <Button variant="glass">Not now</Button>
+          <Button variant="secondary">Not now</Button>
         </DialogClose>
         <Button
-          variant="glassPrimary"
+          variant="primary"
           onClick={() => {
             window.location.href = '/api/import/instagram/connect'
           }}

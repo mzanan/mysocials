@@ -9,6 +9,26 @@ function redirectUri(): string {
   return `${process.env.BETTER_AUTH_URL ?? ''}/api/import/instagram/callback`
 }
 
+export class IgAuthError extends Error {
+  constructor(message = 'Instagram access was revoked. Reconnect Instagram to import.') {
+    super(message)
+    this.name = 'IgAuthError'
+  }
+}
+
+async function igGet<T = unknown>(url: string): Promise<T> {
+  const res = await fetch(url)
+  const json = (await res.json().catch(() => null)) as
+    | (T & { error?: { code?: number; message?: string } })
+    | null
+  if (!res.ok || json?.error) {
+    const err = json?.error
+    if (err?.code === 190) throw new IgAuthError()
+    throw new Error(err?.message ? `Instagram: ${err.message}` : `Instagram request failed: ${res.status}`)
+  }
+  return json as T
+}
+
 export function getAuthorizationUrl(state: string): string {
   const params = new URLSearchParams({
     client_id: process.env.INSTAGRAM_APP_ID ?? '',
@@ -65,14 +85,12 @@ export async function fetchProfile(token: string): Promise<{
     fields: 'id,username,profile_picture_url,account_type',
     access_token: token,
   })
-  const res = await fetch(`${IG_GRAPH}/${IG_API_VERSION}/me?${params.toString()}`)
-  if (!res.ok) throw new Error(`IG profile fetch failed: ${res.status}`)
-  const json = (await res.json()) as {
+  const json = await igGet<{
     id: string
     username?: string
     profile_picture_url?: string
     account_type?: string
-  }
+  }>(`${IG_GRAPH}/${IG_API_VERSION}/me?${params.toString()}`)
   return {
     id: json.id,
     username: json.username ?? null,
@@ -97,9 +115,7 @@ export async function fetchAllMedia(token: string, limit = 60): Promise<IgMedia[
   }).toString()}`
 
   while (url && out.length < limit) {
-    const res = await fetch(url)
-    if (!res.ok) throw new Error(`IG media fetch failed: ${res.status}`)
-    const json = (await res.json()) as {
+    const json = (await igGet(url)) as {
       data: Array<{
         id: string
         media_type: IgMedia['mediaType']
