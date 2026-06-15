@@ -23,7 +23,7 @@ export function GoogleSignInButton({ label }: { label: string }) {
   return (
     <Button
       type="button"
-      variant="glass"
+      variant="secondary"
       size="auth"
       disabled={loading}
       onClick={handleClick}

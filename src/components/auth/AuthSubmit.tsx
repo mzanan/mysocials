@@ -10,10 +10,10 @@ export function AuthSubmit({
   return (
     <Button
       type="submit"
-      variant="glass"
+      variant="primary"
       size="auth"
       disabled={disabled}
-      className="link-btn mt-2 w-full"
+      className="mt-2 w-full font-semibold"
     >
       {children}
     </Button>

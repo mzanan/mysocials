@@ -8,7 +8,7 @@ export function SignOutButton() {
   const router = useRouter()
   return (
     <Button
-      variant="glass"
+      variant="secondary"
       onClick={async () => {
         await authClient.signOut()
         router.push('/')

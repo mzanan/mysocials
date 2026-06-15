@@ -13,7 +13,11 @@ export function AuthCard({
     <div className="relative w-full">
       <div
         aria-hidden
-        className="absolute inset-0 rounded-[28px] bg-white/[0.02] backdrop-blur-xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.55)] ring-1 ring-white/[0.08] lg:hidden"
+        className="absolute -inset-3 rounded-[34px] bg-app-bg/55 backdrop-blur-2xl ring-1 ring-white/[0.12] lg:hidden"
+        style={{
+          boxShadow:
+            "0 24px 70px -24px color-mix(in oklab, var(--accent-glow) 45%, transparent), 0 18px 50px -20px rgba(0,0,0,0.6)",
+        }}
       />
       <div className="relative px-7 py-9 text-center sm:px-8 sm:py-10 lg:p-0 lg:text-left">
         <h1

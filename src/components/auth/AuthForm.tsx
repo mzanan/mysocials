@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { GoogleSignInButton } from "./GoogleSignInButton";
 import { AuthCard } from "./AuthCard";
@@ -28,19 +30,19 @@ export function AuthForm({
         hero
       >
         <div className="mb-2 mt-5 flex items-center justify-center gap-3 text-fg-subtle">
-          <div className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-accent/20 to-accent/10 px-3 py-1.5 text-xs font-medium text-fg">
+          <Badge className="bg-gradient-to-r from-accent/20 to-accent/10">
             <svg className="h-3.5 w-3.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
             $3/month
-          </div>
+          </Badge>
           <span className="text-xs text-fg-subtle">•</span>
-          <div className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-accent/20 to-accent/10 px-3 py-1.5 text-xs font-medium text-fg">
+          <Badge className="bg-gradient-to-r from-accent/20 to-accent/10">
             <svg className="h-3.5 w-3.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
             Cancel anytime
-          </div>
+          </Badge>
         </div>
 
         <p className="mb-2 text-center text-xs text-fg-subtle">
@@ -160,13 +162,14 @@ export function AuthForm({
         </AuthSubmit>
       </form>
 
-      <button
+      <Button
         type="button"
+        variant="ghost"
         onClick={f.useDifferentEmail}
-        className="mt-6 w-full text-center text-sm text-fg-subtle transition-colors hover:text-fg-muted"
+        className="mt-6 w-full text-fg-subtle hover:text-fg-muted"
       >
         ← Use a different email
-      </button>
+      </Button>
     </AuthCard>
   );
 }
