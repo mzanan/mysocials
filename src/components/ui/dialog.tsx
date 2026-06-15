@@ -31,7 +31,7 @@ export function Dialog({
         <RadixDialog.Overlay className="fixed inset-0 z-[9999] bg-black/60 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
         <RadixDialog.Content
           className={cn(
-            'fixed left-1/2 top-1/2 z-[9999] flex max-h-[85vh] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-hairline-strong bg-app-bg text-fg shadow-glass-lg',
+            'fixed left-1/2 top-1/2 z-[9999] flex max-h-[85vh] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-[var(--radius-card)] border border-hairline-strong bg-app-bg text-fg shadow-[var(--shadow-card)]',
             SIZE_CLASSES[size],
           )}
         >

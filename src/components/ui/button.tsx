@@ -5,25 +5,27 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-accent aria-invalid:border-danger-strong",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-accent aria-invalid:border-danger-strong",
   {
     variants: {
       variant: {
-        glass:
-          "rounded-lg border border-hairline bg-surface text-fg hover:bg-surface-strong",
-        glassPrimary:
-          "rounded-lg border border-hairline-strong bg-surface-strong text-fg hover:bg-surface-stronger",
+        primary: "bg-fg text-app-bg hover:opacity-90",
+        secondary: "border border-hairline bg-surface text-fg hover:bg-surface-strong",
+        ghost: "text-fg-muted hover:bg-surface hover:text-fg",
+        danger: "text-danger hover:bg-danger/12 hover:text-danger",
+        overlay: "text-white/80 hover:bg-white/15 hover:text-white",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
-        sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
-        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
+        sm: "h-8 gap-1.5 px-3 has-[>svg]:px-2.5",
+        lg: "h-10 px-6 has-[>svg]:px-4",
         auth: "h-12 rounded-xl px-5 text-[15px]",
         icon: "size-9",
+        iconSm: "size-7 rounded-md",
       },
     },
     defaultVariants: {
-      variant: "glass",
+      variant: "secondary",
       size: "default",
     },
   }

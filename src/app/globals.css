@@ -5,25 +5,26 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-  --color-app-bg: #15151f;
-  --color-app-bg-2: #16131d;
-  --color-app-bg-3: #0e0e16;
+  --color-app-bg: #110f1a;
+  --color-app-bg-2: #1a1730;
+  --color-app-bg-3: #0c0b14;
 
-  --color-surface-subtle: rgba(255, 255, 255, 0.04);
-  --color-surface: rgba(255, 255, 255, 0.06);
-  --color-surface-strong: rgba(255, 255, 255, 0.1);
-  --color-surface-stronger: rgba(255, 255, 255, 0.14);
+  --color-surface-subtle: rgba(255, 255, 255, 0.06);
+  --color-surface: rgba(255, 255, 255, 0.09);
+  --color-surface-strong: rgba(255, 255, 255, 0.13);
+  --color-surface-stronger: rgba(255, 255, 255, 0.18);
 
   --color-hairline: rgba(255, 255, 255, 0.1);
-  --color-hairline-strong: rgba(255, 255, 255, 0.15);
+  --color-hairline-strong: rgba(255, 255, 255, 0.18);
   --color-hairline-subtle: rgba(255, 255, 255, 0.06);
 
   --color-fg: #ffffff;
-  --color-fg-muted: rgba(255, 255, 255, 0.7);
-  --color-fg-subtle: rgba(255, 255, 255, 0.45);
-  --color-fg-faint: rgba(255, 255, 255, 0.3);
+  --color-fg-muted: rgba(255, 255, 255, 0.72);
+  --color-fg-subtle: rgba(255, 255, 255, 0.5);
+  --color-fg-faint: rgba(255, 255, 255, 0.32);
 
   --color-accent: var(--accent-glow);
+  --color-accent-2: var(--accent-2);
   --color-danger: #fca5a5;
   --color-danger-strong: rgba(248, 113, 113, 0.65);
 
@@ -37,8 +38,57 @@
 }
 
 :root {
-  --radius: 0.625rem;
+  --radius: 0.875rem;
+  --radius-card: 1.4rem;
+  --radius-btn: 0.85rem;
   --accent-glow: #a78bfa;
+  --accent-2: #7c8cff;
+  --shadow-card: 0 26px 70px -28px rgba(0, 0, 0, 0.85);
+}
+
+[data-theme="dark"] {
+  --color-app-bg: #110f1a;
+  --color-app-bg-2: #1a1730;
+  --color-app-bg-3: #0c0b14;
+  --color-surface-subtle: rgba(255, 255, 255, 0.06);
+  --color-surface: rgba(255, 255, 255, 0.09);
+  --color-surface-strong: rgba(255, 255, 255, 0.13);
+  --color-surface-stronger: rgba(255, 255, 255, 0.18);
+  --color-hairline: rgba(255, 255, 255, 0.1);
+  --color-hairline-strong: rgba(255, 255, 255, 0.18);
+  --color-hairline-subtle: rgba(255, 255, 255, 0.06);
+  --color-fg: #ffffff;
+  --color-fg-muted: rgba(255, 255, 255, 0.72);
+  --color-fg-subtle: rgba(255, 255, 255, 0.5);
+  --color-fg-faint: rgba(255, 255, 255, 0.32);
+  --accent-glow: #a78bfa;
+  --accent-2: #7c8cff;
+  --radius-card: 1.4rem;
+  --radius-btn: 0.85rem;
+}
+
+[data-theme="light"] {
+  --color-app-bg: #f5f4fb;
+  --color-app-bg-2: #efedf9;
+  --color-app-bg-3: #e8e5f6;
+  --color-surface-subtle: rgba(30, 27, 46, 0.04);
+  --color-surface: rgba(255, 255, 255, 0.7);
+  --color-surface-strong: rgba(255, 255, 255, 0.86);
+  --color-surface-stronger: #ffffff;
+  --color-hairline: rgba(30, 27, 46, 0.09);
+  --color-hairline-strong: rgba(30, 27, 46, 0.15);
+  --color-hairline-subtle: rgba(30, 27, 46, 0.05);
+  --color-fg: #1e1b2e;
+  --color-fg-muted: rgba(30, 27, 46, 0.62);
+  --color-fg-subtle: rgba(30, 27, 46, 0.42);
+  --color-fg-faint: rgba(30, 27, 46, 0.26);
+  --accent-glow: #7c6cf0;
+  --accent-2: #f4789a;
+  --color-danger: #e11d48;
+  --color-danger-strong: #e11d4899;
+  --radius-card: 1.9rem;
+  --radius-btn: 1.4rem;
+  --shadow-card: 0 24px 60px -30px rgba(96, 74, 168, 0.4);
 }
 
 @layer base {
@@ -61,6 +111,16 @@
 
   .bg-grid-base {
     background-color: var(--color-app-bg);
+  }
+
+  .theme-when-light {
+    display: none;
+  }
+  [data-theme="light"] .theme-when-dark {
+    display: none;
+  }
+  [data-theme="light"] .theme-when-light {
+    display: inline;
   }
 
   .grain-overlay {
@@ -110,6 +170,30 @@
 @keyframes skeleton-sweep {
   100% {
     transform: translateX(100%);
+  }
+}
+
+@keyframes hero-drift-up {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes hero-drift-down {
+  from {
+    transform: translateY(-50%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [style*="hero-drift"] {
+    animation: none !important;
   }
 }
 

@@ -12,7 +12,7 @@ export function Card({
   action?: ReactNode
 }) {
   return (
-    <section className="rounded-2xl border border-hairline bg-surface p-5 backdrop-blur-xl [box-shadow:inset_0_1px_0_0_var(--color-hairline)] shadow-glass">
+    <section className="rounded-[var(--radius-card)] border border-hairline bg-surface p-5 backdrop-blur-xl [box-shadow:inset_0_1px_0_0_var(--color-hairline)] shadow-[var(--shadow-card)]">
       {(title || action) && (
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>
