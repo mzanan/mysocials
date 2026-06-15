@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Matias Zanan — All my socials in one place";
+export const alt = "mySocials — Your whole world, one link";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -15,9 +15,9 @@ export default async function Image() {
           flexDirection: "column",
           alignItems: "flex-start",
           justifyContent: "center",
-          padding: "80px",
+          padding: "90px",
           background:
-            "linear-gradient(135deg, #1e1b4b 0%, #581c87 50%, #1e1b4b 100%)",
+            "linear-gradient(135deg, #1a1730 0%, #3b2f7a 48%, #1a1730 100%)",
           color: "white",
           fontFamily: "system-ui, sans-serif",
         }}
@@ -34,35 +34,25 @@ export default async function Image() {
         </div>
         <div
           style={{
-            fontSize: 108,
+            fontSize: 116,
             fontWeight: 800,
             letterSpacing: "-0.04em",
             lineHeight: 1,
             marginTop: 24,
+            color: "#ffffff",
           }}
         >
-          Matias Zanan
+          mySocials
         </div>
         <div
           style={{
-            fontSize: 44,
+            fontSize: 46,
             color: "#e9d5ff",
-            marginTop: 16,
+            marginTop: 20,
             fontWeight: 600,
           }}
         >
-          All my socials in one place
-        </div>
-        <div
-          style={{
-            fontSize: 30,
-            color: "#cbd5e1",
-            marginTop: 48,
-            maxWidth: 1000,
-            lineHeight: 1.35,
-          }}
-        >
-          Personal · Dev
+          Your whole world, one link.
         </div>
       </div>
     ),
