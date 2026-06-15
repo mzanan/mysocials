@@ -39,6 +39,7 @@ export default async function DashboardPage() {
     displayName: profile.display_name,
     bio: profile.bio,
     accent: profile.accent,
+    theme: profile.theme,
     avatarUrl: profile.avatar_url,
     published: profile.published,
     subscriptionStatus: profile.subscription_status,

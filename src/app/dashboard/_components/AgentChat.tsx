@@ -17,7 +17,7 @@ export function AgentChat({
   if (!open) {
     return (
       <Button
-        variant="glassPrimary"
+        variant="primary"
         onClick={() => setOpen(true)}
         className="shadow-glass-lg fixed right-5 bottom-5 z-40 h-12 gap-2 rounded-full px-5"
       >
@@ -32,13 +32,9 @@ export function AgentChat({
         <span className="flex items-center gap-2 text-sm font-medium text-fg">
           <Sparkles size={15} className="text-fg-subtle" /> Assistant
         </span>
-        <button
-          onClick={() => setOpen(false)}
-          className="rounded-md p-1 text-fg-subtle transition hover:bg-surface-strong hover:text-fg-muted"
-          aria-label="Close assistant"
-        >
+        <Button variant="ghost" size="icon" onClick={() => setOpen(false)} aria-label="Close assistant">
           <X size={16} />
-        </button>
+        </Button>
       </div>
 
       <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
@@ -73,7 +69,7 @@ export function AgentChat({
         {chat.micSupported && (
           <Button
             type="button"
-            variant="glass"
+            variant="secondary"
             size="icon"
             onClick={chat.toggleMic}
             className={chat.listening ? "text-danger" : "text-fg-muted"}
@@ -90,7 +86,7 @@ export function AgentChat({
         />
         <Button
           type="submit"
-          variant="glassPrimary"
+          variant="primary"
           size="icon"
           disabled={chat.busy || !chat.input.trim()}
           aria-label="Send"

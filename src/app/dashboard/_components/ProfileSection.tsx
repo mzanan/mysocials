@@ -3,13 +3,13 @@
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Field } from '@/components/ui/field'
-import { Input, inputBase } from '@/components/ui/input'
-import { cn } from '@/lib/utils'
+import { Input } from '@/components/ui/input'
+import { Segmented } from '@/components/ui/segmented'
+import { Textarea } from '@/components/ui/textarea'
+import { ACCENT_PRESETS, THEMES } from '@/lib/appearance'
 import type { DashboardData, DashMedia } from '@/types/dashboard'
 import { AvatarSection } from './AvatarSection'
 import { useProfileSection } from './useProfileSection'
-
-const SWATCHES = ['#a78bfa', '#f472b6', '#60a5fa', '#34d399', '#fbbf24', '#f87171']
 
 function getImageMedia(data: DashboardData): DashMedia[] {
   return data.tabs.flatMap((t) => t.media).filter((m) => m.kind === 'image')
@@ -24,6 +24,8 @@ export function ProfileSection({ data }: { data: DashboardData }) {
     setBio,
     accent,
     setAccent,
+    theme,
+    setTheme,
     username,
     setUsername,
     msg,
@@ -50,7 +52,7 @@ export function ProfileSection({ data }: { data: DashboardData }) {
                 className="h-10 flex-1 bg-transparent px-1 text-[15px] text-fg outline-none"
               />
             </div>
-            <Button variant="glass" onClick={saveUsername} disabled={pending}>
+            <Button variant="secondary" onClick={saveUsername} disabled={pending}>
               Save
             </Button>
           </div>
@@ -61,17 +63,12 @@ export function ProfileSection({ data }: { data: DashboardData }) {
         </Field>
 
         <Field label="Bio">
-          <textarea
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
-            rows={2}
-            className={cn(inputBase, 'h-auto resize-none py-2')}
-          />
+          <Textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={2} />
         </Field>
 
         <Field label="Accent color">
           <div className="flex items-center gap-2">
-            {SWATCHES.map((c) => (
+            {ACCENT_PRESETS.map((c) => (
               <button
                 key={c}
                 type="button"
@@ -89,8 +86,12 @@ export function ProfileSection({ data }: { data: DashboardData }) {
           </div>
         </Field>
 
+        <Field label="Page theme">
+          <Segmented aria-label="Page theme" value={theme} onChange={setTheme} options={THEMES} />
+        </Field>
+
         <div className="flex items-center gap-3">
-          <Button variant="glassPrimary" onClick={saveProfile} disabled={pending}>
+          <Button variant="secondary" onClick={saveProfile} disabled={pending}>
             Save profile
           </Button>
           {msg && <span className="text-sm text-fg-subtle">{msg}</span>}

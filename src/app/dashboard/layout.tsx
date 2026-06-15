@@ -6,6 +6,8 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { profiles } from '@/lib/db/schema'
 import { UserMenu } from '@/components/account/UserMenu'
+import { ThemeToggle } from '@/components/ThemeToggle'
+import { AmbientBackground } from '@/components/ui/AmbientBackground'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await auth.api.getSession({ headers: await headers() })
@@ -19,16 +21,16 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className="relative min-h-dvh overflow-hidden bg-app-bg text-fg">
-      <div
-        aria-hidden
-        className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,rgba(167,139,250,0.08),transparent_55%)]"
-      />
+      <AmbientBackground />
       <header className="sticky top-0 z-20 border-b border-hairline-subtle bg-app-bg/70 backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4">
           <Link href="/dashboard" className="text-sm font-semibold tracking-tight">
             mySocials
           </Link>
-          <UserMenu email={session.user.email} hasBilling={hasBilling} />
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <UserMenu email={session.user.email} hasBilling={hasBilling} />
+          </div>
         </div>
       </header>
       <main className="relative z-10 mx-auto max-w-3xl px-4 py-8">{children}</main>

@@ -6,16 +6,22 @@ import { ChevronUp, ChevronDown, Trash2, Plus, Upload, Instagram, RotateCcw, X }
 import { createTab, deleteTab, reorderTabs, updateTab } from '../actions'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Input, inputBase } from '@/components/ui/input'
+import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
+import { Segmented } from '@/components/ui/segmented'
 import { moveItem } from '@/lib/array'
 import { toast } from '@/lib/toast'
-import { cn } from '@/lib/utils'
 import type { DashTab } from '@/types/dashboard'
 import { useDashboardStore } from './DashboardStore'
 import { useImageUploader } from './useImageUploader'
+import { useInstagramImport } from './useInstagramImport'
 import { useMediaManager } from './useMediaManager'
 
-const IMPORT_POLL_INTERVAL_MS = 1500
+const GRID_SIZES = [
+  { value: 'small', label: 'Small' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'large', label: 'Large' },
+] as const
 
 function MediaManager({
   tab,
@@ -29,51 +35,7 @@ function MediaManager({
   const { busy, videoStep, error, vidRef, onVideo, reorder, removeMedia } = useMediaManager(tab)
   const up = useImageUploader(tab)
   const imgRef = useRef<HTMLInputElement>(null)
-  const [importing, setImporting] = useState(false)
-  const [progress, setProgress] = useState<{ imported: number; total: number } | null>(null)
-
-  async function onImport() {
-    setImporting(true)
-    setProgress(null)
-    const res = await fetch('/api/import/instagram', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ tabId: tab.id }),
-    })
-    if (!res.ok) {
-      setImporting(false)
-      return
-    }
-    const { jobId } = (await res.json()) as { jobId: string }
-
-    while (true) {
-      await new Promise((r) => setTimeout(r, IMPORT_POLL_INTERVAL_MS))
-      const r = await fetch('/api/import/instagram/poll', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ jobId }),
-      })
-      if (!r.ok) {
-        setImporting(false)
-        return
-      }
-      const data = (await r.json()) as {
-        status: 'pending' | 'running' | 'processing' | 'done' | 'failed'
-        total: number
-        imported: number
-        error: string | null
-      }
-      setProgress({ imported: data.imported, total: data.total })
-      if (data.status === 'done') {
-        window.location.reload()
-        return
-      }
-      if (data.status === 'failed') {
-        setImporting(false)
-        return
-      }
-    }
-  }
+  const { importing, progress, start: onImport } = useInstagramImport(tab.id)
 
   return (
     <div className="mt-3">
@@ -96,19 +58,15 @@ function MediaManager({
                 <span className="absolute left-1 top-1 rounded bg-black/60 px-1 text-[10px] text-fg">▶</span>
               )}
               <div className="absolute inset-x-0 bottom-0 flex justify-between bg-black/50 p-1 opacity-0 transition group-hover:opacity-100">
-                <button onClick={() => reorder(i, -1)} className="text-fg-muted hover:text-fg" aria-label="Move left">
+                <Button variant="overlay" size="iconSm" onClick={() => reorder(i, -1)} aria-label="Move left">
                   <ChevronUp size={14} className="-rotate-90" />
-                </button>
-                <button
-                  onClick={() => removeMedia(m.id)}
-                  className="text-danger hover:text-danger"
-                  aria-label="Delete"
-                >
+                </Button>
+                <Button variant="danger" size="iconSm" onClick={() => removeMedia(m.id)} aria-label="Delete">
                   <Trash2 size={14} />
-                </button>
-                <button onClick={() => reorder(i, 1)} className="text-fg-muted hover:text-fg" aria-label="Move right">
+                </Button>
+                <Button variant="overlay" size="iconSm" onClick={() => reorder(i, 1)} aria-label="Move right">
                   <ChevronDown size={14} className="-rotate-90" />
-                </button>
+                </Button>
               </div>
             </div>
           ))}
@@ -118,7 +76,7 @@ function MediaManager({
         {tab.type === 'video' ? (
           <>
             <input ref={vidRef} type="file" accept="video/*" hidden onChange={onVideo} />
-            <Button variant="glass" disabled={busy} onClick={() => vidRef.current?.click()}>
+            <Button variant="secondary" disabled={busy} onClick={() => vidRef.current?.click()}>
               <Upload size={14} />{' '}
               {videoStep === 'optimizing' ? 'Optimizing…' : videoStep === 'uploading' ? 'Uploading…' : 'Add video'}
             </Button>
@@ -136,12 +94,12 @@ function MediaManager({
                 e.target.value = ''
               }}
             />
-            <Button variant="glass" disabled={up.active} onClick={() => imgRef.current?.click()}>
+            <Button variant="secondary" disabled={up.active} onClick={() => imgRef.current?.click()}>
               <Upload size={14} /> {up.active ? `Uploading ${up.done + 1}/${up.total}…` : 'Add photos'}
             </Button>
             {instagramEnabled &&
               (igConnected ? (
-                <Button variant="glass" disabled={importing} onClick={onImport}>
+                <Button variant="secondary" disabled={importing} onClick={onImport}>
                   <Instagram size={14} />{' '}
                   {importing
                     ? progress && progress.total > 0
@@ -151,7 +109,7 @@ function MediaManager({
                 </Button>
               ) : (
                 <Button
-                  variant="glass"
+                  variant="secondary"
                   onClick={() => {
                     window.location.href = '/api/import/instagram/connect'
                   }}
@@ -163,6 +121,12 @@ function MediaManager({
         )}
       </div>
 
+      {instagramEnabled && tab.type !== 'video' && (
+        <p className="mt-2 text-xs text-fg-subtle">
+          Instagram import needs a Professional or Creator account.
+        </p>
+      )}
+
       {!up.active && up.total > 0 && (
         <div className="mt-2 flex flex-col gap-1.5 text-xs">
           <div className="flex items-center gap-2 text-fg-subtle">
@@ -171,13 +135,13 @@ function MediaManager({
               {up.failed.length > 0 && ` · ${up.failed.length} failed`}
             </span>
             {up.failed.length > 0 && (
-              <Button variant="glass" className="h-7 px-2 text-xs" onClick={up.retry}>
+              <Button variant="secondary" className="h-7 px-2 text-xs" onClick={up.retry}>
                 <RotateCcw size={12} /> Retry failed ({up.failed.length})
               </Button>
             )}
-            <button onClick={up.clear} className="text-fg-subtle hover:text-fg-muted" aria-label="Dismiss">
+            <Button variant="ghost" size="iconSm" onClick={up.clear} aria-label="Dismiss">
               <X size={13} />
-            </button>
+            </Button>
           </div>
           {up.failed.map((it, i) => (
             <p key={i} className="text-danger">
@@ -230,56 +194,36 @@ function TabRow({
     <div className="rounded-xl border border-hairline-subtle bg-surface-subtle p-3">
       <div className="flex flex-wrap items-center gap-2">
         <Input value={label} onChange={(e) => setLabel(e.target.value)} onBlur={() => save()} className="h-9 w-40" />
-        <select
+        <Select
           value={type}
           onChange={(e) => setType(e.target.value as 'grid' | 'video')}
           onBlur={() => save()}
-          className={cn(inputBase, 'h-9 w-28')}
+          className="h-9 w-28"
         >
           <option value="grid">Photo grid</option>
           <option value="video">Video</option>
-        </select>
+        </Select>
         {type === 'grid' && (
-          <div
-            role="radiogroup"
+          <Segmented
+            size="sm"
+            className="h-9"
             aria-label="Grid size"
-            className="flex h-9 items-center rounded-md border border-hairline bg-surface-subtle p-0.5"
-          >
-            {(
-              [
-                { v: 'small', label: 'Small' },
-                { v: 'medium', label: 'Medium' },
-                { v: 'large', label: 'Large' },
-              ] as const
-            ).map(({ v, label: optLabel }) => (
-              <button
-                key={v}
-                role="radio"
-                aria-checked={gridSize === v}
-                onClick={() => {
-                  setGridSize(v)
-                  save({ gridSize: v })
-                }}
-                className={cn(
-                  'h-8 rounded px-3 text-xs transition-colors',
-                  gridSize === v
-                    ? 'bg-surface-stronger text-fg'
-                    : 'text-fg-subtle hover:text-fg-muted',
-                )}
-              >
-                {optLabel}
-              </button>
-            ))}
-          </div>
+            value={gridSize}
+            onChange={(v) => {
+              setGridSize(v)
+              save({ gridSize: v })
+            }}
+            options={GRID_SIZES}
+          />
         )}
         <div className="ml-auto flex items-center gap-1">
-          <Button variant="glass" disabled={index === 0} onClick={() => onReorder(index, -1)} aria-label="Move up">
+          <Button variant="ghost" size="icon" disabled={index === 0} onClick={() => onReorder(index, -1)} aria-label="Move up">
             <ChevronUp size={15} />
           </Button>
-          <Button variant="glass" disabled={index === total - 1} onClick={() => onReorder(index, 1)} aria-label="Move down">
+          <Button variant="ghost" size="icon" disabled={index === total - 1} onClick={() => onReorder(index, 1)} aria-label="Move down">
             <ChevronDown size={15} />
           </Button>
-          <Button variant="glass" className="text-danger" onClick={remove} aria-label="Delete tab">
+          <Button variant="danger" size="icon" onClick={remove} aria-label="Delete tab">
             <Trash2 size={15} />
           </Button>
         </div>
@@ -349,15 +293,15 @@ export function TabsSection({
           placeholder="New tab name"
           className="h-9 w-44"
         />
-        <select
+        <Select
           value={newType}
           onChange={(e) => setNewType(e.target.value as 'grid' | 'video')}
-          className={cn(inputBase, 'h-9 w-28')}
+          className="h-9 w-28"
         >
           <option value="grid">Photo grid</option>
           <option value="video">Video</option>
-        </select>
-        <Button variant="glassPrimary" onClick={add} disabled={pending}>
+        </Select>
+        <Button variant="secondary" onClick={add} disabled={pending}>
           <Plus size={15} /> Add tab
         </Button>
       </div>

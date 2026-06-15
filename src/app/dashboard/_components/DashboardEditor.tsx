@@ -78,7 +78,7 @@ function PublishBar({
           )}
         </div>
         <Button
-          variant="glassPrimary"
+          variant="primary"
           onClick={toggle}
           disabled={pending || (billingEnabled && !hasActiveSub && published === false)}
         >
