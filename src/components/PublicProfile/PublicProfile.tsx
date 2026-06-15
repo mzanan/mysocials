@@ -1,15 +1,12 @@
 'use client'
 
-import { useRef, useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import dynamic from 'next/dynamic'
-import Image from 'next/image'
-import { ChevronRight, ShoppingBag, ShoppingCart, Code, type LucideIcon } from 'lucide-react'
 import { LazyMotion, domAnimation, m, AnimatePresence } from 'motion/react'
-import { usePublicProfile, iconContainerClasses } from './usePublicProfile'
+import { usePublicProfile } from './usePublicProfile'
+import { ProfileLinkButton } from './ProfileLinkButton'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { SocialIcon } from '@/components/SocialIcon/SocialIcon'
 import { PersonalBackground } from '@/components/Backgrounds/PersonalBackground/PersonalBackground'
 import type { ProfilePublic } from '@/types/profile'
 
@@ -23,26 +20,26 @@ const DevBackground = dynamic(
   },
 )
 
-const linkIcons: Record<string, LucideIcon> = {
-  'shopping-bag': ShoppingBag,
-  'shopping-cart': ShoppingCart,
-  code: Code,
-}
-
 export function PublicProfile({ profile }: { profile: ProfilePublic }) {
   const { tabs, activeTabId, setActiveTabId, handleLinkClick } = usePublicProfile(profile)
 
-  const everActivatedRef = useRef<Set<string>>(new Set([activeTabId]))
-  everActivatedRef.current.add(activeTabId)
+  const [everActivated, setEverActivated] = useState<Set<string>>(() => new Set([activeTabId]))
+  if (!everActivated.has(activeTabId)) {
+    setEverActivated((prev) => new Set(prev).add(activeTabId))
+  }
 
   const [showCard, setShowCard] = useState(false)
+  const [cardTabId, setCardTabId] = useState(activeTabId)
+  if (cardTabId !== activeTabId) {
+    setCardTabId(activeTabId)
+    setShowCard(false)
+  }
   const revealCard = useCallback(() => setShowCard(true), [])
   const activeIndex = Math.max(0, tabs.findIndex((t) => t.id === activeTabId))
   const multiTab = tabs.length > 1
   const displayName = profile.displayName || profile.username
 
   useEffect(() => {
-    setShowCard(false)
     const t = setTimeout(() => setShowCard(true), 4000)
     return () => clearTimeout(t)
   }, [activeTabId])
@@ -50,11 +47,12 @@ export function PublicProfile({ profile }: { profile: ProfilePublic }) {
   return (
     <LazyMotion features={domAnimation}>
       <div
+        data-theme={profile.theme}
         className="relative flex h-dvh flex-col items-center justify-center overflow-hidden bg-app-bg"
         style={{ ['--accent-glow' as string]: profile.accent }}
       >
         {tabs.map((tab) =>
-          everActivatedRef.current.has(tab.id) ? (
+          everActivated.has(tab.id) ? (
             <div
               key={tab.id}
               className={tab.id === activeTabId ? 'visible' : 'invisible fixed inset-0 pointer-events-none'}
@@ -149,39 +147,13 @@ export function PublicProfile({ profile }: { profile: ProfilePublic }) {
 
                 {tabs.map((tab) => (
                   <TabsContent key={tab.id} value={tab.id} className="space-y-3">
-                    {tab.links.map((link) => {
-                      const Icon = link.icon ? linkIcons[link.icon] : null
-                      return (
-                        <Button
-                          key={`${tab.id}-${link.url}`}
-                          variant="glass"
-                          className="group link-btn flex h-14 w-full cursor-pointer items-center justify-start gap-3 rounded-2xl px-4 text-base font-medium backdrop-blur-md"
-                          onClick={() => handleLinkClick(link.url)}
-                        >
-                          {Icon ? (
-                            <span className={`${iconContainerClasses} text-fg-muted`}>
-                              <Icon size={22} strokeWidth={1.8} />
-                            </span>
-                          ) : link.iconUrl ? (
-                            <div className={`${iconContainerClasses} rounded-full bg-black`}>
-                              <Image
-                                src={link.iconUrl}
-                                alt={`${link.title} icon`}
-                                width={20}
-                                height={20}
-                                className="object-contain"
-                              />
-                            </div>
-                          ) : (
-                            <span className={`${iconContainerClasses} text-fg-muted`}>
-                              <SocialIcon url={link.url} size={22} />
-                            </span>
-                          )}
-                          <span className="flex-1 text-left">{link.title}</span>
-                          <ChevronRight className="link-chev size-5 -translate-x-1 text-fg-subtle opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100" />
-                        </Button>
-                      )
-                    })}
+                    {tab.links.map((link) => (
+                      <ProfileLinkButton
+                        key={`${tab.id}-${link.url}`}
+                        link={link}
+                        onClick={() => handleLinkClick(link.url)}
+                      />
+                    ))}
                   </TabsContent>
                 ))}
               </Tabs>

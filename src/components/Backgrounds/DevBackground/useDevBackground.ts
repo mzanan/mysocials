@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 export interface DevVideo {
   url: string
@@ -33,12 +33,12 @@ export const itemVariants = {
 
 export function useDevBackground(isActive: boolean) {
   const [animationKey, setAnimationKey] = useState(0)
+  const [wasActive, setWasActive] = useState(isActive)
 
-  useEffect(() => {
-    if (isActive) {
-      setAnimationKey((prev) => prev + 1)
-    }
-  }, [isActive])
+  if (isActive !== wasActive) {
+    setWasActive(isActive)
+    if (isActive) setAnimationKey((prev) => prev + 1)
+  }
 
   return { animationKey }
 }

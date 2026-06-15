@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 export const itemVariants = {
   hidden: { opacity: 0, scale: 0.8 },
@@ -17,10 +17,12 @@ export const itemVariants = {
 
 export function usePersonalBackground(isActive: boolean, initialImages: string[]) {
   const [animationKey, setAnimationKey] = useState(0)
+  const [wasActive, setWasActive] = useState(isActive)
 
-  useEffect(() => {
-    if (isActive) setAnimationKey(prev => prev + 1)
-  }, [isActive])
+  if (isActive !== wasActive) {
+    setWasActive(isActive)
+    if (isActive) setAnimationKey((prev) => prev + 1)
+  }
 
   return { images: initialImages, animationKey }
 }
