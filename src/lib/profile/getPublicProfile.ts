@@ -78,6 +78,7 @@ export async function getPublicProfileByUsername(
     avatarUrl: row.avatar_url,
     bio: row.bio,
     accent: row.accent,
+    theme: row.theme,
     tabs,
   }
 }

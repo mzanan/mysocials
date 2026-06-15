@@ -1,3 +1,5 @@
+import type { Theme } from '@/lib/appearance'
+
 export interface LinkPublic {
   title: string
   url: string
@@ -30,6 +32,7 @@ export interface ProfilePublic {
   avatarUrl: string | null
   bio: string | null
   accent: string
+  theme: Theme
   tabs: TabPublic[]
 }
 

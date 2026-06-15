@@ -6,12 +6,14 @@ import { z } from 'zod'
 import { db } from '@/lib/db'
 import { profiles } from '@/lib/db/schema'
 import { isUsernameAvailable } from '@/lib/profile/username'
+import { DEFAULT_PROFILE_THEME, THEME_VALUES } from '@/lib/appearance'
 import { requireUserId, revalidate, type Result } from './_helpers'
 
 const profileSchema = z.object({
   displayName: z.string().trim().max(60).nullable(),
   bio: z.string().trim().max(280).nullable(),
   accent: z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Invalid color'),
+  theme: z.enum(THEME_VALUES).default(DEFAULT_PROFILE_THEME),
 })
 
 export async function updateProfile(input: z.infer<typeof profileSchema>): Promise<Result> {
@@ -24,6 +26,7 @@ export async function updateProfile(input: z.infer<typeof profileSchema>): Promi
       display_name: parsed.data.displayName || null,
       bio: parsed.data.bio || null,
       accent: parsed.data.accent,
+      theme: parsed.data.theme,
     })
     .where(eq(profiles.user_id, uid))
   revalidate()

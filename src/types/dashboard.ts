@@ -23,11 +23,14 @@ export interface DashLink {
   icon: string | null
 }
 
+import type { Theme } from '@/lib/appearance'
+
 export interface DashboardData {
   username: string
   displayName: string | null
   bio: string | null
   accent: string
+  theme: Theme
   avatarUrl: string | null
   published: boolean
   subscriptionStatus: string | null

@@ -68,6 +68,7 @@ export const profiles = sqliteTable(
     avatar_key: text('avatar_key'),
     bio: text('bio'),
     accent: text('accent').notNull().default('#a78bfa'),
+    theme: text('theme', { enum: ['dark', 'light'] }).notNull().default('dark'),
     published: integer('published', { mode: 'boolean' }).notNull().default(false),
     subscription_status: text('subscription_status', {
       enum: ['active', 'canceled', 'past_due', 'revoked'],

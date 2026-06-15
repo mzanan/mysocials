@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { updateProfile, updateUsername } from '../actions'
+import type { Theme } from '@/lib/appearance'
 import type { DashboardData } from '@/types/dashboard'
 
 export function useProfileSection(data: DashboardData) {
@@ -12,6 +13,7 @@ export function useProfileSection(data: DashboardData) {
   const [displayName, setDisplayName] = useState(data.displayName ?? '')
   const [bio, setBio] = useState(data.bio ?? '')
   const [accent, setAccent] = useState(data.accent)
+  const [theme, setTheme] = useState<Theme>(data.theme)
   const [username, setUsername] = useState(data.username)
   const [msg, setMsg] = useState<string | null>(null)
 
@@ -22,6 +24,7 @@ export function useProfileSection(data: DashboardData) {
         displayName: displayName || null,
         bio: bio || null,
         accent,
+        theme,
       })
       setMsg(res.ok ? 'Saved' : res.error)
       if (res.ok) router.refresh()
@@ -45,6 +48,8 @@ export function useProfileSection(data: DashboardData) {
     setBio,
     accent,
     setAccent,
+    theme,
+    setTheme,
     username,
     setUsername,
     msg,
