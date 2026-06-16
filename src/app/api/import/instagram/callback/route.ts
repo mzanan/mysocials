@@ -7,12 +7,12 @@ import { auth } from '@/lib/auth'
 import { setAvatarFromBuffer } from '@/lib/avatar'
 import { db } from '@/lib/db'
 import { ig_connections, profiles } from '@/lib/db/schema'
-import { exchangeCodeForToken, fetchProfile, getLongLivedToken, instagramEnabled } from '@/lib/ig'
+import { exchangeCodeForToken, fetchProfile, getLongLivedToken, officialConfigured } from '@/lib/ig'
 
 export const runtime = 'nodejs'
 
 export async function GET(req: Request) {
-  if (!instagramEnabled()) {
+  if (!officialConfigured()) {
     return NextResponse.json({ error: 'Instagram import not configured' }, { status: 404 })
   }
   const session = await auth.api.getSession({ headers: await headers() })

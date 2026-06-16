@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { agentEnabled, planActions } from "@/lib/agent/planner";
-import { instagramEnabled } from "@/lib/ig";
+import { importEnabled } from "@/lib/ig";
 
 export async function POST(req: Request) {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -25,7 +25,7 @@ export async function POST(req: Request) {
   try {
     const plan = await planActions(message, {
       tabLabels,
-      instagramEnabled: instagramEnabled(),
+      instagramEnabled: importEnabled(),
       instagramConnected: Boolean(body?.instagramConnected),
     });
     return NextResponse.json(plan);

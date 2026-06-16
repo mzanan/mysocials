@@ -7,13 +7,13 @@ import { and, eq } from 'drizzle-orm'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { import_jobs, tabs } from '@/lib/db/schema'
-import { instagramEnabled } from '@/lib/ig'
+import { importEnabled } from '@/lib/ig'
 import { requirePublishAccess } from '@/lib/subscription'
 
 export const runtime = 'nodejs'
 
 export async function POST(req: Request) {
-  if (!instagramEnabled()) {
+  if (!importEnabled()) {
     return NextResponse.json({ error: 'Instagram import not configured' }, { status: 404 })
   }
   const session = await auth.api.getSession({ headers: await headers() })

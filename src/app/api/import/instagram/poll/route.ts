@@ -5,7 +5,7 @@ import { and, eq, sql } from 'drizzle-orm'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { ig_connections, import_jobs, media } from '@/lib/db/schema'
-import { fetchAllMedia, IgAuthError, stillUrl } from '@/lib/ig'
+import { igProvider, IgAuthError, stillUrl } from '@/lib/ig'
 import { ingestImageBuffer } from '@/lib/media-ingest'
 import { MAX_IMAGES_PER_USER, countUserMedia } from '@/lib/media-quota'
 
@@ -67,7 +67,10 @@ export async function POST(req: Request) {
       })
       if (!conn) throw new Error('Instagram not connected')
 
-      const items = await fetchAllMedia(conn.access_token, MAX_IMPORT)
+      const items = await igProvider().fetchMedia(
+        { username: conn.username, accessToken: conn.access_token },
+        MAX_IMPORT,
+      )
       const remaining = items
         .filter((i) => i.mediaType !== 'VIDEO')
         .filter((i) => stillUrl(i))
