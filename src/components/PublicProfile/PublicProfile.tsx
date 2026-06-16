@@ -67,7 +67,6 @@ export function PublicProfile({ profile }: { profile: ProfilePublic }) {
                 <PersonalBackground
                   isActive={tab.id === activeTabId}
                   initialImages={tab.media.map((md) => md.url)}
-                  gridSize={tab.gridSize}
                   onReady={revealCard}
                 />
               )}

@@ -4,17 +4,11 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'reac
 import { m } from 'motion/react'
 import Image from 'next/image'
 import { usePersonalBackground, itemVariants } from './usePersonalBackground'
-import type { GridSize } from '@/types/profile'
 
 const GAP = 4
 const READY_FALLBACK_MS = 2500
 const READY_PER_TILE_MS = 30
 const READY_BASE_MS = 500
-const SIZE_CELL: Record<GridSize, { min: number; max: number }> = {
-  small: { min: 100, max: 150 },
-  medium: { min: 150, max: 220 },
-  large: { min: 220, max: 320 },
-}
 
 interface CycleGrid {
   cols: number
@@ -35,7 +29,7 @@ function useWindowSize() {
   )
 }
 
-function useCycleGrid(images: string[], size: GridSize): CycleGrid | null {
+function useCycleGrid(images: string[]): CycleGrid | null {
   const dims = useWindowSize()
 
   return useMemo(() => {
@@ -43,23 +37,12 @@ function useCycleGrid(images: string[], size: GridSize): CycleGrid | null {
     const [W, H] = dims.split('x').map(Number)
     if (!W || !H) return null
 
-    const { min, max } = SIZE_CELL[size]
     const N = images.length
-    let cols = Math.round(Math.sqrt((N * W) / H))
-    cols = Math.max(1, cols)
-    let cellW = W / cols
-    if (cellW < min) cols = Math.max(1, Math.floor(W / min))
-    else if (cellW > max) cols = Math.ceil(W / max)
-    cellW = W / cols
-    const rows = Math.max(1, Math.ceil(H / cellW))
-    const total = cols * rows
-    const items = Array.from({ length: total }, (_, i) => {
-      const block = Math.floor(i / N)
-      const idx = (i * 23 + block * 7) % N
-      return { src: images[idx], key: i }
-    })
+    const cols = Math.min(N, Math.max(1, Math.round(Math.sqrt((N * W) / H))))
+    const rows = Math.ceil(N / cols)
+    const items = images.map((src, i) => ({ src, key: i }))
     return { cols, rows, items }
-  }, [images, size, dims])
+  }, [images, dims])
 }
 
 function CycleGridView({
@@ -143,16 +126,14 @@ function CycleGridView({
 export function PersonalBackground({
   isActive,
   initialImages,
-  gridSize = 'medium',
   onReady,
 }: {
   isActive: boolean
   initialImages: string[]
-  gridSize?: GridSize
   onReady?: () => void
 }) {
   const { images, animationKey } = usePersonalBackground(isActive, initialImages)
-  const cycleGrid = useCycleGrid(images, gridSize)
+  const cycleGrid = useCycleGrid(images)
 
   return (
     <div className="bg-fixed-overlay bg-grid-base">
