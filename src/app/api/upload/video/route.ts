@@ -50,36 +50,41 @@ export async function POST(req: Request) {
     )
   }
 
-  const ext = clip.type === 'video/webm' ? 'webm' : 'mp4'
-  const base = `media/${session.user.id}/${tabId}/${randomUUID()}`
-  const clipKey = `${base}.${ext}`
-  await storage.put(clipKey, Buffer.from(await clip.arrayBuffer()), clip.type)
+  try {
+    const ext = clip.type === 'video/webm' ? 'webm' : 'mp4'
+    const base = `media/${session.user.id}/${tabId}/${randomUUID()}`
+    const clipKey = `${base}.${ext}`
+    await storage.put(clipKey, Buffer.from(await clip.arrayBuffer()), clip.type)
 
-  let posterKey: string | null = null
-  let posterUrl: string | null = null
-  if (poster instanceof File && poster.size > 0) {
-    posterKey = `${base}.webp`
-    await storage.put(posterKey, Buffer.from(await poster.arrayBuffer()), 'image/webp')
-    posterUrl = storage.publicUrl(posterKey)
+    let posterKey: string | null = null
+    let posterUrl: string | null = null
+    if (poster instanceof File && poster.size > 0) {
+      posterKey = `${base}.webp`
+      await storage.put(posterKey, Buffer.from(await poster.arrayBuffer()), 'image/webp')
+      posterUrl = storage.publicUrl(posterKey)
+    }
+
+    const [{ max }] = await db
+      .select({ max: sql<number>`coalesce(max(${media.position}), -1)` })
+      .from(media)
+      .where(eq(media.tab_id, tabId))
+
+    const [row] = await db
+      .insert(media)
+      .values({
+        tab_id: tabId,
+        kind: 'video',
+        r2_key: clipKey,
+        url: storage.publicUrl(clipKey),
+        poster_key: posterKey,
+        poster_url: posterUrl,
+        position: (max ?? -1) + 1,
+      })
+      .returning()
+
+    return NextResponse.json({ media: row })
+  } catch (e) {
+    console.error('Video upload failed:', e)
+    return NextResponse.json({ error: 'Could not save the video' }, { status: 500 })
   }
-
-  const [{ max }] = await db
-    .select({ max: sql<number>`coalesce(max(${media.position}), -1)` })
-    .from(media)
-    .where(eq(media.tab_id, tabId))
-
-  const [row] = await db
-    .insert(media)
-    .values({
-      tab_id: tabId,
-      kind: 'video',
-      r2_key: clipKey,
-      url: storage.publicUrl(clipKey),
-      poster_key: posterKey,
-      poster_url: posterUrl,
-      position: (max ?? -1) + 1,
-    })
-    .returning()
-
-  return NextResponse.json({ media: row })
 }
