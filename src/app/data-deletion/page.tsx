@@ -28,8 +28,8 @@ export default function DataDeletionPage() {
       <LegalSection title="Delete your account">
         <p>
           To delete your entire account and all associated data, email{' '}
-          <a className="text-accent underline-offset-4 hover:underline" href="mailto:matiaszanan@gmail.com">
-            matiaszanan@gmail.com
+          <a className="text-accent underline-offset-4 hover:underline" href="mailto:hello@itsmatias.com">
+            hello@itsmatias.com
           </a>{' '}
           from your account email. We remove your profile, uploaded media and any stored Instagram token
           within 30 days.

@@ -52,8 +52,8 @@ export default function PrivacyPage() {
         <p>
           You can delete your content at any time from your dashboard, and request full account deletion
           by emailing{' '}
-          <a className="text-accent underline-offset-4 hover:underline" href="mailto:matiaszanan@gmail.com">
-            matiaszanan@gmail.com
+          <a className="text-accent underline-offset-4 hover:underline" href="mailto:hello@itsmatias.com">
+            hello@itsmatias.com
           </a>
           . On deletion we remove your profile, uploaded media and any stored Instagram token within 30
           days. See our{' '}
@@ -75,8 +75,8 @@ export default function PrivacyPage() {
       <LegalSection title="Contact">
         <p>
           Questions about this policy:{' '}
-          <a className="text-accent underline-offset-4 hover:underline" href="mailto:matiaszanan@gmail.com">
-            matiaszanan@gmail.com
+          <a className="text-accent underline-offset-4 hover:underline" href="mailto:hello@itsmatias.com">
+            hello@itsmatias.com
           </a>
           .
         </p>

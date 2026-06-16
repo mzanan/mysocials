@@ -66,8 +66,8 @@ export default function TermsPage() {
       <LegalSection title="Contact">
         <p>
           Questions:{' '}
-          <a className="text-accent underline-offset-4 hover:underline" href="mailto:matiaszanan@gmail.com">
-            matiaszanan@gmail.com
+          <a className="text-accent underline-offset-4 hover:underline" href="mailto:hello@itsmatias.com">
+            hello@itsmatias.com
           </a>
           .
         </p>
