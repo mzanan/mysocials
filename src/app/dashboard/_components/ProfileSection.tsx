@@ -1,6 +1,6 @@
 'use client'
 
-import { Check, Plus } from 'lucide-react'
+import { Check, ChevronRight, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Field } from '@/components/ui/field'
@@ -117,6 +117,22 @@ export function ProfileSection({ data }: { data: DashboardData }) {
                 className="absolute inset-0 cursor-pointer opacity-0"
               />
             </label>
+          </div>
+          <div className="mt-3" style={{ ['--accent-glow' as string]: accent }}>
+            <p className="mb-1.5 text-xs text-fg-subtle">Your links look like this</p>
+            <div
+              className="flex h-12 items-center gap-3 rounded-2xl border bg-surface px-4 text-sm font-medium text-fg"
+              style={{
+                borderColor: 'color-mix(in oklab, var(--accent-glow) 55%, transparent)',
+                boxShadow:
+                  '0 0 0 1px color-mix(in oklab, var(--accent-glow) 22%, transparent), 0 10px 30px -10px color-mix(in oklab, var(--accent-glow) 55%, transparent)',
+                backgroundColor: 'color-mix(in oklab, var(--accent-glow) 10%, rgba(255,255,255,0.06))',
+              }}
+            >
+              <span className="grid h-7 w-7 place-items-center rounded-full bg-surface-strong text-fg-muted">★</span>
+              <span className="flex-1">Your link</span>
+              <ChevronRight size={18} style={{ color: 'var(--accent-glow)' }} />
+            </div>
           </div>
         </Field>
       </div>
