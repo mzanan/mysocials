@@ -7,11 +7,10 @@ export function Toaster() {
     <Sonner
       position="top-center"
       theme="dark"
+      richColors
       toastOptions={{
         classNames: {
-          toast:
-            'rounded-xl border border-hairline bg-app-bg/90 text-fg backdrop-blur-xl shadow-glass',
-          description: 'text-fg-subtle',
+          toast: 'rounded-xl backdrop-blur-xl shadow-glass',
         },
       }}
     />
