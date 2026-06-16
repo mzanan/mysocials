@@ -1,4 +1,6 @@
 import { HeroCards } from "@/components/auth/HeroCards";
+import { AuthAmbient } from "@/components/auth/AuthAmbient";
+import { AuthFooter } from "@/components/auth/AuthFooter";
 
 export default function AuthLayout({
   children,
@@ -6,24 +8,20 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div data-theme="light" className="bg-app-bg relative min-h-dvh overflow-hidden text-fg">
-      <HeroCards />
+    <div
+      data-theme="light"
+      className="relative min-h-dvh overflow-hidden bg-app-bg text-fg lg:grid lg:grid-cols-[2fr_3fr]"
+    >
+      <AuthAmbient />
 
-      <div className="relative z-10 flex min-h-dvh items-center justify-center px-6 py-12 lg:w-1/2 lg:px-16">
-        <div className="w-full max-w-sm">{children}</div>
+      <div className="absolute inset-0 overflow-hidden lg:relative lg:order-2">
+        <HeroCards />
       </div>
 
-      <footer className="absolute inset-x-0 bottom-6 z-10 text-center text-xs text-fg-faint lg:bottom-8 lg:right-1/2">
-        A product by{" "}
-        <a
-          href="https://itsmatias.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline-offset-4 transition-colors hover:text-fg-muted hover:underline"
-        >
-          itsmatias.com
-        </a>
-      </footer>
+      <main className="relative z-10 flex min-h-dvh items-center justify-center px-6 py-12 lg:order-1 lg:px-12">
+        <div className="w-full max-w-sm">{children}</div>
+        <AuthFooter />
+      </main>
 
       <div aria-hidden className="grain-overlay" />
     </div>
