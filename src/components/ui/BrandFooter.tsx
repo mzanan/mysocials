@@ -12,7 +12,12 @@ export function BrandFooter({ overlay = false, className }: { overlay?: boolean;
         className,
       )}
     >
-      <span className="inline-flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
+      <span
+        className={cn(
+          'inline-flex flex-wrap items-center justify-center gap-x-2 gap-y-1',
+          overlay && 'rounded-full bg-app-bg/55 px-4 py-2 text-fg-subtle ring-1 ring-hairline backdrop-blur-md',
+        )}
+      >
         <span>
           A product by{' '}
           <a href="https://itsmatias.com" target="_blank" rel="noopener noreferrer" className={linkClass}>
