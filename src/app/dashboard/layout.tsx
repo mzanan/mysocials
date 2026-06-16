@@ -8,6 +8,7 @@ import { profiles } from '@/lib/db/schema'
 import { UserMenu } from '@/components/account/UserMenu'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { AmbientBackground } from '@/components/ui/AmbientBackground'
+import { BrandFooter } from '@/components/ui/BrandFooter'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await auth.api.getSession({ headers: await headers() })
@@ -34,6 +35,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </div>
       </header>
       <main className="relative z-10 mx-auto max-w-3xl px-4 py-8">{children}</main>
+      <BrandFooter />
       <div aria-hidden className="grain-overlay" />
     </div>
   )

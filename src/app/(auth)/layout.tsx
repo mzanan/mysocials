@@ -1,6 +1,6 @@
 import { HeroCards } from "@/components/auth/HeroCards";
 import { AuthAmbient } from "@/components/auth/AuthAmbient";
-import { AuthFooter } from "@/components/auth/AuthFooter";
+import { BrandFooter } from "@/components/ui/BrandFooter";
 
 export default function AuthLayout({
   children,
@@ -20,7 +20,7 @@ export default function AuthLayout({
 
       <main className="relative z-10 flex min-h-dvh items-center justify-center px-6 py-12 lg:order-1 lg:px-12">
         <div className="w-full max-w-sm">{children}</div>
-        <AuthFooter />
+        <BrandFooter overlay />
       </main>
 
       <div aria-hidden className="grain-overlay" />

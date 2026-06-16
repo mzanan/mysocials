@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { AmbientBackground } from '@/components/ui/AmbientBackground'
+import { BrandFooter } from '@/components/ui/BrandFooter'
 
 export function LegalPage({
   title,
@@ -27,6 +28,7 @@ export function LegalPage({
           {children}
         </div>
       </div>
+      <BrandFooter />
     </main>
   )
 }

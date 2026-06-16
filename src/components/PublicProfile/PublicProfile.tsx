@@ -8,6 +8,7 @@ import { ProfileLinkButton } from './ProfileLinkButton'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { PersonalBackground } from '@/components/Backgrounds/PersonalBackground/PersonalBackground'
+import { BrandFooter } from '@/components/ui/BrandFooter'
 import type { ProfilePublic } from '@/types/profile'
 
 const DevBackground = dynamic(
@@ -159,6 +160,7 @@ export function PublicProfile({ profile }: { profile: ProfilePublic }) {
             </m.div>
           </div>
         </div>
+        <BrandFooter overlay />
         <div aria-hidden className="grain-overlay" />
       </div>
     </LazyMotion>
