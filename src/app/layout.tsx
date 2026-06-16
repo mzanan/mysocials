@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { Toaster } from "@/components/ui/toaster";
@@ -45,12 +44,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" data-theme="light" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=localStorage.getItem('ms-theme');if(t){document.documentElement.dataset.theme=t}}catch(e){}`,
+          }}
+        />
+      </head>
       <body
         className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}
       >
-        <Script id="theme-init" strategy="beforeInteractive">
-          {`try{var t=localStorage.getItem('ms-theme');if(t){document.documentElement.dataset.theme=t}}catch(e){}`}
-        </Script>
         {children}
         <Toaster />
       </body>
