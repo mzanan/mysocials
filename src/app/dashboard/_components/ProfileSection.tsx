@@ -28,7 +28,6 @@ export function ProfileSection({ data }: { data: DashboardData }) {
     setTheme,
     username,
     setUsername,
-    msg,
     saveProfile,
     saveUsername,
   } = useProfileSection(data)
@@ -59,11 +58,20 @@ export function ProfileSection({ data }: { data: DashboardData }) {
         </Field>
 
         <Field label="Display name">
-          <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+          <Input
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            onBlur={() => saveProfile()}
+          />
         </Field>
 
         <Field label="Bio">
-          <Textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={2} />
+          <Textarea
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
+            onBlur={() => saveProfile()}
+            rows={2}
+          />
         </Field>
 
         <Field label="Accent color">
@@ -72,7 +80,10 @@ export function ProfileSection({ data }: { data: DashboardData }) {
               <button
                 key={c}
                 type="button"
-                onClick={() => setAccent(c)}
+                onClick={() => {
+                  setAccent(c)
+                  saveProfile({ accent: c })
+                }}
                 className={`h-7 w-7 rounded-full border ${accent === c ? 'border-fg' : 'border-hairline-strong'}`}
                 style={{ backgroundColor: c }}
               />
@@ -81,21 +92,23 @@ export function ProfileSection({ data }: { data: DashboardData }) {
               type="color"
               value={accent}
               onChange={(e) => setAccent(e.target.value)}
+              onBlur={() => saveProfile()}
               className="h-7 w-9 cursor-pointer rounded border border-hairline-strong bg-transparent"
             />
           </div>
         </Field>
 
         <Field label="Page theme">
-          <Segmented aria-label="Page theme" value={theme} onChange={setTheme} options={THEMES} />
+          <Segmented
+            aria-label="Page theme"
+            value={theme}
+            onChange={(v) => {
+              setTheme(v)
+              saveProfile({ theme: v })
+            }}
+            options={THEMES}
+          />
         </Field>
-
-        <div className="flex items-center gap-3">
-          <Button variant="secondary" onClick={saveProfile} disabled={pending}>
-            Save profile
-          </Button>
-          {msg && <span className="text-sm text-fg-subtle">{msg}</span>}
-        </div>
       </div>
     </Card>
   )

@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { updateProfile, updateUsername } from '../actions'
+import { toast } from '@/lib/toast'
 import type { Theme } from '@/lib/appearance'
 import type { DashboardData } from '@/types/dashboard'
 
@@ -15,28 +16,29 @@ export function useProfileSection(data: DashboardData) {
   const [accent, setAccent] = useState(data.accent)
   const [theme, setTheme] = useState<Theme>(data.theme)
   const [username, setUsername] = useState(data.username)
-  const [msg, setMsg] = useState<string | null>(null)
 
-  function saveProfile() {
-    setMsg(null)
+  function saveProfile(patch?: { accent?: string; theme?: Theme }) {
     startTransition(async () => {
       const res = await updateProfile({
         displayName: displayName || null,
         bio: bio || null,
-        accent,
-        theme,
+        accent: patch?.accent ?? accent,
+        theme: patch?.theme ?? theme,
       })
-      setMsg(res.ok ? 'Saved' : res.error)
-      if (res.ok) router.refresh()
+      if (!res.ok) toast.error(res.error)
+      else router.refresh()
     })
   }
 
   function saveUsername() {
-    setMsg(null)
     startTransition(async () => {
       const res = await updateUsername(username)
-      setMsg(res.ok ? 'Username updated' : res.error)
-      if (res.ok) router.refresh()
+      if (res.ok) {
+        toast.success('Username updated')
+        router.refresh()
+      } else {
+        toast.error(res.error)
+      }
     })
   }
 
@@ -52,7 +54,6 @@ export function useProfileSection(data: DashboardData) {
     setTheme,
     username,
     setUsername,
-    msg,
     saveProfile,
     saveUsername,
   }
