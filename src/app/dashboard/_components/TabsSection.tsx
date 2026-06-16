@@ -15,6 +15,7 @@ import type { DashTab } from '@/types/dashboard'
 import { useDashboardStore } from './DashboardStore'
 import { useImageUploader } from './useImageUploader'
 import { useInstagramImport } from './useInstagramImport'
+import { InstagramConnectButton } from './InstagramConnectButton'
 import { useMediaManager } from './useMediaManager'
 
 const GRID_SIZES = [
@@ -26,10 +27,12 @@ const GRID_SIZES = [
 function MediaManager({
   tab,
   instagramEnabled,
+  igUsesUsername,
   igConnected,
 }: {
   tab: DashTab
   instagramEnabled: boolean
+  igUsesUsername: boolean
   igConnected: boolean
 }) {
   const { busy, videoStep, error, vidRef, onVideo, reorder, removeMedia } = useMediaManager(tab)
@@ -108,14 +111,7 @@ function MediaManager({
                     : 'Import from Instagram'}
                 </Button>
               ) : (
-                <Button
-                  variant="secondary"
-                  onClick={() => {
-                    window.location.href = '/api/import/instagram/connect'
-                  }}
-                >
-                  <Instagram size={14} /> Connect Instagram
-                </Button>
+                <InstagramConnectButton igUsesUsername={igUsesUsername} />
               ))}
           </>
         )}
@@ -123,7 +119,9 @@ function MediaManager({
 
       {instagramEnabled && tab.type !== 'video' && (
         <p className="mt-2 text-xs text-fg-subtle">
-          Instagram import needs a Professional or Creator account.
+          {igUsesUsername
+            ? 'Imports photos from any public Instagram profile.'
+            : 'Instagram import needs a Professional or Creator account.'}
         </p>
       )}
 
@@ -161,6 +159,7 @@ function TabRow({
   total,
   onReorder,
   instagramEnabled,
+  igUsesUsername,
   igConnected,
 }: {
   tab: DashTab
@@ -168,6 +167,7 @@ function TabRow({
   total: number
   onReorder: (index: number, dir: -1 | 1) => void
   instagramEnabled: boolean
+  igUsesUsername: boolean
   igConnected: boolean
 }) {
   const { setTabs, patchTab } = useDashboardStore()
@@ -229,16 +229,23 @@ function TabRow({
         </div>
       </div>
       {pending && <span className="text-xs text-fg-subtle">Saving…</span>}
-      <MediaManager tab={tab} instagramEnabled={instagramEnabled} igConnected={igConnected} />
+      <MediaManager
+        tab={tab}
+        instagramEnabled={instagramEnabled}
+        igUsesUsername={igUsesUsername}
+        igConnected={igConnected}
+      />
     </div>
   )
 }
 
 export function TabsSection({
   instagramEnabled,
+  igUsesUsername,
   igConnected,
 }: {
   instagramEnabled: boolean
+  igUsesUsername: boolean
   igConnected: boolean
 }) {
   const { tabs, setTabs } = useDashboardStore()
@@ -280,6 +287,7 @@ export function TabsSection({
             total={tabs.length}
             onReorder={handleReorder}
             instagramEnabled={instagramEnabled}
+            igUsesUsername={igUsesUsername}
             igConnected={igConnected}
           />
         ))}

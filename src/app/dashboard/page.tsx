@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { ig_connections, profiles } from "@/lib/db/schema";
-import { instagramEnabled } from "@/lib/ig";
+import { importEnabled, igMode } from "@/lib/ig";
 import { billingEnabled } from "@/lib/subscription";
 import { agentEnabled } from "@/lib/agent/planner";
 import { DashboardEditor } from "./_components/DashboardEditor";
@@ -28,7 +28,7 @@ export default async function DashboardPage() {
   });
   if (!profile) redirect("/");
 
-  const igConn = instagramEnabled()
+  const igConn = importEnabled()
     ? await db.query.ig_connections.findFirst({
         where: eq(ig_connections.user_id, session.user.id),
       })
@@ -71,7 +71,8 @@ export default async function DashboardPage() {
     <DashboardEditor
       data={data}
       billingEnabled={billingEnabled()}
-      instagramEnabled={instagramEnabled()}
+      instagramEnabled={importEnabled()}
+      igUsesUsername={igMode() === "apify"}
       agentEnabled={agentEnabled}
     />
   );

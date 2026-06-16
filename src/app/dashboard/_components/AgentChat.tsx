@@ -8,11 +8,13 @@ import { useAgentChat } from "./useAgentChat";
 
 export function AgentChat({
   instagramConnected,
+  igUsesUsername,
 }: {
   instagramConnected: boolean;
+  igUsesUsername: boolean;
 }) {
   const [open, setOpen] = useState(false);
-  const chat = useAgentChat({ instagramConnected });
+  const chat = useAgentChat({ instagramConnected, igUsesUsername });
 
   if (!open) {
     return (

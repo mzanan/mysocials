@@ -19,8 +19,10 @@ export interface ChatMessage {
 
 export function useAgentChat({
   instagramConnected,
+  igUsesUsername,
 }: {
   instagramConnected: boolean;
+  igUsesUsername: boolean;
 }) {
   const { tabs, setTabs, setLinks } = useDashboardStore();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -60,6 +62,9 @@ export function useAgentChat({
     }
     if (action.tool === "connect_instagram") {
       if (instagramConnected) return "Instagram is already connected";
+      if (igUsesUsername) {
+        return "Open a photo tab and tap Connect Instagram to add your public username";
+      }
       window.location.href = "/api/import/instagram/connect";
       return "Opening Instagram connect…";
     }

@@ -93,11 +93,13 @@ export function DashboardEditor({
   data,
   billingEnabled,
   instagramEnabled,
+  igUsesUsername,
   agentEnabled,
 }: {
   data: DashboardData;
   billingEnabled: boolean;
   instagramEnabled: boolean;
+  igUsesUsername: boolean;
   agentEnabled: boolean;
 }) {
   return (
@@ -121,11 +123,15 @@ export function DashboardEditor({
       <DashboardStore initial={data}>
         <TabsSection
           instagramEnabled={instagramEnabled}
+          igUsesUsername={igUsesUsername}
           igConnected={data.instagramConnected}
         />
         <LinksSection />
         {agentEnabled && (
-          <AgentChat instagramConnected={data.instagramConnected} />
+          <AgentChat
+            instagramConnected={data.instagramConnected}
+            igUsesUsername={igUsesUsername}
+          />
         )}
       </DashboardStore>
     </div>
