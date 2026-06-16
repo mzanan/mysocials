@@ -41,12 +41,12 @@ export function probeDuration(file: File): Promise<number> {
   })
 }
 
-export async function transcodeVideo(file: File): Promise<Blob> {
+export async function transcodeVideo(file: File, maxSeconds?: number): Promise<Blob> {
   const ffmpeg = await loadFFmpeg()
   const input = "in"
   const output = "out.mp4"
   await ffmpeg.writeFile(input, await fetchFile(file))
-  await ffmpeg.exec([
+  const args = [
     "-i",
     input,
     "-vf",
@@ -64,8 +64,10 @@ export async function transcodeVideo(file: File): Promise<Blob> {
     "-an",
     "-movflags",
     "+faststart",
-    output,
-  ])
+  ]
+  if (maxSeconds) args.push("-t", String(maxSeconds))
+  args.push(output)
+  await ffmpeg.exec(args)
   const data = await ffmpeg.readFile(output)
   await ffmpeg.deleteFile(input).catch(() => {})
   await ffmpeg.deleteFile(output).catch(() => {})

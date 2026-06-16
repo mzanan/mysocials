@@ -30,15 +30,20 @@ export function useMediaManager(tab: DashTab) {
       for (const file of files) {
         try {
           const duration = await probeDuration(file)
-          if (duration > MAX_VIDEO_SECONDS + 0.5) {
-            toast.error(`${file.name}: too long (max ${MAX_VIDEO_SECONDS}s)`)
-            continue
-          }
+          const tooLong = duration > MAX_VIDEO_SECONDS + 0.5
           setVideoStep('optimizing')
-          const optimized = await transcodeVideo(file).catch(() => null)
-          if (!optimized && file.type !== 'video/mp4' && file.type !== 'video/webm') {
-            toast.error(`${file.name}: could not optimize (use mp4 or webm)`)
-            continue
+          const optimized = await transcodeVideo(file, tooLong ? MAX_VIDEO_SECONDS : undefined).catch(
+            () => null,
+          )
+          if (!optimized) {
+            if (tooLong) {
+              toast.error(`${file.name}: too long and could not be trimmed`)
+              continue
+            }
+            if (file.type !== 'video/mp4' && file.type !== 'video/webm') {
+              toast.error(`${file.name}: could not optimize (use mp4 or webm)`)
+              continue
+            }
           }
           const clip = optimized ? new File([optimized], 'clip.mp4', { type: 'video/mp4' }) : file
           const poster = await extractPoster(clip)
@@ -56,6 +61,7 @@ export function useMediaManager(tab: DashTab) {
           const { media } = (await res.json()) as { media: MediaRow }
           setTabMedia(tab.id, (prev) => [...prev, toDashMedia(media)])
           uploaded++
+          if (tooLong) toast(`${file.name} was longer than ${MAX_VIDEO_SECONDS}s, trimmed to fit.`)
         } catch {
           toast.error(`${file.name}: failed`)
         }
