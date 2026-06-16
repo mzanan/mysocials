@@ -57,6 +57,7 @@ function SortableMedia({
         fill
         className="object-cover"
         sizes="120px"
+        priority={index === 0}
         unoptimized={m.kind === 'video' && !m.posterUrl}
       />
       <button
