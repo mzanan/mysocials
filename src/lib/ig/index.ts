@@ -17,7 +17,7 @@ export {
 } from './official'
 
 export function importEnabled(): boolean {
-  return apifyConfigured() || officialConfigured()
+  return igMode() !== null
 }
 
 export function igMode(): IgMode | null {

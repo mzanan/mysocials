@@ -27,6 +27,7 @@ export function InstagramConnectButton({ igUsesUsername }: { igUsesUsername: boo
   }
 
   async function connect() {
+    if (submitting) return
     const handle = username.trim()
     if (!handle) return
     setSubmitting(true)
