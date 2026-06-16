@@ -97,7 +97,7 @@ function MediaManager({
   igUsesUsername: boolean
   igConnected: boolean
 }) {
-  const { busy, videoStep, error, vidRef, onVideo, reorder, setOrder, removeMedia } = useMediaManager(tab)
+  const { busy, videoStep, vidRef, onVideo, reorder, setOrder, removeMedia } = useMediaManager(tab)
   const up = useImageUploader(tab)
   const imgRef = useRef<HTMLInputElement>(null)
   const { importing, progress, start: onImport } = useInstagramImport(tab.id)
@@ -134,7 +134,7 @@ function MediaManager({
       <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
         {tab.type === 'video' ? (
           <>
-            <input ref={vidRef} type="file" accept="video/*" hidden onChange={onVideo} />
+            <input ref={vidRef} type="file" accept="video/*" multiple hidden onChange={onVideo} />
             <Button variant="secondary" disabled={busy} onClick={() => vidRef.current?.click()} className="w-full sm:w-auto">
               <Upload size={14} />{' '}
               {videoStep === 'optimizing' ? 'Optimizing…' : videoStep === 'uploading' ? 'Uploading…' : 'Add video'}
@@ -206,7 +206,6 @@ function MediaManager({
           ))}
         </div>
       )}
-      {error && <p className="mt-2 text-xs text-danger">{error}</p>}
     </div>
   )
 }

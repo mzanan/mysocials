@@ -19,46 +19,48 @@ export function useMediaManager(tab: DashTab) {
   const { setTabMedia } = useDashboardStore()
   const [busy, setBusy] = useState(false)
   const [videoStep, setVideoStep] = useState<'optimizing' | 'uploading' | null>(null)
-  const [error, setError] = useState<string | null>(null)
   const vidRef = useRef<HTMLInputElement>(null)
 
   async function onVideo(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const files = Array.from(e.target.files ?? [])
+    if (!files.length) return
     setBusy(true)
-    setError(null)
+    let uploaded = 0
     try {
-      const duration = await probeDuration(file)
-      if (duration > MAX_VIDEO_SECONDS + 0.5) {
-        const m = `Video is too long (${Math.round(duration)}s). Max ${MAX_VIDEO_SECONDS}s.`
-        setError(m)
-        toast.error(m)
-        return
+      for (const file of files) {
+        try {
+          const duration = await probeDuration(file)
+          if (duration > MAX_VIDEO_SECONDS + 0.5) {
+            toast.error(`${file.name}: too long (max ${MAX_VIDEO_SECONDS}s)`)
+            continue
+          }
+          setVideoStep('optimizing')
+          const optimized = await transcodeVideo(file).catch(() => null)
+          if (!optimized && file.type !== 'video/mp4' && file.type !== 'video/webm') {
+            toast.error(`${file.name}: could not optimize (use mp4 or webm)`)
+            continue
+          }
+          const clip = optimized ? new File([optimized], 'clip.mp4', { type: 'video/mp4' }) : file
+          const poster = await extractPoster(clip)
+          setVideoStep('uploading')
+          const fd = new FormData()
+          fd.append('tabId', tab.id)
+          fd.append('clip', clip)
+          if (poster) fd.append('poster', poster, 'poster.webp')
+          const res = await fetch('/api/upload/video', { method: 'POST', body: fd })
+          if (!res.ok) {
+            const body = (await res.json().catch(() => ({}))) as { error?: string }
+            toast.error(`${file.name}: ${body.error ?? 'upload failed'}`)
+            continue
+          }
+          const { media } = (await res.json()) as { media: MediaRow }
+          setTabMedia(tab.id, (prev) => [...prev, toDashMedia(media)])
+          uploaded++
+        } catch {
+          toast.error(`${file.name}: failed`)
+        }
       }
-      setVideoStep('optimizing')
-      const optimized = await transcodeVideo(file).catch(() => null)
-      if (!optimized && file.type !== 'video/mp4' && file.type !== 'video/webm') {
-        setError('Could not optimize this video. Please try an mp4 or webm file.')
-        return
-      }
-      const clip = optimized ? new File([optimized], 'clip.mp4', { type: 'video/mp4' }) : file
-      const poster = await extractPoster(clip)
-      setVideoStep('uploading')
-      const fd = new FormData()
-      fd.append('tabId', tab.id)
-      fd.append('clip', clip)
-      if (poster) fd.append('poster', poster, 'poster.webp')
-      const res = await fetch('/api/upload/video', { method: 'POST', body: fd })
-      if (!res.ok) {
-        const body = (await res.json().catch(() => ({}))) as { error?: string }
-        const m = body.error ?? 'Upload failed'
-        setError(m)
-        toast.error(m)
-        return
-      }
-      const { media } = (await res.json()) as { media: MediaRow }
-      setTabMedia(tab.id, (prev) => [...prev, toDashMedia(media)])
-      toast.success('Video uploaded')
+      if (uploaded > 0) toast.success(`${uploaded} video${uploaded > 1 ? 's' : ''} uploaded`)
     } finally {
       setBusy(false)
       setVideoStep(null)
@@ -83,5 +85,5 @@ export function useMediaManager(tab: DashTab) {
     deleteMedia(id)
   }
 
-  return { busy, videoStep, error, vidRef, onVideo, reorder, setOrder, removeMedia }
+  return { busy, videoStep, vidRef, onVideo, reorder, setOrder, removeMedia }
 }
