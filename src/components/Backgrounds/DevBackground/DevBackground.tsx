@@ -1,13 +1,11 @@
 'use client'
 
-import { useEffect } from 'react'
-import { m } from 'motion/react'
-import {
-  useDevBackground,
-  containerVariants,
-  itemVariants,
-  type DevVideo,
-} from './useDevBackground'
+import { useEffect, useState } from 'react'
+import { AnimatePresence, m } from 'motion/react'
+import { cn } from '@/lib/utils'
+import type { DevVideo } from './useDevBackground'
+
+const ADVANCE_MS = 6000
 
 export function DevBackground({
   isActive,
@@ -18,34 +16,38 @@ export function DevBackground({
   videos: DevVideo[]
   onReady?: () => void
 }) {
-  const { animationKey } = useDevBackground(isActive)
+  const [index, setIndex] = useState(0)
+  const count = videos.length
 
   useEffect(() => {
     if (!isActive) return
-    const t = setTimeout(() => onReady?.(), 1500)
+    const t = setTimeout(() => onReady?.(), 800)
     return () => clearTimeout(t)
-  }, [isActive, animationKey, onReady])
+  }, [isActive, onReady])
+
+  useEffect(() => {
+    if (!isActive || count <= 1) return
+    const id = setInterval(() => setIndex((i) => (i + 1) % count), ADVANCE_MS)
+    return () => clearInterval(id)
+  }, [isActive, count])
+
+  const active = count > 0 ? videos[Math.min(index, count - 1)] : null
 
   return (
-    <div className="bg-fixed-overlay bg-gradient-to-br from-app-bg via-app-bg-2 to-app-bg-3">
-      <m.div
-        className="grid h-full grid-cols-1 items-center justify-center gap-6 p-6 md:grid-cols-2"
-        variants={containerVariants}
-        initial="hidden"
-        animate={isActive ? 'visible' : 'hidden'}
-        key={animationKey}
-      >
-        {videos.map((video) => (
+    <div className="bg-fixed-overlay bg-app-bg">
+      {active && (
+        <AnimatePresence mode="wait">
           <m.div
-            key={video.url}
-            className="relative aspect-video overflow-hidden rounded-xl border-2 border-hairline shadow-2xl"
-            variants={itemVariants}
-            whileHover={{ scale: 1.02, zIndex: 10 }}
-            transition={{ duration: 0.3 }}
+            key={active.url}
+            className="absolute inset-0"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6 }}
           >
             <video
-              src={video.url}
-              poster={video.posterUrl ?? undefined}
+              src={active.url}
+              poster={active.posterUrl ?? undefined}
               autoPlay={isActive}
               muted
               loop
@@ -53,15 +55,26 @@ export function DevBackground({
               preload={isActive ? 'auto' : 'none'}
               className="h-full w-full object-cover"
             />
-            {video.title && (
-              <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/90 via-black/50 to-transparent p-6">
-                <p className="text-lg font-bold text-fg">{video.title}</p>
-              </div>
-            )}
           </m.div>
-        ))}
-      </m.div>
+        </AnimatePresence>
+      )}
       <div className="bg-overlay-gradient" />
+      {count > 1 && (
+        <div className="absolute bottom-16 left-1/2 z-20 flex -translate-x-1/2 gap-2">
+          {videos.map((v, i) => (
+            <button
+              key={v.url}
+              type="button"
+              onClick={() => setIndex(i)}
+              aria-label={`Show video ${i + 1}`}
+              className={cn(
+                'h-1.5 rounded-full transition-all',
+                i === index ? 'w-6 bg-fg' : 'w-1.5 bg-fg/40 hover:bg-fg/70',
+              )}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
