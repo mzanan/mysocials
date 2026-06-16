@@ -15,11 +15,16 @@ export const itemVariants = {
   }),
 }
 
-const TARGET_TILE = 280
 const MIN_COLS = 2
 const MAX_COLS = 8
 const ROTATE_MS = 3200
 const SWAP_PER_TICK = 3
+
+function targetCount(w: number): number {
+  if (w < 640) return 12
+  if (w < 1024) return 20
+  return 30
+}
 
 export interface GridShape {
   cols: number
@@ -62,9 +67,9 @@ export function useGridShape(poolSize: number): GridShape | null {
     const [W, H] = dims.split('x').map(Number)
     if (!W || !H) return null
 
-    const cols = clamp(Math.round(W / TARGET_TILE), MIN_COLS, MAX_COLS)
-    const tile = W / cols
-    const rows = Math.max(1, Math.ceil(H / tile))
+    const target = Math.min(poolSize, targetCount(W))
+    const cols = clamp(Math.round(Math.sqrt((target * W) / H)), MIN_COLS, MAX_COLS)
+    const rows = Math.max(1, Math.round(target / cols))
     const count = Math.min(poolSize, cols * rows)
     return { cols, rows, count }
   }, [poolSize, dims])
