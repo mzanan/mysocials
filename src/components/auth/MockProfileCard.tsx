@@ -24,7 +24,7 @@ export function MockProfileCard({
   return (
     <div
       className={cn(
-        'w-56 rounded-3xl border border-hairline bg-surface p-4 backdrop-blur-xl',
+        'rounded-3xl border border-hairline bg-surface p-4 backdrop-blur-xl',
         className,
       )}
       style={{ boxShadow: 'var(--shadow-card)' }}

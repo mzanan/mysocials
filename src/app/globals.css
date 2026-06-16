@@ -173,26 +173,17 @@
   }
 }
 
-@keyframes hero-drift-up {
+@keyframes hero-bounce {
   from {
     transform: translateY(0);
   }
   to {
     transform: translateY(-50%);
-  }
-}
-
-@keyframes hero-drift-down {
-  from {
-    transform: translateY(-50%);
-  }
-  to {
-    transform: translateY(0);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  [style*="hero-drift"] {
+  [style*="hero-bounce"] {
     animation: none !important;
   }
 }
