@@ -37,7 +37,7 @@ function LinkRow({ link }: { link: DashLink }) {
           value={r.handle}
           onChange={(e) => r.setHandle(e.target.value)}
           onBlur={r.save}
-          placeholder="@username"
+          placeholder="username"
           className="min-w-0 flex-1"
         />
       ) : (
@@ -120,7 +120,7 @@ export function TabLinks({ tabId }: { tabId: string }) {
               autoFocus
               value={handle}
               onChange={(e) => setHandle(e.target.value)}
-              placeholder="@username"
+              placeholder="username"
               className="min-w-0 flex-1"
             />
           ) : (

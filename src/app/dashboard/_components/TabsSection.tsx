@@ -193,7 +193,7 @@ function TabRow({
             value={type}
             onChange={(e) => setType(e.target.value as 'grid' | 'video')}
             onBlur={save}
-            className="h-10 flex-1 sm:w-32"
+            className="h-10 flex-1 sm:w-40"
           >
             <option value="grid">Photo grid</option>
             <option value="video">Video</option>
@@ -291,7 +291,7 @@ export function TabsSection({
           <Select
             value={newType}
             onChange={(e) => setNewType(e.target.value as 'grid' | 'video')}
-            className="h-10 flex-1 sm:w-28"
+            className="h-10 flex-1 sm:w-40"
           >
             <option value="grid">Photo grid</option>
             <option value="video">Video</option>
