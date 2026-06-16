@@ -1,13 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import { Lock, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Text } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
 import { GoogleSignInButton } from "./GoogleSignInButton";
 import { AuthCard } from "./AuthCard";
 import { AuthSubmit } from "./AuthSubmit";
+import { HeroHeadline } from "./HeroHeadline";
 import { useAuthForm } from "./useAuthForm";
 
 export function AuthForm({
@@ -19,88 +22,79 @@ export function AuthForm({
 
   if (f.step === "email") {
     return (
-      <AuthCard
-        title={
-          <>
-            Your whole world,
-            <br className="lg:hidden" />{" "}
-            <span className="text-accent">one link.</span>
-          </>
-        }
-        hero
-      >
-        <div className="mb-2 mt-5 flex items-center justify-center gap-3 text-fg-subtle">
-          <Badge className="bg-gradient-to-r from-accent/20 to-accent/10">
-            <svg className="h-3.5 w-3.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-            $3/month
-          </Badge>
-          <span className="text-xs text-fg-subtle">•</span>
-          <Badge className="bg-gradient-to-r from-accent/20 to-accent/10">
-            <svg className="h-3.5 w-3.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-            Cancel anytime
-          </Badge>
-        </div>
-
-        <p className="mb-2 text-center text-xs text-fg-subtle">
-          Start building your page now. Subscribe to publish.
-        </p>
-
-        {googleEnabled && (
-          <div className="mt-2">
-            <GoogleSignInButton label="Continue with Google" />
-            <div className="my-5 flex items-center gap-3 text-xs text-fg-subtle">
-              <span className="h-px flex-1 bg-surface-strong" />
-              or
-              <span className="h-px flex-1 bg-surface-strong" />
+      <AuthCard title={<HeroHeadline />} hero>
+        <div className="mt-6 flex flex-col gap-5">
+          <div className="flex flex-col items-center gap-2 lg:items-start">
+            <div className="flex items-center gap-2.5">
+              <Badge variant="accent">
+                <Lock className="size-3.5" />
+                $3/month
+              </Badge>
+              <Badge variant="accent">
+                <Check className="size-3.5" />
+                Cancel anytime
+              </Badge>
             </div>
+            <Text variant="caption" className="text-center lg:text-left">
+              Start building your page now. Subscribe to publish.
+            </Text>
           </div>
-        )}
 
-        <form
-          onSubmit={f.continueWithEmail}
-          noValidate
-          className={`flex flex-col gap-3 ${googleEnabled ? "" : "mt-6"}`}
-        >
-          <div className="flex flex-col gap-1.5">
-            <Input
-              type="email"
-              autoComplete="email"
-              placeholder="Email"
-              value={f.email}
-              onChange={(e) => f.setEmail(e.target.value)}
-              aria-invalid={!!f.emailError}
-              className={cn(
-                "h-11 px-4",
-                f.emailError && "border-danger-strong focus:border-danger-strong"
-              )}
-            />
-            {f.emailError && (
-              <p className="text-xs text-danger">{f.emailError}</p>
+          <div className="flex flex-col gap-5">
+            {googleEnabled && (
+              <>
+                <GoogleSignInButton label="Continue with Google" />
+                <div className="flex items-center gap-3 text-xs text-fg-subtle">
+                  <span className="h-px flex-1 bg-hairline-strong" />
+                  or
+                  <span className="h-px flex-1 bg-hairline-strong" />
+                </div>
+              </>
             )}
+
+            <form
+              onSubmit={f.continueWithEmail}
+              noValidate
+              className="flex flex-col gap-3"
+            >
+              <div className="flex flex-col gap-1.5">
+                <Input
+                  type="email"
+                  autoComplete="email"
+                  placeholder="Email"
+                  value={f.email}
+                  onChange={(e) => f.setEmail(e.target.value)}
+                  aria-invalid={!!f.emailError}
+                  className={cn(
+                    "h-11 px-4",
+                    f.emailError && "border-danger-strong focus:border-danger-strong"
+                  )}
+                />
+                {f.emailError && (
+                  <p className="text-xs text-danger">{f.emailError}</p>
+                )}
+              </div>
+
+              {f.error && <p className="text-sm text-danger">{f.error}</p>}
+
+              <AuthSubmit disabled={f.loading}>
+                {f.loading ? "…" : "Continue"}
+              </AuthSubmit>
+            </form>
           </div>
 
-          {f.error && <p className="text-sm text-danger">{f.error}</p>}
-
-          <AuthSubmit disabled={f.loading}>
-            {f.loading ? "…" : "Continue"}
-          </AuthSubmit>
-        </form>
-
-        <p className="mt-6 text-center text-[11px] text-fg-subtle">
-          By continuing, you agree to our{" "}
-          <Link href="/terms" className="underline-offset-4 hover:underline">
-            Terms
-          </Link>{" "}
-          and{" "}
-          <Link href="/privacy" className="underline-offset-4 hover:underline">
-            Privacy Policy
-          </Link>
-          .
-        </p>
+          <Text variant="caption" className="text-center lg:text-left">
+            By continuing, you agree to our{" "}
+            <Link href="/terms" className="underline-offset-4 hover:underline">
+              Terms
+            </Link>{" "}
+            and{" "}
+            <Link href="/privacy" className="underline-offset-4 hover:underline">
+              Privacy Policy
+            </Link>
+            .
+          </Text>
+        </div>
       </AuthCard>
     );
   }
