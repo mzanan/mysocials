@@ -1,14 +1,16 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useSyncExternalStore } from 'react'
 import dynamic from 'next/dynamic'
 import { LazyMotion, domAnimation, m, AnimatePresence } from 'motion/react'
 import { usePublicProfile } from './usePublicProfile'
 import { ProfileLinkButton } from './ProfileLinkButton'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Moon, Sun } from 'lucide-react'
 import { PersonalBackground } from '@/components/Backgrounds/PersonalBackground/PersonalBackground'
 import { BrandFooter } from '@/components/ui/BrandFooter'
+import type { Theme } from '@/lib/appearance'
 import type { ProfilePublic } from '@/types/profile'
 
 const DevBackground = dynamic(
@@ -20,6 +22,27 @@ const DevBackground = dynamic(
     ),
   },
 )
+
+const PUB_THEME_KEY = 'ms-pub-theme'
+const pubThemeListeners = new Set<() => void>()
+function subscribePubTheme(cb: () => void) {
+  pubThemeListeners.add(cb)
+  return () => pubThemeListeners.delete(cb)
+}
+function getPubTheme(): Theme | null {
+  try {
+    const t = localStorage.getItem(PUB_THEME_KEY)
+    return t === 'dark' || t === 'light' ? t : null
+  } catch {
+    return null
+  }
+}
+function setPubTheme(next: Theme) {
+  try {
+    localStorage.setItem(PUB_THEME_KEY, next)
+  } catch {}
+  pubThemeListeners.forEach((l) => l())
+}
 
 export function PublicProfile({ profile }: { profile: ProfilePublic }) {
   const { tabs, activeTabId, setActiveTabId, handleLinkClick } = usePublicProfile(profile)
@@ -40,6 +63,12 @@ export function PublicProfile({ profile }: { profile: ProfilePublic }) {
   const multiTab = tabs.length > 1
   const displayName = profile.displayName || profile.username
 
+  const storedTheme = useSyncExternalStore(subscribePubTheme, getPubTheme, () => null)
+  const theme: Theme = storedTheme ?? profile.theme
+  function toggleTheme() {
+    setPubTheme(theme === 'dark' ? 'light' : 'dark')
+  }
+
   useEffect(() => {
     const t = setTimeout(() => setShowCard(true), 4000)
     return () => clearTimeout(t)
@@ -48,10 +77,18 @@ export function PublicProfile({ profile }: { profile: ProfilePublic }) {
   return (
     <LazyMotion features={domAnimation}>
       <div
-        data-theme={profile.theme}
+        data-theme={theme}
         className="relative flex h-dvh flex-col items-center justify-center overflow-hidden bg-app-bg"
         style={{ ['--accent-glow' as string]: profile.accent }}
       >
+        <button
+          type="button"
+          onClick={toggleTheme}
+          aria-label="Toggle theme"
+          className="absolute right-4 top-4 z-30 grid h-9 w-9 place-items-center rounded-full border border-hairline-strong bg-surface text-fg-muted backdrop-blur-md transition hover:text-fg"
+        >
+          {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+        </button>
         {tabs.map((tab) =>
           everActivated.has(tab.id) ? (
             <div

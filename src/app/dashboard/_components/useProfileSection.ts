@@ -4,7 +4,6 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { updateProfile, updateUsername } from '../actions'
 import { toast } from '@/lib/toast'
-import type { Theme } from '@/lib/appearance'
 import type { DashboardData } from '@/types/dashboard'
 
 export function useProfileSection(data: DashboardData) {
@@ -14,16 +13,16 @@ export function useProfileSection(data: DashboardData) {
   const [displayName, setDisplayName] = useState(data.displayName ?? '')
   const [bio, setBio] = useState(data.bio ?? '')
   const [accent, setAccent] = useState(data.accent)
-  const [theme, setTheme] = useState<Theme>(data.theme)
   const [username, setUsername] = useState(data.username)
+  const theme = data.theme
 
-  function saveProfile(patch?: { accent?: string; theme?: Theme }) {
+  function saveProfile(patch?: { accent?: string }) {
     startTransition(async () => {
       const res = await updateProfile({
         displayName: displayName || null,
         bio: bio || null,
         accent: patch?.accent ?? accent,
-        theme: patch?.theme ?? theme,
+        theme,
       })
       if (!res.ok) toast.error(res.error)
       else router.refresh()
@@ -50,8 +49,6 @@ export function useProfileSection(data: DashboardData) {
     setBio,
     accent,
     setAccent,
-    theme,
-    setTheme,
     username,
     setUsername,
     saveProfile,

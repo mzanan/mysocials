@@ -1,15 +1,19 @@
 'use client'
 
+import { Check, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Field } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { Segmented } from '@/components/ui/segmented'
 import { Textarea } from '@/components/ui/textarea'
-import { ACCENT_PRESETS, THEMES } from '@/lib/appearance'
+import { ACCENT_PRESETS } from '@/lib/appearance'
+import { cn } from '@/lib/utils'
 import type { DashboardData, DashMedia } from '@/types/dashboard'
 import { AvatarSection } from './AvatarSection'
 import { useProfileSection } from './useProfileSection'
+
+const RAINBOW =
+  'conic-gradient(from 0deg, #f87171, #fbbf24, #34d399, #60a5fa, #a78bfa, #f472b6, #f87171)'
 
 function getImageMedia(data: DashboardData): DashMedia[] {
   return data.tabs.flatMap((t) => t.media).filter((m) => m.kind === 'image')
@@ -24,13 +28,13 @@ export function ProfileSection({ data }: { data: DashboardData }) {
     setBio,
     accent,
     setAccent,
-    theme,
-    setTheme,
     username,
     setUsername,
     saveProfile,
     saveUsername,
   } = useProfileSection(data)
+
+  const isCustomAccent = !ACCENT_PRESETS.includes(accent)
 
   return (
     <Card title="Profile" desc="How your page introduces you.">
@@ -74,40 +78,46 @@ export function ProfileSection({ data }: { data: DashboardData }) {
           />
         </Field>
 
-        <Field label="Accent color">
-          <div className="flex items-center gap-2">
+        <Field label="Accent">
+          <div className="flex flex-wrap items-center gap-2.5">
             {ACCENT_PRESETS.map((c) => (
               <button
                 key={c}
                 type="button"
+                aria-label={`Accent ${c}`}
                 onClick={() => {
                   setAccent(c)
                   saveProfile({ accent: c })
                 }}
-                className={`h-7 w-7 rounded-full border ${accent === c ? 'border-fg' : 'border-hairline-strong'}`}
+                className={cn(
+                  'relative grid h-9 w-9 place-items-center rounded-full transition',
+                  accent === c
+                    ? 'ring-2 ring-fg ring-offset-2 ring-offset-app-bg'
+                    : 'ring-1 ring-hairline-strong hover:scale-105',
+                )}
                 style={{ backgroundColor: c }}
-              />
+              >
+                {accent === c && <Check size={16} className="text-white drop-shadow" />}
+              </button>
             ))}
-            <input
-              type="color"
-              value={accent}
-              onChange={(e) => setAccent(e.target.value)}
-              onBlur={() => saveProfile()}
-              className="h-7 w-9 cursor-pointer rounded border border-hairline-strong bg-transparent"
-            />
+            <label
+              aria-label="Custom accent"
+              className={cn(
+                'relative grid h-9 w-9 cursor-pointer place-items-center rounded-full transition hover:scale-105',
+                isCustomAccent ? 'ring-2 ring-fg ring-offset-2 ring-offset-app-bg' : 'ring-1 ring-hairline-strong',
+              )}
+              style={{ background: RAINBOW }}
+            >
+              <Plus size={14} className="text-white mix-blend-difference" />
+              <input
+                type="color"
+                value={accent}
+                onChange={(e) => setAccent(e.target.value)}
+                onBlur={() => saveProfile()}
+                className="absolute inset-0 cursor-pointer opacity-0"
+              />
+            </label>
           </div>
-        </Field>
-
-        <Field label="Page theme">
-          <Segmented
-            aria-label="Page theme"
-            value={theme}
-            onChange={(v) => {
-              setTheme(v)
-              saveProfile({ theme: v })
-            }}
-            options={THEMES}
-          />
         </Field>
       </div>
     </Card>
