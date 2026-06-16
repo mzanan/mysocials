@@ -19,6 +19,7 @@ export function useMediaManager(tab: DashTab) {
   const { setTabMedia } = useDashboardStore()
   const [busy, setBusy] = useState(false)
   const [videoStep, setVideoStep] = useState<'optimizing' | 'uploading' | null>(null)
+  const [videoProgress, setVideoProgress] = useState<{ index: number; total: number } | null>(null)
   const vidRef = useRef<HTMLInputElement>(null)
 
   async function onVideo(e: React.ChangeEvent<HTMLInputElement>) {
@@ -27,7 +28,9 @@ export function useMediaManager(tab: DashTab) {
     setBusy(true)
     let uploaded = 0
     try {
-      for (const file of files) {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i]
+        setVideoProgress({ index: i + 1, total: files.length })
         try {
           const duration = await probeDuration(file)
           const tooLong = duration > MAX_VIDEO_SECONDS + 0.5
@@ -55,7 +58,7 @@ export function useMediaManager(tab: DashTab) {
           const res = await fetch('/api/upload/video', { method: 'POST', body: fd })
           if (!res.ok) {
             const body = (await res.json().catch(() => ({}))) as { error?: string }
-            toast.error(`${file.name}: ${body.error ?? 'upload failed'}`)
+            toast.error(`${file.name}: ${body.error ?? `upload failed (${res.status})`}`)
             continue
           }
           const { media } = (await res.json()) as { media: MediaRow }
@@ -70,6 +73,7 @@ export function useMediaManager(tab: DashTab) {
     } finally {
       setBusy(false)
       setVideoStep(null)
+      setVideoProgress(null)
       if (vidRef.current) vidRef.current.value = ''
     }
   }
@@ -91,5 +95,5 @@ export function useMediaManager(tab: DashTab) {
     deleteMedia(id)
   }
 
-  return { busy, videoStep, vidRef, onVideo, reorder, setOrder, removeMedia }
+  return { busy, videoStep, videoProgress, vidRef, onVideo, reorder, setOrder, removeMedia }
 }

@@ -97,7 +97,8 @@ function MediaManager({
   igUsesUsername: boolean
   igConnected: boolean
 }) {
-  const { busy, videoStep, vidRef, onVideo, reorder, setOrder, removeMedia } = useMediaManager(tab)
+  const { busy, videoStep, videoProgress, vidRef, onVideo, reorder, setOrder, removeMedia } =
+    useMediaManager(tab)
   const up = useImageUploader(tab)
   const imgRef = useRef<HTMLInputElement>(null)
   const { importing, progress, start: onImport } = useInstagramImport(tab.id)
@@ -137,7 +138,13 @@ function MediaManager({
             <input ref={vidRef} type="file" accept="video/*" multiple hidden onChange={onVideo} />
             <Button variant="secondary" disabled={busy} onClick={() => vidRef.current?.click()} className="w-full sm:w-auto">
               <Upload size={14} />{' '}
-              {videoStep === 'optimizing' ? 'Optimizing…' : videoStep === 'uploading' ? 'Uploading…' : 'Add video'}
+              {videoStep
+                ? `${videoStep === 'optimizing' ? 'Optimizing' : 'Uploading'}${
+                    videoProgress && videoProgress.total > 1
+                      ? ` ${videoProgress.index}/${videoProgress.total}`
+                      : ''
+                  }…`
+                : 'Add video'}
             </Button>
           </>
         ) : (
