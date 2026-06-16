@@ -16,6 +16,7 @@ import { useImageUploader } from './useImageUploader'
 import { useInstagramImport } from './useInstagramImport'
 import { InstagramConnectButton } from './InstagramConnectButton'
 import { useMediaManager } from './useMediaManager'
+import { TabLinks } from './TabLinks'
 
 function MediaManager({
   tab,
@@ -36,7 +37,7 @@ function MediaManager({
   return (
     <div className="mt-3">
       {tab.media.length > 0 && (
-        <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
           {tab.media.map((m, i) => (
             <div
               key={m.id}
@@ -53,7 +54,7 @@ function MediaManager({
               {m.kind === 'video' && (
                 <span className="absolute left-1 top-1 rounded bg-black/60 px-1 text-[10px] text-fg">▶</span>
               )}
-              <div className="absolute inset-x-0 bottom-0 flex justify-between bg-black/50 p-1 opacity-0 transition group-hover:opacity-100">
+              <div className="absolute inset-x-0 bottom-0 flex justify-between bg-black/50 p-1 opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100">
                 <Button variant="overlay" size="iconSm" onClick={() => reorder(i, -1)} aria-label="Move left">
                   <ChevronUp size={14} className="-rotate-90" />
                 </Button>
@@ -68,11 +69,11 @@ function MediaManager({
           ))}
         </div>
       )}
-      <div className="mt-3 flex flex-wrap gap-2">
+      <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
         {tab.type === 'video' ? (
           <>
             <input ref={vidRef} type="file" accept="video/*" hidden onChange={onVideo} />
-            <Button variant="secondary" disabled={busy} onClick={() => vidRef.current?.click()}>
+            <Button variant="secondary" disabled={busy} onClick={() => vidRef.current?.click()} className="w-full sm:w-auto">
               <Upload size={14} />{' '}
               {videoStep === 'optimizing' ? 'Optimizing…' : videoStep === 'uploading' ? 'Uploading…' : 'Add video'}
             </Button>
@@ -90,19 +91,19 @@ function MediaManager({
                 e.target.value = ''
               }}
             />
-            <Button variant="secondary" disabled={up.active} onClick={() => imgRef.current?.click()}>
+            <Button variant="secondary" disabled={up.active} onClick={() => imgRef.current?.click()} className="w-full sm:w-auto">
               <Upload size={14} /> {up.active ? `Uploading ${up.done + 1}/${up.total}…` : 'Add photos'}
             </Button>
             {instagramEnabled &&
               (importing ? (
-                <Button variant="secondary" disabled>
+                <Button variant="secondary" disabled className="w-full sm:w-auto">
                   <Instagram size={14} />{' '}
                   {progress && progress.total > 0
                     ? `Importing ${progress.imported}/${progress.total}…`
                     : 'Fetching from Instagram…'}
                 </Button>
               ) : igConnected ? (
-                <Button variant="secondary" onClick={onImport}>
+                <Button variant="secondary" onClick={onImport} className="w-full sm:w-auto">
                   <Instagram size={14} /> Import from Instagram
                 </Button>
               ) : (
@@ -184,37 +185,42 @@ function TabRow({
   }
 
   return (
-    <div className="rounded-xl border border-hairline-subtle bg-surface-subtle p-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <Input value={label} onChange={(e) => setLabel(e.target.value)} onBlur={() => save()} className="h-9 w-40" />
-        <Select
-          value={type}
-          onChange={(e) => setType(e.target.value as 'grid' | 'video')}
-          onBlur={() => save()}
-          className="h-9 w-28"
-        >
-          <option value="grid">Photo grid</option>
-          <option value="video">Video</option>
-        </Select>
-        <div className="ml-auto flex items-center gap-1">
-          <Button variant="ghost" size="icon" disabled={index === 0} onClick={() => onReorder(index, -1)} aria-label="Move up">
-            <ChevronUp size={15} />
-          </Button>
-          <Button variant="ghost" size="icon" disabled={index === total - 1} onClick={() => onReorder(index, 1)} aria-label="Move down">
-            <ChevronDown size={15} />
-          </Button>
-          <Button variant="danger" size="icon" onClick={remove} aria-label="Delete tab">
-            <Trash2 size={15} />
-          </Button>
+    <div className="rounded-2xl border border-hairline bg-surface-subtle p-3 sm:p-4">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <Input value={label} onChange={(e) => setLabel(e.target.value)} onBlur={save} className="w-full sm:w-48" />
+        <div className="flex items-center gap-2">
+          <Select
+            value={type}
+            onChange={(e) => setType(e.target.value as 'grid' | 'video')}
+            onBlur={save}
+            className="h-10 flex-1 sm:w-32"
+          >
+            <option value="grid">Photo grid</option>
+            <option value="video">Video</option>
+          </Select>
+          <div className="ml-auto flex items-center gap-1">
+            <Button variant="ghost" size="icon" disabled={index === 0} onClick={() => onReorder(index, -1)} aria-label="Move up">
+              <ChevronUp size={16} />
+            </Button>
+            <Button variant="ghost" size="icon" disabled={index === total - 1} onClick={() => onReorder(index, 1)} aria-label="Move down">
+              <ChevronDown size={16} />
+            </Button>
+            <Button variant="danger" size="icon" onClick={remove} aria-label="Delete tab">
+              <Trash2 size={16} />
+            </Button>
+          </div>
         </div>
       </div>
       {pending && <span className="text-xs text-fg-subtle">Saving…</span>}
+
       <MediaManager
         tab={tab}
         instagramEnabled={instagramEnabled}
         igUsesUsername={igUsesUsername}
         igConnected={igConnected}
       />
+
+      <TabLinks tabId={tab.id} />
     </div>
   )
 }
@@ -257,7 +263,7 @@ export function TabsSection({
   }
 
   return (
-    <Card title="Tabs & media" desc="Each tab is a background — a photo grid or a video showcase.">
+    <Card title="Tabs & links" desc="Each tab is a background with its own links.">
       <div className="flex flex-col gap-3">
         {tabs.map((tab, i) => (
           <TabRow
@@ -274,24 +280,26 @@ export function TabsSection({
         {tabs.length === 0 && <p className="text-sm text-fg-subtle">No tabs yet. Add one below.</p>}
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-hairline-subtle pt-4">
+      <div className="mt-4 flex flex-col gap-2 border-t border-hairline-subtle pt-4 sm:flex-row sm:items-center">
         <Input
           value={newLabel}
           onChange={(e) => setNewLabel(e.target.value)}
           placeholder="New tab name"
-          className="h-9 w-44"
+          className="w-full sm:w-44"
         />
-        <Select
-          value={newType}
-          onChange={(e) => setNewType(e.target.value as 'grid' | 'video')}
-          className="h-9 w-28"
-        >
-          <option value="grid">Photo grid</option>
-          <option value="video">Video</option>
-        </Select>
-        <Button variant="secondary" onClick={add} disabled={pending}>
-          <Plus size={15} /> Add tab
-        </Button>
+        <div className="flex items-center gap-2">
+          <Select
+            value={newType}
+            onChange={(e) => setNewType(e.target.value as 'grid' | 'video')}
+            className="h-10 flex-1 sm:w-28"
+          >
+            <option value="grid">Photo grid</option>
+            <option value="video">Video</option>
+          </Select>
+          <Button variant="secondary" onClick={add} disabled={pending} className="shrink-0">
+            <Plus size={15} /> Add tab
+          </Button>
+        </div>
       </div>
       {error && <p className="mt-2 text-sm text-danger">{error}</p>}
     </Card>

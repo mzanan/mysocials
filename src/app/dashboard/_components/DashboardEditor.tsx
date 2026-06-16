@@ -8,7 +8,6 @@ import { setPublished } from "../actions";
 import { IgConnectStatus } from "./IgConnectStatus";
 import { ProfileSection } from "./ProfileSection";
 import { TabsSection } from "./TabsSection";
-import { LinksSection } from "./LinksSection";
 import { BillingCard } from "./BillingCard";
 import { DashboardStore } from "./DashboardStore";
 import { AgentChat } from "./AgentChat";
@@ -17,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import type { DashboardData } from "@/types/dashboard";
 
-function PublishBar({
+function PageHero({
   data,
   billingEnabled,
 }: {
@@ -30,18 +29,15 @@ function PublishBar({
   const [pending, startTransition] = useTransition();
   const [showGate, setShowGate] = useState(false);
 
-  const status = data.subscriptionStatus;
-  const hasActiveSub = status === "active";
+  const hasActiveSub = data.subscriptionStatus === "active";
 
   function toggle() {
     setError(null);
     const next = !published;
-    
     if (billingEnabled && next && !hasActiveSub) {
       setShowGate(true);
       return;
     }
-    
     startTransition(async () => {
       const res = await setPublished(next);
       if (!res.ok) {
@@ -59,30 +55,38 @@ function PublishBar({
 
   return (
     <Card>
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
           <p className="text-xs text-fg-subtle">Your public page</p>
           <Link
             href={`/${data.username}`}
             target="_blank"
-            className="inline-flex items-center gap-1.5 text-lg font-medium text-fg underline-offset-4 hover:underline"
+            className="mt-0.5 inline-flex max-w-full items-center gap-1.5 text-xl font-semibold tracking-tight text-fg underline-offset-4 hover:underline"
           >
-            /{data.username}{" "}
-            <ExternalLink size={15} className="text-fg-subtle" />
+            <span className="truncate">/{data.username}</span>
+            <ExternalLink size={16} className="shrink-0 text-fg-subtle" />
           </Link>
-          {error && <p className="mt-1 text-sm text-danger">{error}</p>}
-          {billingEnabled && !hasActiveSub && (
-            <p className="mt-1 text-sm text-fg-subtle">
-              Subscribe to publish your page.
-            </p>
-          )}
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <span
+              className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                published ? "bg-accent/15 text-fg" : "bg-surface-strong text-fg-subtle"
+              }`}
+            >
+              {published ? "Published" : "Draft"}
+            </span>
+            {billingEnabled && !hasActiveSub && (
+              <span className="text-xs text-fg-subtle">Subscribe to publish.</span>
+            )}
+          </div>
+          {error && <p className="mt-2 text-sm text-danger">{error}</p>}
         </div>
         <Button
           variant="primary"
           onClick={toggle}
           disabled={pending || (billingEnabled && !hasActiveSub && published === false)}
+          className="w-full sm:w-auto"
         >
-          {published ? "Published — unpublish" : "Publish page"}
+          {published ? "Unpublish" : "Publish page"}
         </Button>
       </div>
     </Card>
@@ -103,21 +107,13 @@ export function DashboardEditor({
   agentEnabled: boolean;
 }) {
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-5 sm:gap-6">
       {instagramEnabled && (
         <Suspense fallback={null}>
           <IgConnectStatus />
         </Suspense>
       )}
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-fg">
-          Dashboard
-        </h1>
-        <p className="mt-1 text-sm text-fg-subtle">
-          Build your page. Changes save as you go.
-        </p>
-      </div>
-      <PublishBar data={data} billingEnabled={billingEnabled} />
+      <PageHero data={data} billingEnabled={billingEnabled} />
       {billingEnabled && <BillingCard status={data.subscriptionStatus} />}
       <ProfileSection data={data} />
       <DashboardStore initial={data}>
@@ -126,7 +122,6 @@ export function DashboardEditor({
           igUsesUsername={igUsesUsername}
           igConnected={data.instagramConnected}
         />
-        <LinksSection />
         {agentEnabled && (
           <AgentChat
             instagramConnected={data.instagramConnected}
