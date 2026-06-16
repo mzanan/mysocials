@@ -15,13 +15,10 @@ export interface MediaPublic {
   height?: number | null
 }
 
-export type GridSize = 'small' | 'medium' | 'large'
-
 export interface TabPublic {
   id: string
   label: string
   type: 'grid' | 'video'
-  gridSize: GridSize
   media: MediaPublic[]
   links: LinkPublic[]
 }

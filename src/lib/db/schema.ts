@@ -102,9 +102,6 @@ export const tabs = sqliteTable(
     type: text('type', { enum: ['grid', 'video'] })
       .notNull()
       .default('grid'),
-    grid_size: text('grid_size', { enum: ['small', 'medium', 'large'] })
-      .notNull()
-      .default('medium'),
     position: integer('position').notNull().default(0),
     created_at: text('created_at')
       .notNull()

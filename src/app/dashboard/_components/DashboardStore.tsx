@@ -8,7 +8,7 @@ type Store = {
   links: DashLink[]
   setTabs: Dispatch<SetStateAction<DashTab[]>>
   setLinks: Dispatch<SetStateAction<DashLink[]>>
-  patchTab: (id: string, fields: Partial<Pick<DashTab, 'label' | 'type' | 'gridSize'>>) => void
+  patchTab: (id: string, fields: Partial<Pick<DashTab, 'label' | 'type'>>) => void
   setTabMedia: (tabId: string, update: (media: DashMedia[]) => DashMedia[]) => void
 }
 
@@ -18,7 +18,7 @@ export function DashboardStore({ initial, children }: { initial: DashboardData; 
   const [tabs, setTabs] = useState<DashTab[]>(initial.tabs)
   const [links, setLinks] = useState<DashLink[]>(initial.links)
 
-  function patchTab(id: string, fields: Partial<Pick<DashTab, 'label' | 'type' | 'gridSize'>>) {
+  function patchTab(id: string, fields: Partial<Pick<DashTab, 'label' | 'type'>>) {
     setTabs((prev) => prev.map((t) => (t.id === id ? { ...t, ...fields } : t)))
   }
 

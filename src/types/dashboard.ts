@@ -9,7 +9,6 @@ export interface DashTab {
   id: string
   label: string
   type: 'grid' | 'video'
-  gridSize: 'small' | 'medium' | 'large'
   media: DashMedia[]
 }
 

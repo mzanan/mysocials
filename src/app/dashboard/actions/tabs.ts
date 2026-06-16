@@ -11,7 +11,6 @@ import { requireUserId, revalidate, type Result, type TabResult } from './_helpe
 const tabSchema = z.object({
   label: z.string().trim().min(1).max(24),
   type: z.enum(['grid', 'video']),
-  gridSize: z.enum(['small', 'medium', 'large']).optional(),
 })
 
 export async function createTab(input: z.infer<typeof tabSchema>): Promise<TabResult> {
@@ -28,7 +27,6 @@ export async function createTab(input: z.infer<typeof tabSchema>): Promise<TabRe
       user_id: uid,
       label: parsed.data.label,
       type: parsed.data.type,
-      grid_size: parsed.data.gridSize ?? 'medium',
       position: (max ?? -1) + 1,
     })
     .returning()
@@ -39,7 +37,6 @@ export async function createTab(input: z.infer<typeof tabSchema>): Promise<TabRe
       id: row.id,
       label: row.label,
       type: row.type,
-      gridSize: row.grid_size,
       media: [],
     },
   }
@@ -52,11 +49,10 @@ export async function updateTab(
   const uid = await requireUserId()
   const parsed = tabSchema.safeParse(input)
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message }
-  const patch: { label: string; type: 'grid' | 'video'; grid_size?: 'small' | 'medium' | 'large' } = {
+  const patch = {
     label: parsed.data.label,
     type: parsed.data.type,
   }
-  if (parsed.data.gridSize) patch.grid_size = parsed.data.gridSize
   await db
     .update(tabs)
     .set(patch)

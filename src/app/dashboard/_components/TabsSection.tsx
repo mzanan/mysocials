@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
-import { Segmented } from '@/components/ui/segmented'
 import { moveItem } from '@/lib/array'
 import { toast } from '@/lib/toast'
 import type { DashTab } from '@/types/dashboard'
@@ -17,12 +16,6 @@ import { useImageUploader } from './useImageUploader'
 import { useInstagramImport } from './useInstagramImport'
 import { InstagramConnectButton } from './InstagramConnectButton'
 import { useMediaManager } from './useMediaManager'
-
-const GRID_SIZES = [
-  { value: 'small', label: 'Small' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'large', label: 'Large' },
-] as const
 
 function MediaManager({
   tab,
@@ -175,14 +168,12 @@ function TabRow({
   const { setTabs, patchTab } = useDashboardStore()
   const [label, setLabel] = useState(tab.label)
   const [type, setType] = useState(tab.type)
-  const [gridSize, setGridSize] = useState(tab.gridSize)
   const [pending, startTransition] = useTransition()
 
-  function save(next?: { gridSize?: 'small' | 'medium' | 'large' }) {
-    const nextGridSize = next?.gridSize ?? gridSize
+  function save() {
     startTransition(async () => {
-      const res = await updateTab(tab.id, { label, type, gridSize: nextGridSize })
-      if (res.ok) patchTab(tab.id, { label, type, gridSize: nextGridSize })
+      const res = await updateTab(tab.id, { label, type })
+      if (res.ok) patchTab(tab.id, { label, type })
     })
   }
 
@@ -205,19 +196,6 @@ function TabRow({
           <option value="grid">Photo grid</option>
           <option value="video">Video</option>
         </Select>
-        {type === 'grid' && (
-          <Segmented
-            size="sm"
-            className="h-9"
-            aria-label="Grid size"
-            value={gridSize}
-            onChange={(v) => {
-              setGridSize(v)
-              save({ gridSize: v })
-            }}
-            options={GRID_SIZES}
-          />
-        )}
         <div className="ml-auto flex items-center gap-1">
           <Button variant="ghost" size="icon" disabled={index === 0} onClick={() => onReorder(index, -1)} aria-label="Move up">
             <ChevronUp size={15} />
@@ -260,7 +238,7 @@ export function TabsSection({
     if (!newLabel.trim()) return
     setError(null)
     startTransition(async () => {
-      const res = await createTab({ label: newLabel.trim(), type: newType, gridSize: 'medium' })
+      const res = await createTab({ label: newLabel.trim(), type: newType })
       if (!res.ok) {
         setError(res.error)
         toast.error(res.error)

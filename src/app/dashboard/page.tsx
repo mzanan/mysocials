@@ -48,7 +48,6 @@ export default async function DashboardPage() {
       id: t.id,
       label: t.label,
       type: t.type,
-      gridSize: t.grid_size,
       media: t.media.map((m) => ({
         id: m.id,
         kind: m.kind,
