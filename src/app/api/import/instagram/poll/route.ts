@@ -12,7 +12,7 @@ import { MAX_IMAGES_PER_USER, countUserMedia } from '@/lib/media-quota'
 export const runtime = 'nodejs'
 export const maxDuration = 60
 
-const CHUNK_SIZE = 5
+const CHUNK_SIZE = 10
 const MAX_IMPORT = 60
 
 type JobState = {
@@ -106,19 +106,21 @@ export async function POST(req: Request) {
       position: number
     }>
     const chunk = queue.slice(0, CHUNK_SIZE)
-    let importedNow = 0
 
-    for (const item of chunk) {
-      try {
-        const res = await fetch(item.src)
-        if (!res.ok) continue
-        const buf = Buffer.from(await res.arrayBuffer())
-        await ingestImageBuffer(buf, { userId: session.user.id, tabId: job.tab_id, position: item.position })
-        importedNow++
-      } catch {
-        continue
-      }
-    }
+    const results = await Promise.all(
+      chunk.map(async (item) => {
+        try {
+          const res = await fetch(item.src)
+          if (!res.ok) return false
+          const buf = Buffer.from(await res.arrayBuffer())
+          await ingestImageBuffer(buf, { userId: session.user.id, tabId: job.tab_id, position: item.position })
+          return true
+        } catch {
+          return false
+        }
+      }),
+    )
+    const importedNow = results.filter(Boolean).length
 
     const rest = queue.slice(CHUNK_SIZE)
     const nextImported = job.imported + importedNow
