@@ -5,7 +5,7 @@ import { and, eq } from 'drizzle-orm'
 import { setAvatarFromBuffer } from '@/lib/avatar'
 import { db } from '@/lib/db'
 import { ig_connections, media } from '@/lib/db/schema'
-import { fetchProfile } from '@/lib/ig'
+import { fetchApifyProfile, fetchProfile, igMode } from '@/lib/ig'
 import { requireUserId, revalidate, type AvatarResult } from './_helpers'
 
 export async function setAvatarFromInstagram(): Promise<AvatarResult> {
@@ -15,9 +15,14 @@ export async function setAvatarFromInstagram(): Promise<AvatarResult> {
   })
   if (!conn) return { ok: false, error: 'Instagram not connected' }
   try {
-    const profile = await fetchProfile(conn.access_token)
-    if (!profile.profilePictureUrl) return { ok: false, error: 'No Instagram profile picture' }
-    const res = await fetch(profile.profilePictureUrl)
+    const pictureUrl =
+      igMode() === 'apify'
+        ? conn.username
+          ? (await fetchApifyProfile(conn.username)).profilePictureUrl
+          : null
+        : (await fetchProfile(conn.access_token)).profilePictureUrl
+    if (!pictureUrl) return { ok: false, error: 'No Instagram profile picture' }
+    const res = await fetch(pictureUrl)
     if (!res.ok) return { ok: false, error: 'Could not fetch Instagram picture' }
     const url = await setAvatarFromBuffer(uid, Buffer.from(await res.arrayBuffer()))
     revalidate()
