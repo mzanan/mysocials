@@ -101,17 +101,19 @@ function MediaManager({
               <Upload size={14} /> {up.active ? `Uploading ${up.done + 1}/${up.total}…` : 'Add photos'}
             </Button>
             {instagramEnabled &&
-              (igConnected ? (
-                <Button variant="secondary" disabled={importing} onClick={onImport}>
+              (importing ? (
+                <Button variant="secondary" disabled>
                   <Instagram size={14} />{' '}
-                  {importing
-                    ? progress && progress.total > 0
-                      ? `Importing ${progress.imported}/${progress.total}…`
-                      : 'Fetching from Instagram…'
-                    : 'Import from Instagram'}
+                  {progress && progress.total > 0
+                    ? `Importing ${progress.imported}/${progress.total}…`
+                    : 'Fetching from Instagram…'}
+                </Button>
+              ) : igConnected ? (
+                <Button variant="secondary" onClick={onImport}>
+                  <Instagram size={14} /> Import from Instagram
                 </Button>
               ) : (
-                <InstagramConnectButton igUsesUsername={igUsesUsername} />
+                <InstagramConnectButton igUsesUsername={igUsesUsername} onConnected={onImport} />
               ))}
           </>
         )}

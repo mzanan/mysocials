@@ -8,7 +8,13 @@ import { Field } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/lib/toast'
 
-export function InstagramConnectButton({ igUsesUsername }: { igUsesUsername: boolean }) {
+export function InstagramConnectButton({
+  igUsesUsername,
+  onConnected,
+}: {
+  igUsesUsername: boolean
+  onConnected: () => void
+}) {
   const [open, setOpen] = useState(false)
   const [username, setUsername] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -43,8 +49,8 @@ export function InstagramConnectButton({ igUsesUsername }: { igUsesUsername: boo
         setSubmitting(false)
         return
       }
-      toast.success(`Connected @${data?.username ?? handle}`)
-      window.location.reload()
+      setOpen(false)
+      onConnected()
     } catch {
       toast.error("We couldn't connect that Instagram profile.")
       setSubmitting(false)
