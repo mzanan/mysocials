@@ -34,6 +34,7 @@ export interface DashboardData {
   published: boolean
   subscriptionStatus: string | null
   instagramConnected: boolean
+  instagramUsername: string | null
   tabs: DashTab[]
   links: DashLink[]
 }

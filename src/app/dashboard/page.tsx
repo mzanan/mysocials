@@ -44,6 +44,7 @@ export default async function DashboardPage() {
     published: profile.published,
     subscriptionStatus: profile.subscription_status,
     instagramConnected: Boolean(igConn),
+    instagramUsername: igConn?.username ?? null,
     tabs: profile.tabs.map((t) => ({
       id: t.id,
       label: t.label,

@@ -66,8 +66,7 @@ export function useMediaManager(tab: DashTab) {
     }
   }
 
-  function reorder(index: number, dir: -1 | 1) {
-    const ordered = moveItem(tab.media, index, dir)
+  function setOrder(ordered: DashMedia[]) {
     setTabMedia(tab.id, () => ordered)
     reorderMedia(
       tab.id,
@@ -75,10 +74,14 @@ export function useMediaManager(tab: DashTab) {
     )
   }
 
+  function reorder(index: number, dir: -1 | 1) {
+    setOrder(moveItem(tab.media, index, dir))
+  }
+
   function removeMedia(id: string) {
     setTabMedia(tab.id, (prev) => prev.filter((m) => m.id !== id))
     deleteMedia(id)
   }
 
-  return { busy, videoStep, error, vidRef, onVideo, reorder, removeMedia }
+  return { busy, videoStep, error, vidRef, onVideo, reorder, setOrder, removeMedia }
 }

@@ -9,6 +9,7 @@ import { UserMenu } from '@/components/account/UserMenu'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { AmbientBackground } from '@/components/ui/AmbientBackground'
 import { BrandFooter } from '@/components/ui/BrandFooter'
+import { billingEnabled } from '@/lib/subscription'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await auth.api.getSession({ headers: await headers() })
@@ -16,9 +17,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const profile = await db.query.profiles.findFirst({
     where: eq(profiles.user_id, session.user.id),
-    columns: { polar_customer_id: true },
+    columns: { subscription_status: true },
   })
-  const hasBilling = Boolean(profile?.polar_customer_id)
 
   return (
     <div className="relative min-h-dvh overflow-hidden bg-app-bg text-fg">
@@ -30,7 +30,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </Link>
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            <UserMenu email={session.user.email} hasBilling={hasBilling} />
+            <UserMenu
+              email={session.user.email}
+              billingEnabled={billingEnabled()}
+              subscriptionStatus={profile?.subscription_status ?? null}
+            />
           </div>
         </div>
       </header>

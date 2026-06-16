@@ -65,7 +65,7 @@ function LinkRow({ link }: { link: DashLink }) {
   )
 }
 
-export function TabLinks({ tabId }: { tabId: string }) {
+export function TabLinks({ tabId, igUsername }: { tabId: string; igUsername: string | null }) {
   const { links, setLinks } = useDashboardStore()
   const tabLinks = links.filter((l) => l.tabId === tabId)
   const [pickerOpen, setPickerOpen] = useState(false)
@@ -77,7 +77,7 @@ export function TabLinks({ tabId }: { tabId: string }) {
 
   function startDraft(slug: NetworkSlug | null) {
     setDraft({ network: slug })
-    setHandle('')
+    setHandle(slug === 'instagram' && igUsername ? igUsername : '')
     setTitle('')
     setUrl('')
   }

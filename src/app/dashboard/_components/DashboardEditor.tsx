@@ -8,7 +8,6 @@ import { setPublished } from "../actions";
 import { IgConnectStatus } from "./IgConnectStatus";
 import { ProfileSection } from "./ProfileSection";
 import { TabsSection } from "./TabsSection";
-import { BillingCard } from "./BillingCard";
 import { DashboardStore } from "./DashboardStore";
 import { AgentChat } from "./AgentChat";
 import { SubscribeGate } from "./SubscribeGate";
@@ -114,13 +113,13 @@ export function DashboardEditor({
         </Suspense>
       )}
       <PageHero data={data} billingEnabled={billingEnabled} />
-      {billingEnabled && <BillingCard status={data.subscriptionStatus} />}
       <ProfileSection data={data} />
       <DashboardStore initial={data}>
         <TabsSection
           instagramEnabled={instagramEnabled}
           igUsesUsername={igUsesUsername}
           igConnected={data.instagramConnected}
+          igUsername={data.instagramUsername}
         />
         {agentEnabled && (
           <AgentChat

@@ -11,9 +11,18 @@ import { ChangePasswordDialog } from './ChangePasswordDialog'
 const itemClass =
   'flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm outline-none transition data-[highlighted]:bg-surface-strong'
 
-export function UserMenu({ email, hasBilling }: { email: string; hasBilling: boolean }) {
+export function UserMenu({
+  email,
+  billingEnabled,
+  subscriptionStatus,
+}: {
+  email: string
+  billingEnabled: boolean
+  subscriptionStatus: string | null
+}) {
   const router = useRouter()
   const [pwOpen, setPwOpen] = useState(false)
+  const hasActiveSub = subscriptionStatus === 'active'
 
   async function signOut() {
     await authClient.signOut()
@@ -37,14 +46,16 @@ export function UserMenu({ email, hasBilling }: { email: string; hasBilling: boo
             className="z-50 min-w-[200px] rounded-xl border border-hairline bg-app-bg/95 p-1 text-fg shadow-glass backdrop-blur-xl"
           >
             <div className="truncate px-3 py-2 text-xs text-fg-subtle sm:hidden">{email}</div>
-            {hasBilling && (
-              <DropdownMenu.Item
-                className={itemClass}
-                onSelect={() => authClient.customer.portal()}
-              >
-                <CreditCard size={15} /> Manage subscription
-              </DropdownMenu.Item>
-            )}
+            {billingEnabled &&
+              (hasActiveSub ? (
+                <DropdownMenu.Item className={itemClass} onSelect={() => authClient.customer.portal()}>
+                  <CreditCard size={15} /> Manage subscription
+                </DropdownMenu.Item>
+              ) : (
+                <DropdownMenu.Item className={itemClass} onSelect={() => authClient.checkout({ slug: 'pro' })}>
+                  <CreditCard size={15} /> Subscribe
+                </DropdownMenu.Item>
+              ))}
             <DropdownMenu.Item className={itemClass} onSelect={() => setPwOpen(true)}>
               <KeyRound size={15} /> Change password
             </DropdownMenu.Item>
