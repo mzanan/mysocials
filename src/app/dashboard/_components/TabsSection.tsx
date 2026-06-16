@@ -116,7 +116,12 @@ function MediaManager({
   return (
     <div className="mt-3">
       {tab.media.length > 0 && (
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+        <DndContext
+          id={`media-${tab.id}`}
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={onDragEnd}
+        >
           <SortableContext items={tab.media.map((m) => m.id)} strategy={rectSortingStrategy}>
             <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
               {tab.media.map((m, i) => (
