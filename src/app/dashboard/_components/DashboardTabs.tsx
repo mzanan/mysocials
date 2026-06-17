@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card } from '@/components/ui/card'
 import { moveItem } from '@/lib/array'
 import { toast } from '@/lib/toast'
+import { useHorizontalWheelScroll } from '@/hooks/useHorizontalWheelScroll'
 import type { DashboardData } from '@/types/dashboard'
 import { useDashboardStore } from './DashboardStore'
 import { ProfileSection } from './ProfileSection'
@@ -31,6 +32,7 @@ export function DashboardTabs({
   const { tabs, setTabs } = useDashboardStore()
   const [active, setActive] = useState('profile')
   const [pending, startTransition] = useTransition()
+  const tabBarRef = useHorizontalWheelScroll<HTMLDivElement>()
 
   function addTab() {
     startTransition(async () => {
@@ -61,26 +63,28 @@ export function DashboardTabs({
 
   return (
     <Tabs value={active} onValueChange={setActive} className="gap-4">
-      <TabsList className="flex h-auto w-full justify-start gap-1 overflow-x-auto rounded-xl p-1">
-        <TabsTrigger value="profile" className={triggerClass}>
-          <User size={15} /> Profile
-        </TabsTrigger>
-        {tabs.map((t) => (
-          <TabsTrigger key={t.id} value={t.id} className={triggerClass}>
-            {t.type === 'video' ? <Clapperboard size={15} /> : <LayoutGrid size={15} />}
-            {t.label || 'Untitled'}
+      <div ref={tabBarRef} className="no-scrollbar -m-1 overflow-x-auto p-1">
+        <TabsList className="inline-flex h-auto w-max justify-start gap-1 rounded-xl p-1">
+          <TabsTrigger value="profile" className={triggerClass}>
+            <User size={15} /> Profile
           </TabsTrigger>
-        ))}
-        <button
-          type="button"
-          onClick={addTab}
-          disabled={pending}
-          aria-label="Add tab"
-          className="ml-1 grid h-8 w-8 flex-none place-items-center rounded-lg text-fg-subtle transition hover:bg-surface-strong hover:text-fg disabled:opacity-50"
-        >
-          <Plus size={16} />
-        </button>
-      </TabsList>
+          {tabs.map((t) => (
+            <TabsTrigger key={t.id} value={t.id} className={triggerClass}>
+              {t.type === 'video' ? <Clapperboard size={15} /> : <LayoutGrid size={15} />}
+              {t.label || 'Untitled'}
+            </TabsTrigger>
+          ))}
+          <button
+            type="button"
+            onClick={addTab}
+            disabled={pending}
+            aria-label="Add tab"
+            className="ml-1 grid h-8 w-8 flex-none place-items-center rounded-lg text-fg-subtle transition hover:bg-surface-strong hover:text-fg disabled:opacity-50"
+          >
+            <Plus size={16} />
+          </button>
+        </TabsList>
+      </div>
 
       <TabsContent value="profile">
         <Card>

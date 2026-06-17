@@ -113,6 +113,14 @@
     background-color: var(--color-app-bg);
   }
 
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
   .theme-when-light {
     display: none;
   }
