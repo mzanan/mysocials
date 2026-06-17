@@ -38,7 +38,10 @@ export function useMediaManager(tab: DashTab) {
           const tooLong = duration > MAX_VIDEO_SECONDS + 0.5
           setVideoStep('optimizing')
           const optimized = await transcodeVideo(file, tooLong ? MAX_VIDEO_SECONDS : undefined).catch(
-            () => null,
+            (err) => {
+              console.error(`[video] ${file.name} transcode failed:`, err)
+              return null
+            },
           )
           if (!optimized) {
             if (tooLong) {

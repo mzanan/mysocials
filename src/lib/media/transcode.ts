@@ -45,33 +45,47 @@ export async function transcodeVideo(file: File, maxSeconds?: number): Promise<B
   const ffmpeg = await loadFFmpeg()
   const input = "in"
   const output = "out.mp4"
-  await ffmpeg.writeFile(input, await fetchFile(file))
-  const args = [
-    ...(maxSeconds ? ["-ss", "0", "-t", String(maxSeconds)] : []),
-    "-i",
-    input,
-    "-vf",
-    "scale=-2:min(720\\,ih)",
-    "-c:v",
-    "libx264",
-    "-profile:v",
-    "high",
-    "-pix_fmt",
-    "yuv420p",
-    "-preset",
-    "veryfast",
-    "-crf",
-    "27",
-    "-an",
-    "-movflags",
-    "+faststart",
-    output,
-  ]
-  await ffmpeg.exec(args)
-  const data = await ffmpeg.readFile(output)
-  await ffmpeg.deleteFile(input).catch(() => {})
-  await ffmpeg.deleteFile(output).catch(() => {})
-  const raw = typeof data === "string" ? new TextEncoder().encode(data) : data
-  const bytes = new Uint8Array(raw)
-  return new Blob([bytes], { type: "video/mp4" })
+  const logs: string[] = []
+  const onLog = ({ message }: { message: string }) => {
+    logs.push(message)
+    if (logs.length > 80) logs.shift()
+  }
+  ffmpeg.on("log", onLog)
+  try {
+    await ffmpeg.writeFile(input, await fetchFile(file))
+    const args = [
+      ...(maxSeconds ? ["-ss", "0", "-t", String(maxSeconds)] : []),
+      "-i",
+      input,
+      "-vf",
+      "scale=-2:min(720\\,ih)",
+      "-c:v",
+      "libx264",
+      "-profile:v",
+      "high",
+      "-pix_fmt",
+      "yuv420p",
+      "-preset",
+      "veryfast",
+      "-crf",
+      "27",
+      "-an",
+      "-movflags",
+      "+faststart",
+      output,
+    ]
+    const code = await ffmpeg.exec(args)
+    const data = await ffmpeg.readFile(output)
+    const raw = typeof data === "string" ? new TextEncoder().encode(data) : data
+    const bytes = new Uint8Array(raw)
+    if (bytes.byteLength === 0) throw new Error(`ffmpeg produced no output (exit ${code})`)
+    return new Blob([bytes], { type: "video/mp4" })
+  } catch (err) {
+    const reason = err instanceof Error ? err.message : String(err)
+    throw new Error(`${reason}\n${logs.slice(-12).join("\n")}`)
+  } finally {
+    ffmpeg.off("log", onLog)
+    await ffmpeg.deleteFile(input).catch(() => {})
+    await ffmpeg.deleteFile(output).catch(() => {})
+  }
 }
