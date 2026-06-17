@@ -42,7 +42,7 @@ export function useMediaManager(tab: DashTab) {
           )
           if (!optimized) {
             if (tooLong) {
-              toast.error(`${file.name}: too long and could not be trimmed`)
+              toast.error(`${file.name}: too large to trim in the browser, try a shorter or lighter clip`)
               continue
             }
             if (file.type !== 'video/mp4' && file.type !== 'video/webm') {

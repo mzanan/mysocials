@@ -47,6 +47,7 @@ export async function transcodeVideo(file: File, maxSeconds?: number): Promise<B
   const output = "out.mp4"
   await ffmpeg.writeFile(input, await fetchFile(file))
   const args = [
+    ...(maxSeconds ? ["-ss", "0", "-t", String(maxSeconds)] : []),
     "-i",
     input,
     "-vf",
@@ -64,9 +65,8 @@ export async function transcodeVideo(file: File, maxSeconds?: number): Promise<B
     "-an",
     "-movflags",
     "+faststart",
+    output,
   ]
-  if (maxSeconds) args.push("-t", String(maxSeconds))
-  args.push(output)
   await ffmpeg.exec(args)
   const data = await ffmpeg.readFile(output)
   await ffmpeg.deleteFile(input).catch(() => {})
