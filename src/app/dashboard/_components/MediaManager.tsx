@@ -12,6 +12,7 @@ import {
   RotateCw,
   X,
   GripVertical,
+  AlertTriangle,
 } from 'lucide-react'
 import {
   DndContext,
@@ -26,9 +27,10 @@ import { SortableContext, useSortable, arrayMove, rectSortingStrategy } from '@d
 import { CSS } from '@dnd-kit/utilities'
 import { Button } from '@/components/ui/button'
 import { Text } from '@/components/ui/text'
+import { Spinner } from '@/components/ui/spinner'
 import { cn } from '@/lib/utils'
 import type { DashMedia, DashTab } from '@/types/dashboard'
-import { useImageUploader } from './useImageUploader'
+import { useImageUploader, type UploadItem } from './useImageUploader'
 import { useInstagramImport } from './useInstagramImport'
 import { InstagramConnectButton } from './InstagramConnectButton'
 import { useMediaManager } from './useMediaManager'
@@ -119,6 +121,25 @@ function SortableMedia({
   )
 }
 
+function UploadThumb({ item }: { item: UploadItem }) {
+  const loading = item.status === 'pending' || item.status === 'uploading'
+  return (
+    <div className="relative aspect-square overflow-hidden rounded-lg border border-hairline bg-surface-subtle">
+      <Image src={item.previewUrl} alt="" fill unoptimized className="object-cover" sizes="120px" />
+      {loading && (
+        <div className="absolute inset-0 grid place-items-center bg-black/45">
+          <Spinner className="size-5 text-white" />
+        </div>
+      )}
+      {item.status === 'error' && (
+        <div className="absolute inset-0 grid place-items-center bg-danger/55 text-white">
+          <AlertTriangle size={18} />
+        </div>
+      )}
+    </div>
+  )
+}
+
 export function MediaManager({
   tab,
   instagramEnabled,
@@ -178,6 +199,16 @@ export function MediaManager({
         </DndContext>
       )}
 
+      {up.items.some((it) => it.status !== 'done') && (
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
+          {up.items
+            .filter((it) => it.status !== 'done')
+            .map((it, i) => (
+              <UploadThumb key={i} item={it} />
+            ))}
+        </div>
+      )}
+
       <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
         {tab.type === 'video' ? (
           <>
@@ -217,7 +248,7 @@ export function MediaManager({
               onClick={() => imgRef.current?.click()}
               className="w-full sm:w-auto"
             >
-              <Upload size={14} /> {up.active ? `Uploading ${up.done + 1}/${up.total}…` : 'Add photos'}
+              <Upload size={14} /> {up.active ? 'Uploading…' : 'Add photos'}
             </Button>
             {instagramEnabled &&
               (importing ? (
@@ -246,27 +277,15 @@ export function MediaManager({
         </Text>
       )}
 
-      {!up.active && up.total > 0 && (
-        <div className="flex flex-col gap-1.5 text-xs">
-          <div className="flex items-center gap-2 text-fg-subtle">
-            <span>
-              {up.done} uploaded
-              {up.failed.length > 0 && ` · ${up.failed.length} failed`}
-            </span>
-            {up.failed.length > 0 && (
-              <Button variant="secondary" className="h-7 px-2 text-xs" onClick={up.retry}>
-                <RotateCcw size={12} /> Retry failed ({up.failed.length})
-              </Button>
-            )}
-            <Button variant="ghost" size="iconSm" onClick={up.clear} aria-label="Dismiss">
-              <X size={13} />
-            </Button>
-          </div>
-          {up.failed.map((it, i) => (
-            <p key={i} className="text-danger">
-              {it.file.name}: {it.error}
-            </p>
-          ))}
+      {!up.active && up.failed.length > 0 && (
+        <div className="flex items-center gap-2 text-xs text-fg-subtle">
+          <span>{up.failed.length} failed</span>
+          <Button variant="secondary" className="h-7 px-2 text-xs" onClick={up.retry}>
+            <RotateCcw size={12} /> Retry
+          </Button>
+          <Button variant="ghost" size="iconSm" onClick={up.clear} aria-label="Dismiss">
+            <X size={13} />
+          </Button>
         </div>
       )}
 

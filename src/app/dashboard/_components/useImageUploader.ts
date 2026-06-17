@@ -1,12 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { toast } from '@/lib/toast'
 import type { DashMedia, DashTab } from '@/types/dashboard'
 import { useDashboardStore } from './DashboardStore'
 
 type ItemStatus = 'pending' | 'uploading' | 'done' | 'error'
-export type UploadItem = { file: File; status: ItemStatus; error?: string }
+export type UploadItem = { file: File; status: ItemStatus; error?: string; previewUrl: string }
 
 type MediaRow = { id: string; kind: 'image' | 'video'; url: string; poster_url: string | null }
 
@@ -14,6 +14,9 @@ export function useImageUploader(tab: DashTab) {
   const { setTabMedia } = useDashboardStore()
   const [items, setItems] = useState<UploadItem[]>([])
   const [active, setActive] = useState(false)
+  const urlsRef = useRef<string[]>([])
+
+  useEffect(() => () => urlsRef.current.forEach(URL.revokeObjectURL), [])
 
   function patch(index: number, fields: Partial<UploadItem>) {
     setItems((prev) => prev.map((it, i) => (i === index ? { ...it, ...fields } : it)))
@@ -51,13 +54,21 @@ export function useImageUploader(tab: DashTab) {
       patch(index, r.ok ? { status: 'done' } : { status: 'error', error: r.error })
     }
     setActive(false)
-    if (fail === 0) toast.success(`${ok} photo${ok === 1 ? '' : 's'} uploaded`)
-    else toast.error(`${ok} uploaded · ${fail} failed`)
+    if (fail === 0) {
+      toast.success(`${ok} photo${ok === 1 ? '' : 's'} uploaded`)
+      clear()
+    } else {
+      toast.error(`${ok} uploaded · ${fail} failed`)
+    }
   }
 
   function enqueue(files: File[]) {
     if (files.length === 0) return
-    const next: UploadItem[] = files.map((file) => ({ file, status: 'pending' }))
+    const next: UploadItem[] = files.map((file) => {
+      const previewUrl = URL.createObjectURL(file)
+      urlsRef.current.push(previewUrl)
+      return { file, status: 'pending', previewUrl }
+    })
     setItems(next)
     void process(next.map((it, index) => ({ index, file: it.file })))
   }
@@ -75,6 +86,8 @@ export function useImageUploader(tab: DashTab) {
   }
 
   function clear() {
+    urlsRef.current.forEach(URL.revokeObjectURL)
+    urlsRef.current = []
     setItems([])
   }
 
