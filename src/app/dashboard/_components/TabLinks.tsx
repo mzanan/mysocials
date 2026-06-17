@@ -30,7 +30,7 @@ function LinkRow({ link }: { link: DashLink }) {
   const isNetwork = Boolean(r.network)
 
   return (
-    <div className="flex items-center gap-2 rounded-xl border border-hairline-subtle bg-surface-subtle p-2">
+    <div className="flex items-center gap-2 rounded-xl border border-hairline p-2 transition-colors hover:border-hairline-strong">
       <NetworkBadge slug={r.network || null} />
       {isNetwork ? (
         <Input

@@ -1,7 +1,6 @@
 'use client'
 
 import { Check, ChevronRight, Link2, Plus } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { Field } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -75,7 +74,7 @@ function AccentField({
       <div className="flex flex-col gap-1.5">
         <span className="text-xs text-fg-faint">Preview</span>
         <div
-          className="link-btn flex h-12 w-full max-w-sm items-center gap-3 rounded-2xl border bg-surface px-4 text-[15px] font-medium text-fg"
+          className="link-btn flex h-12 w-full max-w-xs items-center gap-3 rounded-2xl border bg-surface px-4 text-[15px] font-medium text-fg"
           style={{
             ['--accent-glow' as string]: accent,
             borderColor: 'color-mix(in oklab, var(--accent-glow) 42%, transparent)',
@@ -122,18 +121,21 @@ export function ProfileSection({ data }: { data: DashboardData }) {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Username (your public URL)">
-          <div className="flex gap-2">
-            <div className="flex flex-1 items-center rounded-xl border border-hairline bg-surface pl-3 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/25">
-              <span className="text-sm text-fg-faint">/</span>
-              <input
-                value={username}
-                onChange={(e) => setUsername(e.target.value.toLowerCase())}
-                className="h-10 w-full min-w-0 flex-1 bg-transparent px-1 text-[15px] text-fg outline-none"
-              />
-            </div>
-            <Button variant="secondary" onClick={saveUsername} disabled={pending}>
+          <div className="flex h-10 items-center rounded-xl border border-hairline-strong bg-surface-strong pl-3 transition focus-within:border-accent focus-within:bg-surface-stronger focus-within:ring-2 focus-within:ring-accent/25">
+            <span className="text-sm text-fg-faint">/</span>
+            <input
+              value={username}
+              onChange={(e) => setUsername(e.target.value.toLowerCase())}
+              className="h-full w-full min-w-0 flex-1 bg-transparent px-1 text-[15px] text-fg outline-none"
+            />
+            <button
+              type="button"
+              onClick={saveUsername}
+              disabled={pending}
+              className="mr-1 shrink-0 rounded-lg px-2.5 py-1 text-xs font-semibold text-accent transition hover:bg-surface-stronger disabled:opacity-50"
+            >
               Save
-            </Button>
+            </button>
           </div>
         </Field>
 
