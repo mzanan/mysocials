@@ -19,6 +19,12 @@ const MIN_COLS = 2
 const MAX_COLS = 8
 const ROTATE_MS = 3200
 const SWAP_PER_TICK = 3
+const REORDER_PAIRS = 2
+
+export interface Slot {
+  id: string
+  src: string
+}
 
 function targetCount(w: number): number {
   if (w < 640) return 12
@@ -75,17 +81,50 @@ export function useGridShape(poolSize: number): GridShape | null {
   }, [poolSize, dims])
 }
 
-function initSlots(pool: string[], count: number): string[] {
+function initSlots(pool: string[], count: number): Slot[] {
   if (pool.length === 0 || count === 0) return []
-  return Array.from({ length: Math.min(count, pool.length) }, (_, i) => pool[i % pool.length])
+  return Array.from({ length: Math.min(count, pool.length) }, (_, i) => ({
+    id: `slot-${i}`,
+    src: pool[i % pool.length],
+  }))
 }
 
 function poolSignature(pool: string[], count: number): string {
   return `${count}|${pool.length}|${pool[0] ?? ''}|${pool[pool.length - 1] ?? ''}`
 }
 
-export function useRotatingSlots(pool: string[], count: number, active: boolean): string[] {
-  const [slots, setSlots] = useState<string[]>(() => initSlots(pool, count))
+function swapInFresh(prev: Slot[], pool: string[]): Slot[] {
+  const visible = new Set(prev.map((s) => s.src))
+  const reserve = pool.filter((src) => !visible.has(src))
+  if (reserve.length === 0) return reorderPositions(prev)
+  const swaps = Math.min(SWAP_PER_TICK, prev.length, reserve.length)
+  const positions = sample(
+    prev.map((_, i) => i),
+    swaps,
+  )
+  const incoming = sample(reserve, swaps)
+  const next = [...prev]
+  positions.forEach((pos, k) => {
+    next[pos] = { ...next[pos], src: incoming[k] }
+  })
+  return next
+}
+
+function reorderPositions(prev: Slot[]): Slot[] {
+  if (prev.length < 2) return prev
+  const next = [...prev]
+  const pairs = Math.min(REORDER_PAIRS, Math.floor(prev.length / 2))
+  for (let n = 0; n < pairs; n++) {
+    const a = Math.floor(Math.random() * next.length)
+    let b = Math.floor(Math.random() * next.length)
+    if (a === b) b = (b + 1) % next.length
+    ;[next[a], next[b]] = [next[b], next[a]]
+  }
+  return next
+}
+
+export function useRotatingSlots(pool: string[], count: number, active: boolean): Slot[] {
+  const [slots, setSlots] = useState<Slot[]>(() => initSlots(pool, count))
   const [sig, setSig] = useState(() => poolSignature(pool, count))
 
   const nextSig = poolSignature(pool, count)
@@ -99,20 +138,7 @@ export function useRotatingSlots(pool: string[], count: number, active: boolean)
     const id = setInterval(() => {
       setSlots((prev) => {
         if (prev.length === 0) return prev
-        const visible = new Set(prev)
-        const reserve = pool.filter((src) => !visible.has(src))
-        if (reserve.length === 0) return prev
-        const swaps = Math.min(SWAP_PER_TICK, prev.length, reserve.length)
-        const positions = sample(
-          prev.map((_, i) => i),
-          swaps,
-        )
-        const incoming = sample(reserve, swaps)
-        const next = [...prev]
-        positions.forEach((pos, k) => {
-          next[pos] = incoming[k]
-        })
-        return next
+        return Math.random() < 0.5 ? swapInFresh(prev, pool) : reorderPositions(prev)
       })
     }, ROTATE_MS)
     return () => clearInterval(id)

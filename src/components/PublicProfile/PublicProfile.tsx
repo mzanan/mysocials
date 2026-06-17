@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useSyncExternalStore } from 'react'
 import dynamic from 'next/dynamic'
-import { LazyMotion, domAnimation, m, AnimatePresence } from 'motion/react'
+import { LazyMotion, domMax, m, AnimatePresence } from 'motion/react'
 import { usePublicProfile } from './usePublicProfile'
 import { ProfileLinkButton } from './ProfileLinkButton'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -75,7 +75,7 @@ export function PublicProfile({ profile }: { profile: ProfilePublic }) {
   }, [activeTabId])
 
   return (
-    <LazyMotion features={domAnimation}>
+    <LazyMotion features={domMax}>
       <div
         data-theme={theme}
         className="relative flex h-dvh flex-col items-center justify-center overflow-hidden bg-app-bg"
