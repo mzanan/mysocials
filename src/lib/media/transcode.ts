@@ -2,16 +2,24 @@ import { FFmpeg } from "@ffmpeg/ffmpeg"
 import { fetchFile, toBlobURL } from "@ffmpeg/util"
 
 const CORE_BASE = "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/esm"
+const FFMPEG_BASE = "https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.15/dist/esm"
 
 export const MAX_VIDEO_SECONDS = 15
 
 let ffmpegPromise: Promise<FFmpeg> | null = null
+
+async function moduleWorkerURL(): Promise<string> {
+  const src = await (await fetch(`${FFMPEG_BASE}/worker.js`)).text()
+  const patched = src.replace(/from\s*(["'])\.\/(.+?)\1/g, `from "${FFMPEG_BASE}/$2"`)
+  return URL.createObjectURL(new Blob([patched], { type: "text/javascript" }))
+}
 
 function loadFFmpeg(): Promise<FFmpeg> {
   if (!ffmpegPromise) {
     ffmpegPromise = (async () => {
       const ffmpeg = new FFmpeg()
       await ffmpeg.load({
+        classWorkerURL: await moduleWorkerURL(),
         coreURL: await toBlobURL(`${CORE_BASE}/ffmpeg-core.js`, "text/javascript"),
         wasmURL: await toBlobURL(`${CORE_BASE}/ffmpeg-core.wasm`, "application/wasm"),
       })
