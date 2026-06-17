@@ -1,13 +1,14 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { deleteMedia, reorderMedia } from '../actions'
+import { reorderMedia } from '../actions'
 import { moveItem } from '@/lib/array'
 import { extractPoster } from '@/lib/media/poster'
 import { MAX_VIDEO_SECONDS, probeDuration, transcodeVideo } from '@/lib/media/transcode'
 import { toast } from '@/lib/toast'
 import type { DashMedia, DashTab } from '@/types/dashboard'
 import { useDashboardStore } from './DashboardStore'
+import { useMediaUndo } from './MediaUndoProvider'
 
 type MediaRow = { id: string; kind: 'image' | 'video'; url: string; poster_url: string | null }
 
@@ -17,6 +18,7 @@ function toDashMedia(row: MediaRow): DashMedia {
 
 export function useMediaManager(tab: DashTab) {
   const { setTabMedia } = useDashboardStore()
+  const mediaUndo = useMediaUndo()
   const [busy, setBusy] = useState(false)
   const [videoStep, setVideoStep] = useState<'optimizing' | 'uploading' | null>(null)
   const [videoProgress, setVideoProgress] = useState<{ index: number; total: number } | null>(null)
@@ -91,8 +93,10 @@ export function useMediaManager(tab: DashTab) {
   }
 
   function removeMedia(id: string) {
-    setTabMedia(tab.id, (prev) => prev.filter((m) => m.id !== id))
-    deleteMedia(id)
+    const index = tab.media.findIndex((m) => m.id === id)
+    const item = tab.media[index]
+    if (!item) return
+    mediaUndo.remove(tab.id, item, index)
   }
 
   return { busy, videoStep, videoProgress, vidRef, onVideo, reorder, setOrder, removeMedia }

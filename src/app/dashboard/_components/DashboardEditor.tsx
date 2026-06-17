@@ -8,6 +8,7 @@ import { setPublished } from '../actions'
 import { IgConnectStatus } from './IgConnectStatus'
 import { DashboardStore } from './DashboardStore'
 import { ImportProvider } from './ImportProvider'
+import { MediaUndoProvider } from './MediaUndoProvider'
 import { DashboardTabs } from './DashboardTabs'
 import { AgentChat } from './AgentChat'
 import { SubscribeGate } from './SubscribeGate'
@@ -112,16 +113,18 @@ export function DashboardEditor({
       <PageHero data={data} billingEnabled={billingEnabled} />
       <DashboardStore initial={data}>
         <ImportProvider>
-          <DashboardTabs
-            data={data}
-            instagramEnabled={instagramEnabled}
-            igUsesUsername={igUsesUsername}
-            igConnected={data.instagramConnected}
-            igUsername={data.instagramUsername}
-          />
-          {agentEnabled && (
-            <AgentChat instagramConnected={data.instagramConnected} igUsesUsername={igUsesUsername} />
-          )}
+          <MediaUndoProvider>
+            <DashboardTabs
+              data={data}
+              instagramEnabled={instagramEnabled}
+              igUsesUsername={igUsesUsername}
+              igConnected={data.instagramConnected}
+              igUsername={data.instagramUsername}
+            />
+            {agentEnabled && (
+              <AgentChat instagramConnected={data.instagramConnected} igUsesUsername={igUsesUsername} />
+            )}
+          </MediaUndoProvider>
         </ImportProvider>
       </DashboardStore>
     </div>
