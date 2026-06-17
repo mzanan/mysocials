@@ -14,6 +14,7 @@ export function useProfileSection(data: DashboardData) {
   const [bio, setBio] = useState(data.bio ?? '')
   const [accent, setAccent] = useState(data.accent)
   const [username, setUsername] = useState(data.username)
+  const [savedUsername, setSavedUsername] = useState(data.username)
   const theme = data.theme
 
   function saveProfile(patch?: { accent?: string }) {
@@ -30,13 +31,16 @@ export function useProfileSection(data: DashboardData) {
   }
 
   function saveUsername() {
+    if (username === savedUsername) return
     startTransition(async () => {
       const res = await updateUsername(username)
       if (res.ok) {
+        setSavedUsername(username)
         toast.success('Username updated')
         router.refresh()
       } else {
         toast.error(res.error)
+        setUsername(savedUsername)
       }
     })
   }

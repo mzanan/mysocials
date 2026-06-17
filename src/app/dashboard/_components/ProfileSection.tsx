@@ -98,7 +98,6 @@ function AccentField({
 
 export function ProfileSection({ data }: { data: DashboardData }) {
   const {
-    pending,
     displayName,
     setDisplayName,
     bio,
@@ -121,21 +120,14 @@ export function ProfileSection({ data }: { data: DashboardData }) {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Username (your public URL)">
-          <div className="flex h-10 items-center rounded-xl border border-hairline-strong bg-surface-strong pl-3 transition focus-within:border-accent focus-within:bg-surface-stronger focus-within:ring-2 focus-within:ring-accent/25">
+          <div className="flex h-10 items-center rounded-xl border border-hairline-strong bg-surface-strong px-3 transition focus-within:border-accent focus-within:bg-surface-stronger focus-within:ring-2 focus-within:ring-accent/25">
             <span className="text-sm text-fg-faint">/</span>
             <input
               value={username}
               onChange={(e) => setUsername(e.target.value.toLowerCase())}
+              onBlur={saveUsername}
               className="h-full w-full min-w-0 flex-1 bg-transparent px-1 text-[15px] text-fg outline-none"
             />
-            <button
-              type="button"
-              onClick={saveUsername}
-              disabled={pending}
-              className="mr-1 shrink-0 rounded-lg px-2.5 py-1 text-xs font-semibold text-accent transition hover:bg-surface-stronger disabled:opacity-50"
-            >
-              Save
-            </button>
           </div>
         </Field>
 
