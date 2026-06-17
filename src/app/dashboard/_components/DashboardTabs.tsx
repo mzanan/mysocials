@@ -14,7 +14,7 @@ import { ProfileSection } from './ProfileSection'
 import { TabPanel } from './TabPanel'
 
 const triggerClass =
-  'flex-none gap-1.5 rounded-lg px-3 py-1.5 text-sm transition data-[state=active]:bg-surface-stronger data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-hairline-strong data-[state=active]:[&_svg]:text-accent'
+  'flex-none gap-1.5 rounded-lg px-3 py-1.5 text-sm transition data-[state=active]:bg-surface-stronger data-[state=active]:shadow-sm data-[state=active]:[&_svg]:text-accent'
 
 export function DashboardTabs({
   data,
@@ -64,7 +64,7 @@ export function DashboardTabs({
   return (
     <Tabs value={active} onValueChange={setActive} className="gap-4">
       <div ref={tabBarRef} className="no-scrollbar -m-1 overflow-x-auto p-1">
-        <TabsList className="inline-flex h-auto w-max justify-start gap-1 rounded-xl border border-hairline p-1">
+        <TabsList className="inline-flex h-auto w-max justify-start gap-1 rounded-xl p-1">
           <TabsTrigger value="profile" className={triggerClass}>
             <User size={15} /> Profile
           </TabsTrigger>
