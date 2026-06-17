@@ -29,10 +29,11 @@ function AccentField({
   const isCustom = !ACCENT_PRESETS.includes(accent)
 
   return (
-    <div className="flex w-fit max-w-full flex-col gap-3">
-      <span className="text-xs font-medium text-fg-subtle">Accent color</span>
-      <div className="flex flex-wrap items-center gap-2.5">
-        {ACCENT_PRESETS.map((c) => (
+    <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:gap-8">
+      <div className="flex flex-col gap-2.5">
+        <span className="text-xs font-medium text-fg-subtle">Accent color</span>
+        <div className="flex max-w-xs flex-wrap items-center gap-2.5">
+          {ACCENT_PRESETS.map((c) => (
           <button
             key={c}
             type="button"
@@ -69,9 +70,10 @@ function AccentField({
             className="absolute inset-0 cursor-pointer opacity-0"
           />
         </label>
+        </div>
       </div>
 
-      <div className="flex flex-col gap-1.5">
+      <div className="flex w-full max-w-xs flex-col gap-1.5">
         <span className="text-xs text-fg-faint">Preview</span>
         <div
           className="link-btn flex h-12 w-full items-center gap-3 rounded-2xl border bg-surface px-4 text-[15px] font-medium text-fg"
