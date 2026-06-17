@@ -1,5 +1,6 @@
 'use client'
 
+import { useSyncExternalStore } from 'react'
 import { Check, ChevronRight, Link2, Plus } from 'lucide-react'
 import { Field } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
@@ -12,6 +13,26 @@ import { useProfileSection } from './useProfileSection'
 
 const RAINBOW =
   'conic-gradient(from 0deg, #f87171, #fbbf24, #34d399, #60a5fa, #a78bfa, #f472b6, #f87171)'
+
+const ACCENT_HINT_KEY = 'ms-accent-hint'
+const accentHintListeners = new Set<() => void>()
+function subscribeAccentHint(cb: () => void) {
+  accentHintListeners.add(cb)
+  return () => accentHintListeners.delete(cb)
+}
+function accentHintSeen(): boolean {
+  try {
+    return localStorage.getItem(ACCENT_HINT_KEY) === '1'
+  } catch {
+    return true
+  }
+}
+function dismissAccentHint() {
+  try {
+    localStorage.setItem(ACCENT_HINT_KEY, '1')
+  } catch {}
+  accentHintListeners.forEach((l) => l())
+}
 
 function getImageMedia(data: DashboardData): DashMedia[] {
   return data.tabs.flatMap((t) => t.media).filter((m) => m.kind === 'image')
@@ -27,6 +48,7 @@ function AccentField({
   save: (patch?: { accent?: string }) => void
 }) {
   const isCustom = !ACCENT_PRESETS.includes(accent)
+  const showHint = !useSyncExternalStore(subscribeAccentHint, accentHintSeen, () => true)
 
   return (
     <div className="flex flex-col items-center gap-5 sm:flex-row sm:justify-center sm:gap-8">
@@ -73,9 +95,16 @@ function AccentField({
         </div>
       </div>
 
-      <div className="flex w-full max-w-xs flex-col gap-1.5">
-        <span className="text-xs text-fg-faint">Preview</span>
-        <div
+      <div className="relative w-full max-w-xs">
+        {showHint && (
+          <div className="absolute -top-2 left-1/2 z-10 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-lg bg-fg px-3 py-1.5 text-xs font-medium text-app-bg shadow-lg">
+            This is how your links look
+            <span className="absolute left-1/2 top-full size-2 -translate-x-1/2 -translate-y-1/2 rotate-45 bg-fg" />
+          </div>
+        )}
+        <button
+          type="button"
+          onClick={dismissAccentHint}
           className="link-btn flex h-12 w-full items-center gap-3 rounded-2xl border bg-surface px-4 text-[15px] font-medium text-fg"
           style={{
             ['--accent-glow' as string]: accent,
@@ -92,7 +121,7 @@ function AccentField({
           </span>
           <span className="flex-1 text-left">Sample link</span>
           <ChevronRight size={18} style={{ color: 'var(--accent-glow)' }} />
-        </div>
+        </button>
       </div>
     </div>
   )
