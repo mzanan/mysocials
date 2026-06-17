@@ -7,11 +7,13 @@ import { ExternalLink } from 'lucide-react'
 import { setPublished } from '../actions'
 import { IgConnectStatus } from './IgConnectStatus'
 import { DashboardStore } from './DashboardStore'
+import { ImportProvider } from './ImportProvider'
 import { DashboardTabs } from './DashboardTabs'
 import { AgentChat } from './AgentChat'
 import { SubscribeGate } from './SubscribeGate'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { Text } from '@/components/ui/text'
 import type { DashboardData } from '@/types/dashboard'
 
 function PageHero({ data, billingEnabled }: { data: DashboardData; billingEnabled: boolean }) {
@@ -49,7 +51,7 @@ function PageHero({ data, billingEnabled }: { data: DashboardData; billingEnable
     <Card>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <p className="text-xs text-fg-subtle">Your public page</p>
+          <Text variant="caption">Your public page</Text>
           <Link
             href={`/${data.username}`}
             target="_blank"
@@ -67,7 +69,9 @@ function PageHero({ data, billingEnabled }: { data: DashboardData; billingEnable
               {published ? 'Published' : 'Draft'}
             </span>
             {billingEnabled && !hasActiveSub && (
-              <span className="text-xs text-fg-subtle">Subscribe to publish.</span>
+              <Text as="span" variant="caption">
+                Subscribe to publish.
+              </Text>
             )}
           </div>
           {error && <p className="mt-2 text-sm text-danger">{error}</p>}
@@ -107,16 +111,18 @@ export function DashboardEditor({
       )}
       <PageHero data={data} billingEnabled={billingEnabled} />
       <DashboardStore initial={data}>
-        <DashboardTabs
-          data={data}
-          instagramEnabled={instagramEnabled}
-          igUsesUsername={igUsesUsername}
-          igConnected={data.instagramConnected}
-          igUsername={data.instagramUsername}
-        />
-        {agentEnabled && (
-          <AgentChat instagramConnected={data.instagramConnected} igUsesUsername={igUsesUsername} />
-        )}
+        <ImportProvider>
+          <DashboardTabs
+            data={data}
+            instagramEnabled={instagramEnabled}
+            igUsesUsername={igUsesUsername}
+            igConnected={data.instagramConnected}
+            igUsername={data.instagramUsername}
+          />
+          {agentEnabled && (
+            <AgentChat instagramConnected={data.instagramConnected} igUsesUsername={igUsesUsername} />
+          )}
+        </ImportProvider>
       </DashboardStore>
     </div>
   )
