@@ -1,6 +1,6 @@
 'use client'
 
-import { Check, ChevronRight, Plus } from 'lucide-react'
+import { Check, ChevronRight, Link2, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Field } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
@@ -30,7 +30,7 @@ function AccentField({
   const isCustom = !ACCENT_PRESETS.includes(accent)
 
   return (
-    <div className="flex flex-col gap-2.5">
+    <div className="flex flex-col gap-3">
       <span className="text-xs font-medium text-fg-subtle">Accent color</span>
       <div className="flex flex-wrap items-center gap-2.5">
         {ACCENT_PRESETS.map((c) => (
@@ -70,21 +70,27 @@ function AccentField({
             className="absolute inset-0 cursor-pointer opacity-0"
           />
         </label>
+      </div>
 
+      <div className="flex flex-col gap-1.5">
+        <span className="text-xs text-fg-faint">Preview</span>
         <div
-          className="ml-auto flex w-fit max-w-full items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium text-fg"
+          className="link-btn flex h-12 w-full max-w-sm items-center gap-3 rounded-2xl border bg-surface px-4 text-[15px] font-medium text-fg"
           style={{
             ['--accent-glow' as string]: accent,
-            borderColor: 'color-mix(in oklab, var(--accent-glow) 50%, transparent)',
-            backgroundColor: 'color-mix(in oklab, var(--accent-glow) 12%, transparent)',
+            borderColor: 'color-mix(in oklab, var(--accent-glow) 42%, transparent)',
+            boxShadow:
+              '0 0 0 1px color-mix(in oklab, var(--accent-glow) 16%, transparent), 0 12px 30px -14px color-mix(in oklab, var(--accent-glow) 50%, transparent)',
           }}
         >
           <span
-            className="h-2.5 w-2.5 shrink-0 rounded-full"
-            style={{ backgroundColor: 'var(--accent-glow)' }}
-          />
-          Sample link
-          <ChevronRight size={14} style={{ color: 'var(--accent-glow)' }} />
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-full"
+            style={{ backgroundColor: 'color-mix(in oklab, var(--accent-glow) 16%, transparent)' }}
+          >
+            <Link2 size={16} style={{ color: 'var(--accent-glow)' }} />
+          </span>
+          <span className="flex-1 text-left">Sample link</span>
+          <ChevronRight size={18} style={{ color: 'var(--accent-glow)' }} />
         </div>
       </div>
     </div>

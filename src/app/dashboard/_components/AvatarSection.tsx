@@ -33,20 +33,21 @@ export function AvatarSection({
           <Image src={avatarUrl} alt="avatar" fill className="object-cover" sizes="64px" />
         )}
       </div>
-      <div className="flex flex-col gap-1.5">
+      <div className="flex min-w-0 flex-col gap-1.5">
+        <span className="text-xs font-medium text-fg-subtle">Profile photo</span>
         <input ref={fileRef} type="file" accept="image/*" hidden onChange={uploadFile} />
         <div className="flex flex-wrap gap-1.5">
-          <Button variant="secondary" disabled={busy} onClick={() => fileRef.current?.click()}>
+          <Button variant="secondary" size="sm" disabled={busy} onClick={() => fileRef.current?.click()}>
             {busy ? 'Updating…' : 'Upload'}
           </Button>
           {instagramConnected && (
-            <Button variant="secondary" disabled={busy} onClick={useInstagramAvatar}>
-              <Instagram size={14} /> Use Instagram avatar
+            <Button variant="secondary" size="sm" disabled={busy} onClick={useInstagramAvatar}>
+              <Instagram size={14} /> Instagram
             </Button>
           )}
           {imageMedia.length > 0 && (
-            <Button variant="secondary" disabled={busy} onClick={() => setPickerOpen(true)}>
-              <Images size={14} /> Pick from photos
+            <Button variant="secondary" size="sm" disabled={busy} onClick={() => setPickerOpen(true)}>
+              <Images size={14} /> Photos
             </Button>
           )}
         </div>
