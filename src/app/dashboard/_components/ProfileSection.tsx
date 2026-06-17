@@ -29,7 +29,7 @@ function AccentField({
   const isCustom = !ACCENT_PRESETS.includes(accent)
 
   return (
-    <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:gap-8">
+    <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-8">
       <div className="flex flex-col gap-2.5">
         <span className="text-xs font-medium text-fg-subtle">Accent color</span>
         <div className="flex max-w-xs flex-wrap items-center gap-2.5">
