@@ -140,11 +140,11 @@ export function ProfileSection({ data }: { data: DashboardData }) {
             onBlur={() => saveProfile()}
           />
         </Field>
-      </div>
 
-      <Field label="Bio">
-        <Textarea value={bio} onChange={(e) => setBio(e.target.value)} onBlur={() => saveProfile()} rows={2} />
-      </Field>
+        <Field label="Bio">
+          <Textarea value={bio} onChange={(e) => setBio(e.target.value)} onBlur={() => saveProfile()} rows={2} />
+        </Field>
+      </div>
 
       <AccentField accent={accent} setAccent={setAccent} save={saveProfile} />
     </div>
