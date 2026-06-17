@@ -8,7 +8,6 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { media, tabs } from '@/lib/db/schema'
 import { MAX_VIDEOS_PER_USER, countUserMedia } from '@/lib/media-quota'
-import { requirePublishAccess } from '@/lib/subscription'
 import { storage } from '@/lib/storage'
 
 export const runtime = 'nodejs'
@@ -19,9 +18,6 @@ const ALLOWED = new Set(['video/mp4', 'video/webm'])
 export async function POST(req: Request) {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  const gate = await requirePublishAccess(session.user.id)
-  if (!gate.ok) return NextResponse.json({ error: gate.reason }, { status: 402 })
 
   const form = await req.formData()
   const tabId = String(form.get('tabId') ?? '')
