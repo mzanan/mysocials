@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { reorderMedia } from '../actions'
+import { reorderMedia, rotateMedia as rotateMediaApi } from '../actions'
 import { moveItem } from '@/lib/array'
 import { extractPoster } from '@/lib/media/poster'
 import { MAX_VIDEO_SECONDS, probeDuration, transcodeVideo } from '@/lib/media/transcode'
@@ -102,5 +102,24 @@ export function useMediaManager(tab: DashTab) {
     mediaUndo.remove(tab.id, item, index)
   }
 
-  return { busy, videoStep, videoProgress, vidRef, onVideo, reorder, setOrder, removeMedia }
+  async function rotateMedia(id: string) {
+    const res = await rotateMediaApi(id)
+    if (!res.ok) {
+      toast.error(res.error)
+      return
+    }
+    setTabMedia(tab.id, (prev) => prev.map((m) => (m.id === id ? { ...m, url: res.url } : m)))
+  }
+
+  return {
+    busy,
+    videoStep,
+    videoProgress,
+    vidRef,
+    onVideo,
+    reorder,
+    setOrder,
+    removeMedia,
+    rotateMedia,
+  }
 }

@@ -11,6 +11,9 @@ export const localDriver: Storage = {
     await fs.mkdir(path.dirname(full), { recursive: true })
     await fs.writeFile(full, body)
   },
+  async get(key) {
+    return fs.readFile(path.join(ROOT, key))
+  },
   async delete(key) {
     await fs.rm(path.join(ROOT, key), { force: true })
   },

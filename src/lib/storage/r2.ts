@@ -1,4 +1,4 @@
-import { DeleteObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 
 import type { Storage } from './types'
 
@@ -29,6 +29,13 @@ export const r2Driver: Storage = {
         ContentType: contentType,
       }),
     )
+  },
+  async get(key) {
+    const res = await getClient().send(
+      new GetObjectCommand({ Bucket: process.env.R2_BUCKET!, Key: key }),
+    )
+    const bytes = await res.Body!.transformToByteArray()
+    return Buffer.from(bytes)
   },
   async delete(key) {
     await getClient().send(

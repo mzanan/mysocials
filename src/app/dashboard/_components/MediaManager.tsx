@@ -9,6 +9,7 @@ import {
   Upload,
   Instagram,
   RotateCcw,
+  RotateCw,
   X,
   GripVertical,
 } from 'lucide-react'
@@ -38,12 +39,14 @@ function SortableMedia({
   sortable,
   onReorder,
   onRemove,
+  onRotate,
 }: {
   m: DashMedia
   index: number
   sortable: boolean
   onReorder: (index: number, dir: -1 | 1) => void
   onRemove: (id: string) => void
+  onRotate: (id: string) => void
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: m.id,
@@ -75,10 +78,20 @@ function SortableMedia({
           <GripVertical size={14} />
         </span>
       )}
-      {m.kind === 'video' && (
+      {m.kind === 'video' ? (
         <span className="pointer-events-none absolute right-1 top-1 rounded bg-black/60 px-1 text-[10px] text-white">
           ▶
         </span>
+      ) : (
+        <button
+          type="button"
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={() => onRotate(m.id)}
+          aria-label="Rotate"
+          className="absolute right-1 top-1 grid h-7 w-7 place-items-center rounded-md bg-black/45 text-white opacity-100 transition hover:bg-black/65 sm:opacity-0 sm:group-hover:opacity-100"
+        >
+          <RotateCw size={14} />
+        </button>
       )}
       <div
         onPointerDown={(e) => e.stopPropagation()}
@@ -117,7 +130,7 @@ export function MediaManager({
   igUsesUsername: boolean
   igConnected: boolean
 }) {
-  const { busy, videoStep, videoProgress, vidRef, onVideo, reorder, setOrder, removeMedia } =
+  const { busy, videoStep, videoProgress, vidRef, onVideo, reorder, setOrder, removeMedia, rotateMedia } =
     useMediaManager(tab)
   const up = useImageUploader(tab)
   const imgRef = useRef<HTMLInputElement>(null)
@@ -157,6 +170,7 @@ export function MediaManager({
                   sortable={sortable}
                   onReorder={reorder}
                   onRemove={removeMedia}
+                  onRotate={rotateMedia}
                 />
               ))}
             </div>
