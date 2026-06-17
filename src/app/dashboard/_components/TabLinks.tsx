@@ -4,18 +4,20 @@ import { useState, useTransition } from 'react'
 import { Link2, Plus, Trash2, X } from 'lucide-react'
 import { createLink } from '../actions'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { NetworkIcon } from '@/components/SocialIcon/NetworkIcon'
 import { isNetworkSlug, type NetworkSlug } from '@/lib/networks'
+import { cn } from '@/lib/utils'
 import { toast } from '@/lib/toast'
 import type { DashLink } from '@/types/dashboard'
 import { useDashboardStore } from './DashboardStore'
 import { useLinkRow } from './useLinkRow'
 import { NetworkPicker } from './NetworkPicker'
 
+const bareInput = 'w-full min-w-0 bg-transparent placeholder:text-fg-faint outline-none'
+
 function NetworkBadge({ slug }: { slug: string | null }) {
   return (
-    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-strong text-fg">
+    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-strong text-fg">
       {slug && isNetworkSlug(slug) ? (
         <NetworkIcon slug={slug} size={18} />
       ) : (
@@ -25,40 +27,86 @@ function NetworkBadge({ slug }: { slug: string | null }) {
   )
 }
 
+function LinkFields({
+  network,
+  handle,
+  setHandle,
+  title,
+  setTitle,
+  url,
+  setUrl,
+  onBlur,
+  autoFocus,
+}: {
+  network: string | null
+  handle: string
+  setHandle: (v: string) => void
+  title: string
+  setTitle: (v: string) => void
+  url: string
+  setUrl: (v: string) => void
+  onBlur?: () => void
+  autoFocus?: boolean
+}) {
+  if (network) {
+    return (
+      <div className="flex min-w-0 flex-1 items-center">
+        <span className="text-[15px] text-fg-faint">@</span>
+        <input
+          autoFocus={autoFocus}
+          value={handle}
+          onChange={(e) => setHandle(e.target.value)}
+          onBlur={onBlur}
+          placeholder="username"
+          className={cn(bareInput, 'ml-0.5 text-[15px] text-fg')}
+        />
+      </div>
+    )
+  }
+  return (
+    <div className="flex min-w-0 flex-1 flex-col">
+      <input
+        autoFocus={autoFocus}
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        onBlur={onBlur}
+        placeholder="Title"
+        className={cn(bareInput, 'text-[15px] font-medium text-fg')}
+      />
+      <input
+        value={url}
+        onChange={(e) => setUrl(e.target.value)}
+        onBlur={onBlur}
+        placeholder="https://…"
+        className={cn(bareInput, 'text-xs text-fg-muted')}
+      />
+    </div>
+  )
+}
+
 function LinkRow({ link }: { link: DashLink }) {
   const r = useLinkRow(link)
-  const isNetwork = Boolean(r.network)
 
   return (
-    <div className="flex items-center gap-2 rounded-xl border border-hairline p-2 transition-colors hover:border-hairline-strong">
+    <div className="group flex items-center gap-3 rounded-xl border border-hairline px-3 py-2 transition hover:border-hairline-strong focus-within:border-accent">
       <NetworkBadge slug={r.network || null} />
-      {isNetwork ? (
-        <Input
-          value={r.handle}
-          onChange={(e) => r.setHandle(e.target.value)}
-          onBlur={r.save}
-          placeholder="username"
-          className="min-w-0 flex-1"
-        />
-      ) : (
-        <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row">
-          <Input
-            value={r.title}
-            onChange={(e) => r.setTitle(e.target.value)}
-            onBlur={r.save}
-            placeholder="Title"
-            className="sm:w-32"
-          />
-          <Input
-            value={r.url}
-            onChange={(e) => r.setUrl(e.target.value)}
-            onBlur={r.save}
-            placeholder="https://…"
-            className="min-w-0 flex-1"
-          />
-        </div>
-      )}
-      <Button variant="danger" size="icon" onClick={r.remove} aria-label="Delete link" className="shrink-0">
+      <LinkFields
+        network={r.network || null}
+        handle={r.handle}
+        setHandle={r.setHandle}
+        title={r.title}
+        setTitle={r.setTitle}
+        url={r.url}
+        setUrl={r.setUrl}
+        onBlur={r.save}
+      />
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={r.remove}
+        aria-label="Delete link"
+        className="shrink-0 text-fg-faint hover:bg-danger/10 hover:text-danger"
+      >
         <Trash2 size={15} />
       </Button>
     </div>
@@ -113,37 +161,28 @@ export function TabLinks({ tabId, igUsername }: { tabId: string; igUsername: str
       </div>
 
       {draft && (
-        <div className="mt-2 flex items-center gap-2 rounded-xl border border-hairline bg-surface p-2">
+        <div className="mt-2 flex items-center gap-3 rounded-xl border border-accent/40 bg-surface-strong px-3 py-2">
           <NetworkBadge slug={draft.network} />
-          {draft.network ? (
-            <Input
-              autoFocus
-              value={handle}
-              onChange={(e) => setHandle(e.target.value)}
-              placeholder="username"
-              className="min-w-0 flex-1"
-            />
-          ) : (
-            <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row">
-              <Input
-                autoFocus
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Title"
-                className="sm:w-32"
-              />
-              <Input
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                placeholder="https://…"
-                className="min-w-0 flex-1"
-              />
-            </div>
-          )}
-          <Button variant="secondary" onClick={confirmDraft} disabled={pending} className="shrink-0">
+          <LinkFields
+            autoFocus
+            network={draft.network}
+            handle={handle}
+            setHandle={setHandle}
+            title={title}
+            setTitle={setTitle}
+            url={url}
+            setUrl={setUrl}
+          />
+          <Button variant="secondary" size="sm" onClick={confirmDraft} disabled={pending} className="shrink-0">
             Add
           </Button>
-          <Button variant="ghost" size="icon" onClick={() => setDraft(null)} aria-label="Cancel" className="shrink-0">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setDraft(null)}
+            aria-label="Cancel"
+            className="shrink-0"
+          >
             <X size={15} />
           </Button>
         </div>
