@@ -9,7 +9,6 @@ import {
   usePersonalBackground,
   useRotatingSlots,
   type GridShape,
-  type Slot,
 } from './usePersonalBackground'
 
 const GAP = 4
@@ -24,7 +23,7 @@ function CycleGridView({
   onReady,
 }: {
   grid: GridShape
-  slots: Slot[]
+  slots: string[]
   isActive: boolean
   onReady?: () => void
 }) {
@@ -66,15 +65,10 @@ function CycleGridView({
         gap: GAP,
       }}
     >
-      {slots.map((slot, i) => {
+      {slots.map((src, i) => {
         const revealed = isActive && i < readyCount
         return (
-          <m.div
-            key={slot.id}
-            layout
-            transition={{ layout: { duration: 0.6, ease: [0.4, 0, 0.2, 1] } }}
-            className="skeleton-shimmer relative overflow-hidden rounded-sm"
-          >
+          <div key={i} className="skeleton-shimmer relative overflow-hidden rounded-sm">
             <m.div
               className="absolute inset-0"
               variants={itemVariants}
@@ -84,7 +78,7 @@ function CycleGridView({
             >
               <AnimatePresence initial={false}>
                 <m.div
-                  key={slot.src}
+                  key={src}
                   className="absolute inset-0"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -92,7 +86,7 @@ function CycleGridView({
                   transition={{ duration: 0.9, ease: 'easeInOut' }}
                 >
                   <Image
-                    src={slot.src}
+                    src={src}
                     alt=""
                     fill
                     className="object-cover"
@@ -104,7 +98,7 @@ function CycleGridView({
                 </m.div>
               </AnimatePresence>
             </m.div>
-          </m.div>
+          </div>
         )
       })}
     </div>
@@ -134,7 +128,7 @@ export function PersonalBackground({
     <div className="bg-fixed-overlay bg-grid-base">
       {grid && slots.length > 0 && (
         <CycleGridView
-          key={`${animationKey}-${grid.cols}x${grid.rows}`}
+          key={animationKey}
           grid={grid}
           slots={slots}
           isActive={isActive}
