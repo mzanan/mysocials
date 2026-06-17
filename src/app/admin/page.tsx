@@ -1,6 +1,8 @@
 import { desc, eq } from 'drizzle-orm'
 import { db } from '@/lib/db'
 import { profiles, user } from '@/lib/db/schema'
+import { Card } from '@/components/ui/card'
+import { Text } from '@/components/ui/text'
 import { UserRow } from './_components/UserRow'
 
 export const dynamic = 'force-dynamic'
@@ -26,11 +28,15 @@ export default async function AdminPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Users</h1>
-        <p className="mt-1 text-sm text-fg-subtle">{rows.length} total</p>
+        <Text as="h1" variant="title">
+          Users
+        </Text>
+        <Text variant="caption" className="mt-1">
+          {rows.length} total
+        </Text>
       </div>
 
-      <div className="overflow-hidden rounded-[var(--radius-card)] border border-hairline bg-surface backdrop-blur-xl shadow-[var(--shadow-card)]">
+      <Card padded={false} className="overflow-hidden">
         <table className="w-full text-left text-sm">
           <thead className="bg-surface text-xs uppercase tracking-wide text-fg-subtle">
             <tr>
@@ -47,7 +53,7 @@ export default async function AdminPage() {
             ))}
           </tbody>
         </table>
-      </div>
+      </Card>
     </div>
   )
 }

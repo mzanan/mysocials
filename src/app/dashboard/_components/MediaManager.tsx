@@ -24,6 +24,7 @@ import {
 import { SortableContext, useSortable, arrayMove, rectSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { Button } from '@/components/ui/button'
+import { Text } from '@/components/ui/text'
 import { cn } from '@/lib/utils'
 import type { DashMedia, DashTab } from '@/types/dashboard'
 import { useImageUploader } from './useImageUploader'
@@ -224,11 +225,11 @@ export function MediaManager({
       </div>
 
       {instagramEnabled && tab.type !== 'video' && (
-        <p className="text-xs text-fg-subtle">
+        <Text variant="caption">
           {igUsesUsername
             ? 'Imports photos from any public Instagram profile.'
             : 'Instagram import needs a Professional or Creator account.'}
-        </p>
+        </Text>
       )}
 
       {!up.active && up.total > 0 && (
@@ -256,7 +257,9 @@ export function MediaManager({
       )}
 
       {tab.media.length === 0 && tab.type !== 'video' && (
-        <p className="text-xs text-fg-faint">No photos yet. Add some or import from Instagram.</p>
+        <Text variant="caption" className="text-fg-faint">
+          No photos yet. Add some or import from Instagram.
+        </Text>
       )}
     </div>
   )

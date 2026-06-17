@@ -41,7 +41,7 @@ export function UserRow({ user }: { user: AdminUser }) {
   return (
     <tr className="text-fg-muted">
       <td className="px-4 py-3">
-        <div className="font-medium text-fg">{user.name || '—'}</div>
+        <div className="font-medium text-fg">{user.name || '-'}</div>
         <div className="text-xs text-fg-subtle">{user.email}</div>
       </td>
       <td className="px-4 py-3">
@@ -51,7 +51,7 @@ export function UserRow({ user }: { user: AdminUser }) {
             {user.published ? '' : ' (draft)'}
           </Link>
         ) : (
-          '—'
+          '-'
         )}
       </td>
       <td className={`px-4 py-3 ${subColor[user.subscriptionStatus ?? ''] ?? 'text-fg-subtle'}`}>

@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Text } from '@/components/ui/text'
 import type { SuspendedProfilePublic } from '@/types/profile'
 
 export function SuspendedProfile({ profile }: { profile: SuspendedProfilePublic }) {
@@ -24,10 +25,16 @@ export function SuspendedProfile({ profile }: { profile: SuspendedProfilePublic 
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col gap-1">
-            <h1 className="text-xl font-semibold tracking-tight text-fg">{displayName}</h1>
-            <p className="text-sm text-fg-subtle">@{profile.username}</p>
+            <Text as="h1" variant="title" className="text-xl">
+              {displayName}
+            </Text>
+            <Text variant="caption" className="text-sm">
+              @{profile.username}
+            </Text>
           </div>
-          <p className="mt-2 text-sm text-fg-muted">This page is currently paused.</p>
+          <Text variant="body" className="mt-2 text-sm">
+            This page is currently paused.
+          </Text>
         </div>
       </div>
 

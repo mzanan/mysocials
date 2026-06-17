@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { AmbientBackground } from '@/components/ui/AmbientBackground'
 import { BrandFooter } from '@/components/ui/BrandFooter'
+import { Text } from '@/components/ui/text'
 
 export function LegalPage({
   title,
@@ -22,8 +23,12 @@ export function LegalPage({
         >
           ← mySocials
         </Link>
-        <h1 className="mt-8 text-3xl font-semibold tracking-tight sm:text-4xl">{title}</h1>
-        <p className="mt-2 text-sm text-fg-subtle">Last updated {updated}</p>
+        <Text as="h1" variant="title" className="mt-8 text-3xl sm:text-4xl">
+          {title}
+        </Text>
+        <Text variant="caption" className="mt-2 text-sm">
+          Last updated {updated}
+        </Text>
         <div className="mt-10 flex flex-col gap-8 text-[15px] leading-relaxed text-fg-muted">
           {children}
         </div>
@@ -44,7 +49,9 @@ export function LegalSection({
 }) {
   return (
     <section id={id} className="scroll-mt-24">
-      <h2 className="mb-3 text-lg font-semibold text-fg">{title}</h2>
+      <Text as="h2" variant="heading" className="mb-3 text-lg">
+        {title}
+      </Text>
       <div className="flex flex-col gap-3">{children}</div>
     </section>
   )
