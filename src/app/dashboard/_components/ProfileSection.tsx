@@ -29,7 +29,7 @@ function AccentField({
   const isCustom = !ACCENT_PRESETS.includes(accent)
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex w-fit max-w-full flex-col gap-3">
       <span className="text-xs font-medium text-fg-subtle">Accent color</span>
       <div className="flex flex-wrap items-center gap-2.5">
         {ACCENT_PRESETS.map((c) => (
@@ -74,7 +74,7 @@ function AccentField({
       <div className="flex flex-col gap-1.5">
         <span className="text-xs text-fg-faint">Preview</span>
         <div
-          className="link-btn flex h-12 w-full max-w-xs items-center gap-3 rounded-2xl border bg-surface px-4 text-[15px] font-medium text-fg"
+          className="link-btn flex h-12 w-full items-center gap-3 rounded-2xl border bg-surface px-4 text-[15px] font-medium text-fg"
           style={{
             ['--accent-glow' as string]: accent,
             borderColor: 'color-mix(in oklab, var(--accent-glow) 42%, transparent)',
