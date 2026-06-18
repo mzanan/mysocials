@@ -1,27 +1,22 @@
 'use client'
 
 import { useState, useEffect, useCallback, useSyncExternalStore } from 'react'
-import dynamic from 'next/dynamic'
-import { LazyMotion, domAnimation, m, AnimatePresence } from 'motion/react'
-import { usePublicProfile } from './usePublicProfile'
-import { ProfileLinkButton } from './ProfileLinkButton'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { LazyMotion, domAnimation } from 'motion/react'
 import { Moon, Sun } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { usePublicProfile } from './usePublicProfile'
+import { ProfileCard } from './ProfileCard'
+import { LayoutSwitcher } from './LayoutSwitcher'
+import { useVideoLayout } from './useVideoLayout'
+import { VideoGallery } from './VideoShowcase/VideoGallery'
+import { VideoCarousel } from './VideoShowcase/VideoCarousel'
+import { VideoReelFeed } from './VideoShowcase/VideoReelFeed'
+import { ImmersiveOverlay } from './VideoShowcase/ImmersiveOverlay'
 import { PersonalBackground } from '@/components/Backgrounds/PersonalBackground/PersonalBackground'
+import { AmbientBackground } from '@/components/ui/AmbientBackground'
 import { BrandFooter } from '@/components/ui/BrandFooter'
 import type { Theme } from '@/lib/appearance'
 import type { ProfilePublic } from '@/types/profile'
-
-const DevBackground = dynamic(
-  () => import('@/components/Backgrounds/DevBackground/DevBackground').then((m) => ({ default: m.DevBackground })),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="fixed inset-0 bg-gradient-to-br from-app-bg via-app-bg-2 to-app-bg-3" />
-    ),
-  },
-)
 
 const PUB_THEME_KEY = 'ms-pub-theme'
 const pubThemeListeners = new Set<() => void>()
@@ -59,9 +54,12 @@ export function PublicProfile({ profile }: { profile: ProfilePublic }) {
     setShowCard(false)
   }
   const revealCard = useCallback(() => setShowCard(true), [])
-  const activeIndex = Math.max(0, tabs.findIndex((t) => t.id === activeTabId))
-  const multiTab = tabs.length > 1
-  const displayName = profile.displayName || profile.username
+
+  const videoLayout = useVideoLayout()
+  const activeTab = tabs.find((t) => t.id === activeTabId)
+  const isVideoTab = activeTab?.type === 'video'
+  const showcase = !!isVideoTab && videoLayout !== 'immersive'
+  const immersive = !!isVideoTab && videoLayout === 'immersive'
 
   const storedTheme = useSyncExternalStore(subscribePubTheme, getPubTheme, () => null)
   const theme: Theme = storedTheme ?? profile.theme
@@ -74,129 +72,90 @@ export function PublicProfile({ profile }: { profile: ProfilePublic }) {
     return () => clearTimeout(t)
   }, [activeTabId])
 
+  const cardProps = { profile, tabs, activeTabId, setActiveTabId, handleLinkClick }
+
   return (
     <LazyMotion features={domAnimation}>
       <div
         data-theme={theme}
-        className="relative flex h-dvh flex-col items-center justify-center overflow-hidden bg-app-bg"
+        className={cn(
+          'relative bg-app-bg',
+          showcase
+            ? 'min-h-dvh w-full overflow-x-hidden'
+            : 'flex h-dvh flex-col items-center justify-center overflow-hidden',
+        )}
         style={{ ['--accent-glow' as string]: profile.accent }}
       >
         <button
           type="button"
           onClick={toggleTheme}
           aria-label="Toggle theme"
-          className="absolute right-4 top-4 z-30 grid h-9 w-9 place-items-center rounded-full border border-hairline-strong bg-surface text-fg-muted backdrop-blur-md transition hover:text-fg"
+          className="fixed right-4 top-4 z-40 grid h-9 w-9 place-items-center rounded-full border border-hairline-strong bg-surface text-fg-muted backdrop-blur-md transition hover:text-fg"
         >
           {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
         </button>
-        {tabs.map((tab) =>
-          everActivated.has(tab.id) ? (
-            <div
-              key={tab.id}
-              className={tab.id === activeTabId ? 'visible' : 'invisible fixed inset-0 pointer-events-none'}
-            >
-              {tab.type === 'video' ? (
-                <DevBackground
-                  isActive={tab.id === activeTabId}
-                  videos={tab.media.map((md) => ({ url: md.url, posterUrl: md.posterUrl }))}
-                  onReady={revealCard}
-                />
-              ) : (
-                <PersonalBackground
-                  isActive={tab.id === activeTabId}
-                  initialImages={tab.media.map((md) => md.url)}
-                  onReady={revealCard}
-                />
-              )}
+
+        {isVideoTab && <LayoutSwitcher value={videoLayout} />}
+
+        {showcase ? (
+          <>
+            <AmbientBackground />
+            <div className="relative z-10 flex w-full flex-col items-center gap-8 px-4 pb-20 pt-20">
+              <ProfileCard reveal {...cardProps} />
+              {activeTab &&
+                (videoLayout === 'gallery' ? (
+                  <VideoGallery videos={activeTab.media} />
+                ) : (
+                  <VideoCarousel videos={activeTab.media} />
+                ))}
             </div>
-          ) : null,
-        )}
-
-        <div
-          aria-hidden
-          className="pointer-events-none fixed inset-0 z-[5] bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(0,0,0,0.6)_100%)]"
-        />
-
-        <div
-          className="relative z-10 flex flex-col items-center justify-center"
-          style={{ visibility: showCard ? 'visible' : 'hidden', pointerEvents: showCard ? 'auto' : 'none' }}
-        >
-          <div className="relative w-[340px] rounded-3xl shadow-glass-lg">
-            <div className="absolute inset-0 rounded-3xl border border-hairline-strong bg-surface backdrop-blur-2xl [box-shadow:inset_0_1px_0_0_rgba(255,255,255,0.18)]" />
-            <m.div
-              className="relative p-8"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: showCard ? 1 : 0, y: showCard ? 0 : 12 }}
-              transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-            >
-              <div className="flex items-center justify-center pb-4 md:flex-col-reverse">
-                <div className="flex flex-col gap-2 text-center">
-                  <h1 className="text-[1.7rem] font-semibold tracking-tight text-fg drop-shadow-md">
-                    {displayName}
-                  </h1>
-                  {profile.bio && (
-                    <AnimatePresence mode="wait">
-                      <m.p
-                        key={activeTabId}
-                        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                        transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-                        className="whitespace-pre-line text-sm tracking-wide text-fg-muted drop-shadow-md"
-                      >
-                        {profile.bio}
-                      </m.p>
-                    </AnimatePresence>
+          </>
+        ) : (
+          <>
+            {tabs.map((tab) =>
+              everActivated.has(tab.id) ? (
+                <div
+                  key={tab.id}
+                  className={
+                    tab.id === activeTabId ? 'visible' : 'invisible fixed inset-0 pointer-events-none'
+                  }
+                >
+                  {tab.type === 'video' ? (
+                    tab.id === activeTabId && immersive ? (
+                      <VideoReelFeed videos={tab.media} />
+                    ) : null
+                  ) : (
+                    <PersonalBackground
+                      isActive={tab.id === activeTabId}
+                      initialImages={tab.media.map((md) => md.url)}
+                      onReady={revealCard}
+                    />
                   )}
                 </div>
-                <Avatar className="mx-auto h-24 w-24 ring-2 ring-hairline-strong md:mb-2">
-                  {profile.avatarUrl && <AvatarImage src={profile.avatarUrl} alt={displayName} />}
-                  <AvatarFallback className="text-2xl">
-                    {displayName.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
+              ) : null,
+            )}
+
+            <div
+              aria-hidden
+              className="pointer-events-none fixed inset-0 z-[5] bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(0,0,0,0.6)_100%)]"
+            />
+
+            {immersive ? (
+              <ImmersiveOverlay {...cardProps} />
+            ) : (
+              <div
+                className="relative z-10 flex flex-col items-center justify-center"
+                style={{
+                  visibility: showCard ? 'visible' : 'hidden',
+                  pointerEvents: showCard ? 'auto' : 'none',
+                }}
+              >
+                <ProfileCard reveal={showCard} {...cardProps} />
               </div>
+            )}
+          </>
+        )}
 
-              <Tabs value={activeTabId} onValueChange={setActiveTabId} className="w-full">
-                {multiTab && (
-                  <TabsList
-                    className="relative mb-6 grid h-11 w-full rounded-xl border border-hairline bg-surface p-1 backdrop-blur-md"
-                    style={{ gridTemplateColumns: `repeat(${tabs.length}, 1fr)` }}
-                  >
-                    <m.span
-                      aria-hidden
-                      className="absolute inset-y-1 left-1 rounded-lg border border-hairline-strong bg-surface-stronger shadow-[inset_0_1px_0_0_rgba(255,255,255,0.2)]"
-                      style={{ width: `calc(${100 / tabs.length}% - 0.25rem)` }}
-                      animate={{ x: `${activeIndex * 100}%` }}
-                      transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-                    />
-                    {tabs.map((tab) => (
-                      <TabsTrigger
-                        key={tab.id}
-                        value={tab.id}
-                        className="relative z-10 bg-transparent text-fg-subtle shadow-none transition-colors hover:text-fg-muted data-[state=active]:bg-transparent data-[state=active]:text-fg data-[state=active]:shadow-none"
-                      >
-                        {tab.label}
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
-                )}
-
-                {tabs.map((tab) => (
-                  <TabsContent key={tab.id} value={tab.id} className="space-y-3">
-                    {tab.links.map((link) => (
-                      <ProfileLinkButton
-                        key={`${tab.id}-${link.url}`}
-                        link={link}
-                        onClick={() => handleLinkClick(link.url)}
-                      />
-                    ))}
-                  </TabsContent>
-                ))}
-              </Tabs>
-            </m.div>
-          </div>
-        </div>
         <BrandFooter overlay />
         <div aria-hidden className="grain-overlay" />
       </div>
