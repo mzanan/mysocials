@@ -5,7 +5,7 @@ import { reorderMedia, rotateMedia as rotateMediaApi } from '../actions'
 import { moveItem } from '@/lib/array'
 import { extractPoster } from '@/lib/media/poster'
 import { detectVideoCodecs, isH264Only } from '@/lib/media/codec'
-import { MAX_GOOD_BITRATE, MAX_VIDEO_SECONDS, probeVideo, transcodeVideo } from '@/lib/media/transcode'
+import { MAX_GOOD_BITRATE, MAX_VIDEO_SECONDS, probeVideo, transcodeVideo, trimClip } from '@/lib/media/transcode'
 import { toast } from '@/lib/toast'
 import type { DashMedia, DashTab } from '@/types/dashboard'
 import { useDashboardStore } from './DashboardStore'
@@ -57,13 +57,13 @@ export function useMediaManager(tab: DashTab) {
           const tooLong = meta.duration > MAX_VIDEO_SECONDS + 0.5
           const bitrate = meta.duration > 0 ? (file.size * 8) / meta.duration : Infinity
           const codecs = file.type === 'video/mp4' ? await detectVideoCodecs(file) : []
-          const cheapPass =
+          const goodFormat =
             file.type === 'video/mp4' &&
-            !tooLong &&
+            isH264Only(codecs) &&
             meta.height > 0 &&
             meta.height <= 1080 &&
             bitrate <= MAX_GOOD_BITRATE
-          const alreadyGood = cheapPass && isH264Only(codecs)
+          const action = !goodFormat ? 'transcode' : tooLong ? 'trim' : 'skip'
 
           if (DEV) {
             console.info('[upload] video', file.name, {
@@ -73,26 +73,27 @@ export function useMediaManager(tab: DashTab) {
               bitrateMbps: Number.isFinite(bitrate) ? +(bitrate / 1e6).toFixed(2) : 'n/a',
               codecs: codecs.length ? codecs.join(',') : file.type,
               transcoder: globalThis.crossOriginIsolated ? 'multithread' : 'single-thread',
-              decision: alreadyGood ? 'skip' : 'transcode',
+              action,
             })
           }
 
           let clip: File
-          if (alreadyGood) {
+          if (action === 'skip') {
             clip = file
           } else {
             setVideoStep('optimizing')
             patch(i, 'optimizing')
             const t0 = performance.now()
-            const optimized = await transcodeVideo(
-              file,
-              tooLong ? MAX_VIDEO_SECONDS : undefined,
-            ).catch((err) => {
-              console.error(`[video] ${file.name} transcode failed:`, err)
-              return null
-            })
+            const trimmed = action === 'trim' ? await trimClip(file, MAX_VIDEO_SECONDS).catch(() => null) : null
+            const optimized =
+              trimmed ??
+              (await transcodeVideo(file, tooLong ? MAX_VIDEO_SECONDS : undefined).catch((err) => {
+                console.error(`[video] ${file.name} transcode failed:`, err)
+                return null
+              }))
             if (DEV && optimized) {
-              console.info('[upload] transcoded', file.name, {
+              console.info('[upload] optimized', file.name, {
+                via: trimmed ? 'trim-copy' : 'transcode',
                 fromMB: +(file.size / 1048576).toFixed(2),
                 toMB: +(optimized.size / 1048576).toFixed(2),
                 seconds: +((performance.now() - t0) / 1000).toFixed(1),

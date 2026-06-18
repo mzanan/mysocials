@@ -66,7 +66,10 @@ export function probeVideo(file: File): Promise<VideoMeta> {
   })
 }
 
-export async function transcodeVideo(file: File, maxSeconds?: number): Promise<Blob> {
+async function runFFmpeg(
+  file: File,
+  buildArgs: (input: string, output: string) => string[],
+): Promise<Blob> {
   const ffmpeg = await loadFFmpeg()
   const input = "in"
   const output = "out.mp4"
@@ -78,32 +81,7 @@ export async function transcodeVideo(file: File, maxSeconds?: number): Promise<B
   ffmpeg.on("log", onLog)
   try {
     await ffmpeg.writeFile(input, await fetchFile(file))
-    const args = [
-      ...(maxSeconds ? ["-ss", "0", "-t", String(maxSeconds)] : []),
-      "-i",
-      input,
-      "-vf",
-      "scale=-2:min(1080\\,ih)",
-      "-c:v",
-      "libx264",
-      "-profile:v",
-      "high",
-      "-pix_fmt",
-      "yuv420p",
-      "-preset",
-      "veryfast",
-      "-crf",
-      "21",
-      "-maxrate",
-      "8M",
-      "-bufsize",
-      "16M",
-      "-an",
-      "-movflags",
-      "+faststart",
-      output,
-    ]
-    const code = await ffmpeg.exec(args)
+    const code = await ffmpeg.exec(buildArgs(input, output))
     const data = await ffmpeg.readFile(output)
     const raw = typeof data === "string" ? new TextEncoder().encode(data) : data
     const bytes = new Uint8Array(raw)
@@ -117,4 +95,46 @@ export async function transcodeVideo(file: File, maxSeconds?: number): Promise<B
     await ffmpeg.deleteFile(input).catch(() => {})
     await ffmpeg.deleteFile(output).catch(() => {})
   }
+}
+
+export function transcodeVideo(file: File, maxSeconds?: number): Promise<Blob> {
+  return runFFmpeg(file, (input, output) => [
+    ...(maxSeconds ? ["-ss", "0", "-t", String(maxSeconds)] : []),
+    "-i",
+    input,
+    "-vf",
+    "scale=-2:min(1080\\,ih)",
+    "-c:v",
+    "libx264",
+    "-profile:v",
+    "high",
+    "-pix_fmt",
+    "yuv420p",
+    "-preset",
+    "veryfast",
+    "-crf",
+    "21",
+    "-maxrate",
+    "8M",
+    "-bufsize",
+    "16M",
+    "-an",
+    "-movflags",
+    "+faststart",
+    output,
+  ])
+}
+
+export function trimClip(file: File, maxSeconds: number): Promise<Blob> {
+  return runFFmpeg(file, (input, output) => [
+    "-i",
+    input,
+    "-t",
+    String(maxSeconds),
+    "-c",
+    "copy",
+    "-movflags",
+    "+faststart",
+    output,
+  ])
 }
