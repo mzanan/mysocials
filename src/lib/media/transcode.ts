@@ -5,6 +5,7 @@ const CORE_BASE = "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/esm"
 const FFMPEG_BASE = "https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.15/dist/esm"
 
 export const MAX_VIDEO_SECONDS = 15
+export const MAX_GOOD_BITRATE = 8_000_000
 
 let ffmpegPromise: Promise<FFmpeg> | null = null
 
@@ -32,18 +33,28 @@ function loadFFmpeg(): Promise<FFmpeg> {
   return ffmpegPromise
 }
 
-export function probeDuration(file: File): Promise<number> {
+export interface VideoMeta {
+  duration: number
+  width: number
+  height: number
+}
+
+export function probeVideo(file: File): Promise<VideoMeta> {
   return new Promise((resolve) => {
     const url = URL.createObjectURL(file)
     const video = document.createElement("video")
     video.preload = "metadata"
     video.onloadedmetadata = () => {
       URL.revokeObjectURL(url)
-      resolve(Number.isFinite(video.duration) ? video.duration : 0)
+      resolve({
+        duration: Number.isFinite(video.duration) ? video.duration : 0,
+        width: video.videoWidth || 0,
+        height: video.videoHeight || 0,
+      })
     }
     video.onerror = () => {
       URL.revokeObjectURL(url)
-      resolve(0)
+      resolve({ duration: 0, width: 0, height: 0 })
     }
     video.src = url
   })
@@ -77,6 +88,10 @@ export async function transcodeVideo(file: File, maxSeconds?: number): Promise<B
       "veryfast",
       "-crf",
       "21",
+      "-maxrate",
+      "8M",
+      "-bufsize",
+      "16M",
       "-an",
       "-movflags",
       "+faststart",

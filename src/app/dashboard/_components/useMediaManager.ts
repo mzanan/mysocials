@@ -4,7 +4,7 @@ import { useRef, useState } from 'react'
 import { reorderMedia, rotateMedia as rotateMediaApi } from '../actions'
 import { moveItem } from '@/lib/array'
 import { extractPoster } from '@/lib/media/poster'
-import { MAX_VIDEO_SECONDS, probeDuration, transcodeVideo } from '@/lib/media/transcode'
+import { MAX_GOOD_BITRATE, MAX_VIDEO_SECONDS, probeVideo, transcodeVideo } from '@/lib/media/transcode'
 import { toast } from '@/lib/toast'
 import type { DashMedia, DashTab } from '@/types/dashboard'
 import { useDashboardStore } from './DashboardStore'
@@ -34,26 +34,40 @@ export function useMediaManager(tab: DashTab) {
         const file = files[i]
         setVideoProgress({ index: i + 1, total: files.length })
         try {
-          const duration = await probeDuration(file)
-          const tooLong = duration > MAX_VIDEO_SECONDS + 0.5
-          setVideoStep('optimizing')
-          const optimized = await transcodeVideo(file, tooLong ? MAX_VIDEO_SECONDS : undefined).catch(
-            (err) => {
+          const meta = await probeVideo(file)
+          const tooLong = meta.duration > MAX_VIDEO_SECONDS + 0.5
+          const bitrate = meta.duration > 0 ? (file.size * 8) / meta.duration : Infinity
+          const alreadyGood =
+            file.type === 'video/mp4' &&
+            !tooLong &&
+            meta.height > 0 &&
+            meta.height <= 1080 &&
+            bitrate <= MAX_GOOD_BITRATE
+
+          let clip: File
+          if (alreadyGood) {
+            clip = file
+          } else {
+            setVideoStep('optimizing')
+            const optimized = await transcodeVideo(
+              file,
+              tooLong ? MAX_VIDEO_SECONDS : undefined,
+            ).catch((err) => {
               console.error(`[video] ${file.name} transcode failed:`, err)
               return null
-            },
-          )
-          if (!optimized) {
-            if (tooLong) {
-              toast.error(`${file.name}: too large to trim in the browser, try a shorter or lighter clip`)
-              continue
+            })
+            if (!optimized) {
+              if (tooLong) {
+                toast.error(`${file.name}: too large to trim in the browser, try a shorter or lighter clip`)
+                continue
+              }
+              if (file.type !== 'video/mp4' && file.type !== 'video/webm') {
+                toast.error(`${file.name}: could not optimize (use mp4 or webm)`)
+                continue
+              }
             }
-            if (file.type !== 'video/mp4' && file.type !== 'video/webm') {
-              toast.error(`${file.name}: could not optimize (use mp4 or webm)`)
-              continue
-            }
+            clip = optimized ? new File([optimized], 'clip.mp4', { type: 'video/mp4' }) : file
           }
-          const clip = optimized ? new File([optimized], 'clip.mp4', { type: 'video/mp4' }) : file
           const poster = await extractPoster(clip)
           setVideoStep('uploading')
           const fd = new FormData()
