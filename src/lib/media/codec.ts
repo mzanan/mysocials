@@ -57,15 +57,17 @@ function collectSampleTypes(bytes: Uint8Array, start: number, end: number, out: 
   }
 }
 
-export async function isUniversallyPlayableMp4(file: File): Promise<boolean> {
+export async function detectVideoCodecs(file: File): Promise<string[]> {
   try {
     const bytes = new Uint8Array(await file.arrayBuffer())
     const types: string[] = []
     collectSampleTypes(bytes, 0, bytes.length, types)
-    const videoTypes = types.filter((t) => VIDEO_SAMPLE_TYPES.has(t))
-    if (videoTypes.length === 0) return false
-    return videoTypes.every((t) => H264_SAMPLE_TYPES.has(t))
+    return types.filter((t) => VIDEO_SAMPLE_TYPES.has(t))
   } catch {
-    return false
+    return []
   }
+}
+
+export function isH264Only(codecs: string[]): boolean {
+  return codecs.length > 0 && codecs.every((t) => H264_SAMPLE_TYPES.has(t))
 }

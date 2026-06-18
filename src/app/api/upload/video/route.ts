@@ -46,6 +46,14 @@ export async function POST(req: Request) {
     )
   }
 
+  if (process.env.NODE_ENV !== 'production') {
+    console.info('[upload/video] received', {
+      clipMB: +(clip.size / 1048576).toFixed(2),
+      type: clip.type,
+      hasPoster: poster instanceof File && poster.size > 0,
+    })
+  }
+
   try {
     const ext = clip.type === 'video/webm' ? 'webm' : 'mp4'
     const base = `media/${session.user.id}/${tabId}/${randomUUID()}`

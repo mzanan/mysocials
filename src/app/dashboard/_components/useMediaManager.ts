@@ -4,12 +4,14 @@ import { useEffect, useRef, useState } from 'react'
 import { reorderMedia, rotateMedia as rotateMediaApi } from '../actions'
 import { moveItem } from '@/lib/array'
 import { extractPoster } from '@/lib/media/poster'
-import { isUniversallyPlayableMp4 } from '@/lib/media/codec'
+import { detectVideoCodecs, isH264Only } from '@/lib/media/codec'
 import { MAX_GOOD_BITRATE, MAX_VIDEO_SECONDS, probeVideo, transcodeVideo } from '@/lib/media/transcode'
 import { toast } from '@/lib/toast'
 import type { DashMedia, DashTab } from '@/types/dashboard'
 import { useDashboardStore } from './DashboardStore'
 import { useMediaUndo } from './MediaUndoProvider'
+
+const DEV = process.env.NODE_ENV !== 'production'
 
 type MediaRow = { id: string; kind: 'image' | 'video'; url: string; poster_url: string | null }
 
@@ -54,13 +56,26 @@ export function useMediaManager(tab: DashTab) {
           const meta = await probeVideo(file)
           const tooLong = meta.duration > MAX_VIDEO_SECONDS + 0.5
           const bitrate = meta.duration > 0 ? (file.size * 8) / meta.duration : Infinity
+          const codecs = file.type === 'video/mp4' ? await detectVideoCodecs(file) : []
           const cheapPass =
             file.type === 'video/mp4' &&
             !tooLong &&
             meta.height > 0 &&
             meta.height <= 1080 &&
             bitrate <= MAX_GOOD_BITRATE
-          const alreadyGood = cheapPass && (await isUniversallyPlayableMp4(file))
+          const alreadyGood = cheapPass && isH264Only(codecs)
+
+          if (DEV) {
+            console.info('[upload] video', file.name, {
+              sizeMB: +(file.size / 1048576).toFixed(2),
+              duration: +meta.duration.toFixed(2),
+              resolution: `${meta.width}x${meta.height}`,
+              bitrateMbps: Number.isFinite(bitrate) ? +(bitrate / 1e6).toFixed(2) : 'n/a',
+              codecs: codecs.length ? codecs.join(',') : file.type,
+              transcoder: globalThis.crossOriginIsolated ? 'multithread' : 'single-thread',
+              decision: alreadyGood ? 'skip' : 'transcode',
+            })
+          }
 
           let clip: File
           if (alreadyGood) {
@@ -68,6 +83,7 @@ export function useMediaManager(tab: DashTab) {
           } else {
             setVideoStep('optimizing')
             patch(i, 'optimizing')
+            const t0 = performance.now()
             const optimized = await transcodeVideo(
               file,
               tooLong ? MAX_VIDEO_SECONDS : undefined,
@@ -75,6 +91,13 @@ export function useMediaManager(tab: DashTab) {
               console.error(`[video] ${file.name} transcode failed:`, err)
               return null
             })
+            if (DEV && optimized) {
+              console.info('[upload] transcoded', file.name, {
+                fromMB: +(file.size / 1048576).toFixed(2),
+                toMB: +(optimized.size / 1048576).toFixed(2),
+                seconds: +((performance.now() - t0) / 1000).toFixed(1),
+              })
+            }
             if (!optimized) {
               if (tooLong) {
                 toast.error(`${file.name}: too large to trim in the browser, try a shorter or lighter clip`)
