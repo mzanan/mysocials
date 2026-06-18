@@ -4,6 +4,7 @@ import { useRef, useState } from 'react'
 import { reorderMedia, rotateMedia as rotateMediaApi } from '../actions'
 import { moveItem } from '@/lib/array'
 import { extractPoster } from '@/lib/media/poster'
+import { isUniversallyPlayableMp4 } from '@/lib/media/codec'
 import { MAX_GOOD_BITRATE, MAX_VIDEO_SECONDS, probeVideo, transcodeVideo } from '@/lib/media/transcode'
 import { toast } from '@/lib/toast'
 import type { DashMedia, DashTab } from '@/types/dashboard'
@@ -37,12 +38,13 @@ export function useMediaManager(tab: DashTab) {
           const meta = await probeVideo(file)
           const tooLong = meta.duration > MAX_VIDEO_SECONDS + 0.5
           const bitrate = meta.duration > 0 ? (file.size * 8) / meta.duration : Infinity
-          const alreadyGood =
+          const cheapPass =
             file.type === 'video/mp4' &&
             !tooLong &&
             meta.height > 0 &&
             meta.height <= 1080 &&
             bitrate <= MAX_GOOD_BITRATE
+          const alreadyGood = cheapPass && (await isUniversallyPlayableMp4(file))
 
           let clip: File
           if (alreadyGood) {
