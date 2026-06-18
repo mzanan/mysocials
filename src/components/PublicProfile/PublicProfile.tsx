@@ -3,17 +3,10 @@
 import { useState, useEffect, useCallback, useSyncExternalStore } from 'react'
 import { LazyMotion, domAnimation } from 'motion/react'
 import { Moon, Sun } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import { usePublicProfile } from './usePublicProfile'
 import { ProfileCard } from './ProfileCard'
-import { LayoutSwitcher } from './LayoutSwitcher'
-import { useVideoLayout } from './useVideoLayout'
-import { VideoGallery } from './VideoShowcase/VideoGallery'
-import { VideoCarousel } from './VideoShowcase/VideoCarousel'
-import { VideoReelFeed } from './VideoShowcase/VideoReelFeed'
-import { ImmersiveOverlay } from './VideoShowcase/ImmersiveOverlay'
 import { PersonalBackground } from '@/components/Backgrounds/PersonalBackground/PersonalBackground'
-import { AmbientBackground } from '@/components/ui/AmbientBackground'
+import { VideoWall } from '@/components/Backgrounds/VideoWall/VideoWall'
 import { BrandFooter } from '@/components/ui/BrandFooter'
 import type { Theme } from '@/lib/appearance'
 import type { ProfilePublic } from '@/types/profile'
@@ -55,12 +48,6 @@ export function PublicProfile({ profile }: { profile: ProfilePublic }) {
   }
   const revealCard = useCallback(() => setShowCard(true), [])
 
-  const videoLayout = useVideoLayout()
-  const activeTab = tabs.find((t) => t.id === activeTabId)
-  const isVideoTab = activeTab?.type === 'video'
-  const showcase = !!isVideoTab && videoLayout !== 'immersive'
-  const immersive = !!isVideoTab && videoLayout === 'immersive'
-
   const storedTheme = useSyncExternalStore(subscribePubTheme, getPubTheme, () => null)
   const theme: Theme = storedTheme ?? profile.theme
   function toggleTheme() {
@@ -72,89 +59,68 @@ export function PublicProfile({ profile }: { profile: ProfilePublic }) {
     return () => clearTimeout(t)
   }, [activeTabId])
 
-  const cardProps = { profile, tabs, activeTabId, setActiveTabId, handleLinkClick }
-
   return (
     <LazyMotion features={domAnimation}>
       <div
         data-theme={theme}
-        className={cn(
-          'relative bg-app-bg',
-          showcase
-            ? 'min-h-dvh w-full overflow-x-hidden'
-            : 'flex h-dvh flex-col items-center justify-center overflow-hidden',
-        )}
+        className="relative flex h-dvh flex-col items-center justify-center overflow-hidden bg-app-bg"
         style={{ ['--accent-glow' as string]: profile.accent }}
       >
         <button
           type="button"
           onClick={toggleTheme}
           aria-label="Toggle theme"
-          className="fixed right-4 top-4 z-40 grid h-9 w-9 place-items-center rounded-full border border-hairline-strong bg-surface text-fg-muted backdrop-blur-md transition hover:text-fg"
+          className="absolute right-4 top-4 z-30 grid h-9 w-9 place-items-center rounded-full border border-hairline-strong bg-surface text-fg-muted backdrop-blur-md transition hover:text-fg"
         >
           {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
         </button>
 
-        {isVideoTab && <LayoutSwitcher value={videoLayout} />}
-
-        {showcase ? (
-          <>
-            <AmbientBackground />
-            <div className="relative z-10 flex w-full flex-col items-center gap-8 px-4 pb-20 pt-20">
-              <ProfileCard reveal {...cardProps} />
-              {activeTab &&
-                (videoLayout === 'gallery' ? (
-                  <VideoGallery videos={activeTab.media} />
-                ) : (
-                  <VideoCarousel videos={activeTab.media} />
-                ))}
-            </div>
-          </>
-        ) : (
-          <>
-            {tabs.map((tab) =>
-              everActivated.has(tab.id) ? (
-                <div
-                  key={tab.id}
-                  className={
-                    tab.id === activeTabId ? 'visible' : 'invisible fixed inset-0 pointer-events-none'
-                  }
-                >
-                  {tab.type === 'video' ? (
-                    tab.id === activeTabId && immersive ? (
-                      <VideoReelFeed videos={tab.media} />
-                    ) : null
-                  ) : (
-                    <PersonalBackground
-                      isActive={tab.id === activeTabId}
-                      initialImages={tab.media.map((md) => md.url)}
-                      onReady={revealCard}
-                    />
-                  )}
-                </div>
-              ) : null,
-            )}
-
+        {tabs.map((tab) =>
+          everActivated.has(tab.id) ? (
             <div
-              aria-hidden
-              className="pointer-events-none fixed inset-0 z-[5] bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(0,0,0,0.6)_100%)]"
-            />
-
-            {immersive ? (
-              <ImmersiveOverlay {...cardProps} />
-            ) : (
-              <div
-                className="relative z-10 flex flex-col items-center justify-center"
-                style={{
-                  visibility: showCard ? 'visible' : 'hidden',
-                  pointerEvents: showCard ? 'auto' : 'none',
-                }}
-              >
-                <ProfileCard reveal={showCard} {...cardProps} />
-              </div>
-            )}
-          </>
+              key={tab.id}
+              className={
+                tab.id === activeTabId ? 'visible' : 'invisible fixed inset-0 pointer-events-none'
+              }
+            >
+              {tab.type === 'video' ? (
+                <VideoWall
+                  isActive={tab.id === activeTabId}
+                  videos={tab.media.map((md) => ({ url: md.url, posterUrl: md.posterUrl }))}
+                  onReady={revealCard}
+                />
+              ) : (
+                <PersonalBackground
+                  isActive={tab.id === activeTabId}
+                  initialImages={tab.media.map((md) => md.url)}
+                  onReady={revealCard}
+                />
+              )}
+            </div>
+          ) : null,
         )}
+
+        <div
+          aria-hidden
+          className="pointer-events-none fixed inset-0 z-[5] bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(0,0,0,0.6)_100%)]"
+        />
+
+        <div
+          className="relative z-10 flex flex-col items-center justify-center"
+          style={{
+            visibility: showCard ? 'visible' : 'hidden',
+            pointerEvents: showCard ? 'auto' : 'none',
+          }}
+        >
+          <ProfileCard
+            reveal={showCard}
+            profile={profile}
+            tabs={tabs}
+            activeTabId={activeTabId}
+            setActiveTabId={setActiveTabId}
+            handleLinkClick={handleLinkClick}
+          />
+        </div>
 
         <BrandFooter overlay />
         <div aria-hidden className="grain-overlay" />

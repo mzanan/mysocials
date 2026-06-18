@@ -3,7 +3,6 @@
 import { AnimatePresence, m } from 'motion/react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { cn } from '@/lib/utils'
 import { ProfileLinkButton } from './ProfileLinkButton'
 import type { ProfilePublic, TabPublic } from '@/types/profile'
 
@@ -14,7 +13,6 @@ export function ProfileCard({
   setActiveTabId,
   handleLinkClick,
   reveal,
-  variant = 'glass',
 }: {
   profile: ProfilePublic
   tabs: TabPublic[]
@@ -22,7 +20,6 @@ export function ProfileCard({
   setActiveTabId: (id: string) => void
   handleLinkClick: (url: string) => void
   reveal: boolean
-  variant?: 'glass' | 'bare'
 }) {
   const displayName = profile.displayName || profile.username
   const multiTab = tabs.length > 1
@@ -30,20 +27,12 @@ export function ProfileCard({
     0,
     tabs.findIndex((t) => t.id === activeTabId),
   )
-  const glass = variant === 'glass'
 
   return (
-    <div
-      className={cn(
-        'relative mx-auto w-[340px] max-w-[calc(100vw-2rem)]',
-        glass && 'rounded-3xl shadow-glass-lg',
-      )}
-    >
-      {glass && (
-        <div className="absolute inset-0 rounded-3xl border border-hairline-strong bg-surface backdrop-blur-2xl [box-shadow:inset_0_1px_0_0_rgba(255,255,255,0.18)]" />
-      )}
+    <div className="relative mx-auto w-[340px] max-w-[calc(100vw-2rem)] rounded-3xl shadow-glass-lg">
+      <div className="absolute inset-0 rounded-3xl border border-hairline-strong bg-surface backdrop-blur-2xl [box-shadow:inset_0_1px_0_0_rgba(255,255,255,0.18)]" />
       <m.div
-        className={cn('relative', glass ? 'p-8' : 'p-6')}
+        className="relative p-8"
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: reveal ? 1 : 0, y: reveal ? 0 : 12 }}
         transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
