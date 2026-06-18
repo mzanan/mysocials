@@ -30,7 +30,7 @@ import { Text } from '@/components/ui/text'
 import { Spinner } from '@/components/ui/spinner'
 import { cn } from '@/lib/utils'
 import type { DashMedia, DashTab } from '@/types/dashboard'
-import { useImageUploader, type UploadItem } from './useImageUploader'
+import { useImageUploader } from './useImageUploader'
 import { useInstagramImport } from './useInstagramImport'
 import { InstagramConnectButton } from './InstagramConnectButton'
 import { useMediaManager } from './useMediaManager'
@@ -121,17 +121,30 @@ function SortableMedia({
   )
 }
 
-function UploadThumb({ item }: { item: UploadItem }) {
-  const loading = item.status === 'pending' || item.status === 'uploading'
+function UploadThumb({
+  previewUrl,
+  loading,
+  error,
+  video,
+}: {
+  previewUrl: string
+  loading: boolean
+  error: boolean
+  video?: boolean
+}) {
   return (
     <div className="relative aspect-square overflow-hidden rounded-lg border border-hairline bg-surface-subtle">
-      <Image src={item.previewUrl} alt="" fill unoptimized className="object-cover" sizes="120px" />
+      {video ? (
+        <video src={previewUrl} muted playsInline preload="metadata" className="h-full w-full object-cover" />
+      ) : (
+        <Image src={previewUrl} alt="" fill unoptimized className="object-cover" sizes="120px" />
+      )}
       {loading && (
         <div className="absolute inset-0 grid place-items-center bg-black/45">
           <Spinner className="size-5 text-white" />
         </div>
       )}
-      {item.status === 'error' && (
+      {error && (
         <div className="absolute inset-0 grid place-items-center bg-danger/55 text-white">
           <AlertTriangle size={18} />
         </div>
@@ -151,8 +164,18 @@ export function MediaManager({
   igUsesUsername: boolean
   igConnected: boolean
 }) {
-  const { busy, videoStep, videoProgress, vidRef, onVideo, reorder, setOrder, removeMedia, rotateMedia } =
-    useMediaManager(tab)
+  const {
+    busy,
+    videoStep,
+    videoProgress,
+    videoItems,
+    vidRef,
+    onVideo,
+    reorder,
+    setOrder,
+    removeMedia,
+    rotateMedia,
+  } = useMediaManager(tab)
   const up = useImageUploader(tab)
   const imgRef = useRef<HTMLInputElement>(null)
   const { importing, progress, start: onImport } = useInstagramImport(tab.id)
@@ -204,7 +227,28 @@ export function MediaManager({
           {up.items
             .filter((it) => it.status !== 'done')
             .map((it, i) => (
-              <UploadThumb key={i} item={it} />
+              <UploadThumb
+                key={i}
+                previewUrl={it.previewUrl}
+                loading={it.status === 'pending' || it.status === 'uploading'}
+                error={it.status === 'error'}
+              />
+            ))}
+        </div>
+      )}
+
+      {videoItems.some((it) => it.status !== 'done') && (
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
+          {videoItems
+            .filter((it) => it.status !== 'done')
+            .map((it, i) => (
+              <UploadThumb
+                key={i}
+                previewUrl={it.previewUrl}
+                loading={it.status === 'optimizing' || it.status === 'uploading'}
+                error={it.status === 'error'}
+                video
+              />
             ))}
         </div>
       )}

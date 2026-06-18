@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { reorderMedia, rotateMedia as rotateMediaApi } from '../actions'
 import { moveItem } from '@/lib/array'
 import { extractPoster } from '@/lib/media/poster'
@@ -13,6 +13,9 @@ import { useMediaUndo } from './MediaUndoProvider'
 
 type MediaRow = { id: string; kind: 'image' | 'video'; url: string; poster_url: string | null }
 
+type VideoStatus = 'optimizing' | 'uploading' | 'done' | 'error'
+export type VideoUploadItem = { previewUrl: string; status: VideoStatus }
+
 function toDashMedia(row: MediaRow): DashMedia {
   return { id: row.id, kind: row.kind, url: row.url, posterUrl: row.poster_url }
 }
@@ -23,13 +26,26 @@ export function useMediaManager(tab: DashTab) {
   const [busy, setBusy] = useState(false)
   const [videoStep, setVideoStep] = useState<'optimizing' | 'uploading' | null>(null)
   const [videoProgress, setVideoProgress] = useState<{ index: number; total: number } | null>(null)
+  const [videoItems, setVideoItems] = useState<VideoUploadItem[]>([])
   const vidRef = useRef<HTMLInputElement>(null)
+  const videoUrlsRef = useRef<string[]>([])
+
+  useEffect(() => () => videoUrlsRef.current.forEach(URL.revokeObjectURL), [])
 
   async function onVideo(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? [])
     if (!files.length) return
+    videoUrlsRef.current.forEach(URL.revokeObjectURL)
+    const urls = files.map((f) => URL.createObjectURL(f))
+    videoUrlsRef.current = urls
+    setVideoItems(files.map((_, i) => ({ previewUrl: urls[i], status: 'optimizing' })))
+
+    const patch = (i: number, status: VideoStatus) =>
+      setVideoItems((prev) => prev.map((it, idx) => (idx === i ? { ...it, status } : it)))
+
     setBusy(true)
     let uploaded = 0
+    let failed = 0
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i]
@@ -51,6 +67,7 @@ export function useMediaManager(tab: DashTab) {
             clip = file
           } else {
             setVideoStep('optimizing')
+            patch(i, 'optimizing')
             const optimized = await transcodeVideo(
               file,
               tooLong ? MAX_VIDEO_SECONDS : undefined,
@@ -61,17 +78,22 @@ export function useMediaManager(tab: DashTab) {
             if (!optimized) {
               if (tooLong) {
                 toast.error(`${file.name}: too large to trim in the browser, try a shorter or lighter clip`)
+                patch(i, 'error')
+                failed++
                 continue
               }
               if (file.type !== 'video/mp4' && file.type !== 'video/webm') {
                 toast.error(`${file.name}: could not optimize (use mp4 or webm)`)
+                patch(i, 'error')
+                failed++
                 continue
               }
             }
             clip = optimized ? new File([optimized], 'clip.mp4', { type: 'video/mp4' }) : file
           }
-          const poster = await extractPoster(clip)
           setVideoStep('uploading')
+          patch(i, 'uploading')
+          const poster = await extractPoster(clip)
           const fd = new FormData()
           fd.append('tabId', tab.id)
           fd.append('clip', clip)
@@ -80,14 +102,19 @@ export function useMediaManager(tab: DashTab) {
           if (!res.ok) {
             const body = (await res.json().catch(() => ({}))) as { error?: string }
             toast.error(`${file.name}: ${body.error ?? `upload failed (${res.status})`}`)
+            patch(i, 'error')
+            failed++
             continue
           }
           const { media } = (await res.json()) as { media: MediaRow }
           setTabMedia(tab.id, (prev) => [...prev, toDashMedia(media)])
+          patch(i, 'done')
           uploaded++
           if (tooLong) toast(`${file.name} was longer than ${MAX_VIDEO_SECONDS}s, trimmed to fit.`)
         } catch {
           toast.error(`${file.name}: failed`)
+          patch(i, 'error')
+          failed++
         }
       }
       if (uploaded > 0) toast.success(`${uploaded} video${uploaded > 1 ? 's' : ''} uploaded`)
@@ -96,6 +123,11 @@ export function useMediaManager(tab: DashTab) {
       setVideoStep(null)
       setVideoProgress(null)
       if (vidRef.current) vidRef.current.value = ''
+      if (failed === 0) {
+        videoUrlsRef.current.forEach(URL.revokeObjectURL)
+        videoUrlsRef.current = []
+        setVideoItems([])
+      }
     }
   }
 
@@ -131,6 +163,7 @@ export function useMediaManager(tab: DashTab) {
     busy,
     videoStep,
     videoProgress,
+    videoItems,
     vidRef,
     onVideo,
     reorder,
