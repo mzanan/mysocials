@@ -45,6 +45,24 @@ export function DevBackground({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.6 }}
           >
+            {active.posterUrl ? (
+              <div
+                aria-hidden
+                className="absolute inset-0 scale-110 bg-cover bg-center blur-2xl brightness-50"
+                style={{ backgroundImage: `url(${active.posterUrl})` }}
+              />
+            ) : (
+              <video
+                aria-hidden
+                src={active.url}
+                autoPlay={isActive}
+                muted
+                loop
+                playsInline
+                preload={isActive ? 'auto' : 'none'}
+                className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl brightness-50"
+              />
+            )}
             <video
               src={active.url}
               poster={active.posterUrl ?? undefined}
@@ -53,7 +71,7 @@ export function DevBackground({
               loop
               playsInline
               preload={isActive ? 'auto' : 'none'}
-              className="h-full w-full object-cover"
+              className="relative h-full w-full object-contain"
             />
           </m.div>
         </AnimatePresence>
