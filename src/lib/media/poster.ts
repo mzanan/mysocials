@@ -18,7 +18,7 @@ export async function extractPoster(file: File): Promise<Blob | null> {
     }
 
     video.onseeked = () => {
-      const w = 480
+      const w = 1080
       const ratio = video.videoWidth ? video.videoHeight / video.videoWidth : 0.5625
       const h = Math.round(w * ratio)
       const canvas = document.createElement("canvas")
@@ -37,7 +37,7 @@ export async function extractPoster(file: File): Promise<Blob | null> {
           resolve(blob)
         },
         "image/webp",
-        0.7,
+        0.82,
       )
     }
 

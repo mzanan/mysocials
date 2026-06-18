@@ -12,7 +12,7 @@ import { storage } from '@/lib/storage'
 
 export const runtime = 'nodejs'
 
-const MAX_VIDEO_BYTES = 12 * 1024 * 1024
+const MAX_VIDEO_BYTES = 40 * 1024 * 1024
 const ALLOWED = new Set(['video/mp4', 'video/webm'])
 
 export async function POST(req: Request) {
@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Only mp4 or webm allowed' }, { status: 415 })
   }
   if (clip.size > MAX_VIDEO_BYTES) {
-    return NextResponse.json({ error: 'Video is too large (max 25MB)' }, { status: 413 })
+    return NextResponse.json({ error: 'Video is too large (max 40MB)' }, { status: 413 })
   }
 
   const tab = await db.query.tabs.findFirst({
