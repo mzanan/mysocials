@@ -4,18 +4,15 @@ import { useEffect, useRef, useState } from 'react'
 import { reorderMedia, rotateMedia as rotateMediaApi } from '../actions'
 import { moveItem } from '@/lib/array'
 import { extractPoster } from '@/lib/media/poster'
-import { detectVideoCodecs, isH264Only } from '@/lib/media/codec'
-import { MAX_GOOD_BITRATE, MAX_VIDEO_SECONDS, probeVideo, transcodeVideo, trimClip } from '@/lib/media/transcode'
+import { validateClip } from '@/lib/media/video'
 import { toast } from '@/lib/toast'
 import type { DashMedia, DashTab } from '@/types/dashboard'
 import { useDashboardStore } from './DashboardStore'
 import { useMediaUndo } from './MediaUndoProvider'
 
-const DEV = process.env.NODE_ENV !== 'production'
-
 type MediaRow = { id: string; kind: 'image' | 'video'; url: string; poster_url: string | null }
 
-type VideoStatus = 'optimizing' | 'uploading' | 'done' | 'error'
+type VideoStatus = 'uploading' | 'done' | 'error'
 export type VideoUploadItem = { previewUrl: string; status: VideoStatus }
 
 function toDashMedia(row: MediaRow): DashMedia {
@@ -26,7 +23,7 @@ export function useMediaManager(tab: DashTab) {
   const { setTabMedia } = useDashboardStore()
   const mediaUndo = useMediaUndo()
   const [busy, setBusy] = useState(false)
-  const [videoStep, setVideoStep] = useState<'optimizing' | 'uploading' | null>(null)
+  const [videoStep, setVideoStep] = useState<'uploading' | null>(null)
   const [videoProgress, setVideoProgress] = useState<{ index: number; total: number } | null>(null)
   const [videoItems, setVideoItems] = useState<VideoUploadItem[]>([])
   const vidRef = useRef<HTMLInputElement>(null)
@@ -40,12 +37,13 @@ export function useMediaManager(tab: DashTab) {
     videoUrlsRef.current.forEach(URL.revokeObjectURL)
     const urls = files.map((f) => URL.createObjectURL(f))
     videoUrlsRef.current = urls
-    setVideoItems(files.map((_, i) => ({ previewUrl: urls[i], status: 'optimizing' })))
+    setVideoItems(files.map((_, i) => ({ previewUrl: urls[i], status: 'uploading' })))
 
     const patch = (i: number, status: VideoStatus) =>
       setVideoItems((prev) => prev.map((it, idx) => (idx === i ? { ...it, status } : it)))
 
     setBusy(true)
+    setVideoStep('uploading')
     let uploaded = 0
     let failed = 0
     try {
@@ -53,74 +51,17 @@ export function useMediaManager(tab: DashTab) {
         const file = files[i]
         setVideoProgress({ index: i + 1, total: files.length })
         try {
-          const meta = await probeVideo(file)
-          const tooLong = meta.duration > MAX_VIDEO_SECONDS + 0.5
-          const bitrate = meta.duration > 0 ? (file.size * 8) / meta.duration : Infinity
-          const codecs = file.type === 'video/mp4' ? await detectVideoCodecs(file) : []
-          const goodFormat =
-            file.type === 'video/mp4' &&
-            isH264Only(codecs) &&
-            meta.height > 0 &&
-            meta.height <= 1080 &&
-            bitrate <= MAX_GOOD_BITRATE
-          const action = !goodFormat ? 'transcode' : tooLong ? 'trim' : 'skip'
-
-          if (DEV) {
-            console.info('[upload] video', file.name, {
-              sizeMB: +(file.size / 1048576).toFixed(2),
-              duration: +meta.duration.toFixed(2),
-              resolution: `${meta.width}x${meta.height}`,
-              bitrateMbps: Number.isFinite(bitrate) ? +(bitrate / 1e6).toFixed(2) : 'n/a',
-              codecs: codecs.length ? codecs.join(',') : file.type,
-              transcoder: globalThis.crossOriginIsolated ? 'multithread' : 'single-thread',
-              action,
-            })
+          const check = await validateClip(file)
+          if (!check.ok) {
+            toast.error(`${file.name}: ${check.reason}`)
+            patch(i, 'error')
+            failed++
+            continue
           }
-
-          let clip: File
-          if (action === 'skip') {
-            clip = file
-          } else {
-            setVideoStep('optimizing')
-            patch(i, 'optimizing')
-            const t0 = performance.now()
-            const trimmed = action === 'trim' ? await trimClip(file, MAX_VIDEO_SECONDS).catch(() => null) : null
-            const optimized =
-              trimmed ??
-              (await transcodeVideo(file, tooLong ? MAX_VIDEO_SECONDS : undefined).catch((err) => {
-                console.error(`[video] ${file.name} transcode failed:`, err)
-                return null
-              }))
-            if (DEV && optimized) {
-              console.info('[upload] optimized', file.name, {
-                via: trimmed ? 'trim-copy' : 'transcode',
-                fromMB: +(file.size / 1048576).toFixed(2),
-                toMB: +(optimized.size / 1048576).toFixed(2),
-                seconds: +((performance.now() - t0) / 1000).toFixed(1),
-              })
-            }
-            if (!optimized) {
-              if (tooLong) {
-                toast.error(`${file.name}: too large to trim in the browser, try a shorter or lighter clip`)
-                patch(i, 'error')
-                failed++
-                continue
-              }
-              if (file.type !== 'video/mp4' && file.type !== 'video/webm') {
-                toast.error(`${file.name}: could not optimize (use mp4 or webm)`)
-                patch(i, 'error')
-                failed++
-                continue
-              }
-            }
-            clip = optimized ? new File([optimized], 'clip.mp4', { type: 'video/mp4' }) : file
-          }
-          setVideoStep('uploading')
-          patch(i, 'uploading')
-          const poster = await extractPoster(clip)
+          const poster = await extractPoster(file)
           const fd = new FormData()
           fd.append('tabId', tab.id)
-          fd.append('clip', clip)
+          fd.append('clip', file)
           if (poster) fd.append('poster', poster, 'poster.webp')
           const res = await fetch('/api/upload/video', { method: 'POST', body: fd })
           if (!res.ok) {
@@ -134,7 +75,6 @@ export function useMediaManager(tab: DashTab) {
           setTabMedia(tab.id, (prev) => [...prev, toDashMedia(media)])
           patch(i, 'done')
           uploaded++
-          if (tooLong) toast(`${file.name} was longer than ${MAX_VIDEO_SECONDS}s, trimmed to fit.`)
         } catch {
           toast.error(`${file.name}: failed`)
           patch(i, 'error')

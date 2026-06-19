@@ -8,11 +8,11 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { media, tabs } from '@/lib/db/schema'
 import { MAX_VIDEOS_PER_USER, countUserMedia } from '@/lib/media-quota'
+import { MAX_VIDEO_BYTES } from '@/lib/media/video'
 import { storage } from '@/lib/storage'
 
 export const runtime = 'nodejs'
 
-const MAX_VIDEO_BYTES = 40 * 1024 * 1024
 const ALLOWED = new Set(['video/mp4', 'video/webm'])
 
 export async function POST(req: Request) {

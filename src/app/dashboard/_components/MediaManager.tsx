@@ -245,7 +245,7 @@ export function MediaManager({
               <UploadThumb
                 key={i}
                 previewUrl={it.previewUrl}
-                loading={it.status === 'optimizing' || it.status === 'uploading'}
+                loading={it.status === 'uploading'}
                 error={it.status === 'error'}
                 video
               />
@@ -265,7 +265,7 @@ export function MediaManager({
             >
               <Upload size={14} />{' '}
               {videoStep
-                ? `${videoStep === 'optimizing' ? 'Optimizing' : 'Uploading'}${
+                ? `Uploading${
                     videoProgress && videoProgress.total > 1
                       ? ` ${videoProgress.index}/${videoProgress.total}`
                       : ''
