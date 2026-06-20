@@ -258,7 +258,7 @@ export function MediaManager({
       <input
         ref={imgRef}
         type="file"
-        accept="image/*"
+        accept="image/*,.heic,.heif"
         multiple
         hidden
         onChange={(e) => {

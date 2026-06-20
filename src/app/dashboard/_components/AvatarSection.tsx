@@ -56,7 +56,7 @@ export function AvatarSection({
         <input
           ref={fileRef}
           type="file"
-          accept="image/*"
+          accept="image/*,.heic,.heif"
           hidden
           onChange={uploadFile}
         />
