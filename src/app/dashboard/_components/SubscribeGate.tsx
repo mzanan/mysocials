@@ -120,7 +120,7 @@ export function SubscribeGate({
         </div>
         <div className="flex flex-col items-center gap-2 sm:flex-row">
           <Text variant="caption" className="text-fg-muted">
-            $3/month · Cancel anytime
+            Cancel anytime
           </Text>
           <Button
             variant="primary"
@@ -128,7 +128,7 @@ export function SubscribeGate({
             disabled={loading}
             className="w-full sm:w-auto"
           >
-            {loading ? <Spinner className="size-5" /> : 'Publish your page'}
+            {loading ? <Spinner className="size-5" /> : 'Publish for $3/month'}
           </Button>
         </div>
       </div>
