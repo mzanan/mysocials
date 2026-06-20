@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { compressImage } from '@/lib/media/compressImage'
 import { toast } from '@/lib/toast'
 import type { DashMedia, DashTab } from '@/types/dashboard'
 import { useDashboardStore } from './DashboardStore'
@@ -23,9 +24,10 @@ export function useImageUploader(tab: DashTab) {
   }
 
   async function uploadOne(file: File): Promise<{ ok: true } | { ok: false; error: string }> {
+    const toSend = await compressImage(file).catch(() => file)
     const fd = new FormData()
     fd.append('tabId', tab.id)
-    fd.append('files', file)
+    fd.append('files', toSend)
     const res = await fetch('/api/upload/image', { method: 'POST', body: fd })
     if (!res.ok) {
       const body = (await res.json().catch(() => ({}))) as { error?: string }
@@ -46,13 +48,21 @@ export function useImageUploader(tab: DashTab) {
     setActive(true)
     let ok = 0
     let fail = 0
-    for (const { index, file } of targets) {
-      patch(index, { status: 'uploading', error: undefined })
-      const r = await uploadOne(file)
-      if (r.ok) ok += 1
-      else fail += 1
-      patch(index, r.ok ? { status: 'done' } : { status: 'error', error: r.error })
+    let cursor = 0
+    async function worker() {
+      while (cursor < targets.length) {
+        const { index, file } = targets[cursor++]
+        patch(index, { status: 'uploading', error: undefined })
+        const r = await uploadOne(file)
+        if (r.ok) ok += 1
+        else fail += 1
+        patch(index, r.ok ? { status: 'done' } : { status: 'error', error: r.error })
+      }
     }
+    const CONCURRENCY = 3
+    await Promise.all(
+      Array.from({ length: Math.min(CONCURRENCY, targets.length) }, worker),
+    )
     setActive(false)
     if (fail === 0) {
       toast.success(`${ok} photo${ok === 1 ? '' : 's'} uploaded`)
