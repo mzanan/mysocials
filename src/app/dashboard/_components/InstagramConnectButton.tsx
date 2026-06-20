@@ -62,7 +62,12 @@ export function InstagramConnectButton({
       <Button variant="secondary" onClick={() => setOpen(true)}>
         <Instagram size={14} /> Connect Instagram
       </Button>
-      <Dialog open={open} onOpenChange={setOpen} size="sm">
+      <Dialog
+        open={open}
+        onOpenChange={setOpen}
+        size="sm"
+        aria-describedby={undefined}
+      >
         <DialogHeader>
           <DialogTitle>Connect Instagram</DialogTitle>
         </DialogHeader>

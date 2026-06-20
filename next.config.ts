@@ -59,6 +59,17 @@ const nextConfig: NextConfig = {
     ],
   },
   serverExternalPackages: ['canvas', 'jsdom', 'sharp', 'heic-convert', 'nodemailer'],
+  async headers() {
+    return [
+      {
+        source: '/preview',
+        headers: [
+          { key: 'Content-Security-Policy', value: "frame-ancestors 'self'" },
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
+        ],
+      },
+    ]
+  },
   turbopack: {},
   experimental: {
     optimizePackageImports: ['motion', 'lucide-react'],

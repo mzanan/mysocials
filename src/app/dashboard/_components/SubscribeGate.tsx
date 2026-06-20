@@ -1,78 +1,137 @@
 'use client'
 
-import { useState } from 'react'
-import { Images, Link2, Palette } from 'lucide-react'
-import { authClient } from '@/lib/auth-client'
+import { useState, useSyncExternalStore } from 'react'
+import { Monitor, Smartphone, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogClose, DialogTitle } from '@/components/ui/dialog'
+import { Segmented } from '@/components/ui/segmented'
 import { Spinner } from '@/components/ui/spinner'
 import { Text } from '@/components/ui/text'
+import { cn } from '@/lib/utils'
+import { useCheckout } from './useCheckout'
 
-const FEATURES = [
-  { icon: Link2, text: 'Your public link in bio' },
-  { icon: Images, text: 'Photo & video grids' },
-  { icon: Palette, text: 'Custom themes & branding' },
-]
+type Device = 'desktop' | 'mobile'
 
-export function SubscribeGate({ username }: { username: string }) {
-  const [loading, setLoading] = useState(false)
+const MOBILE_QUERY = '(max-width: 767px)'
 
-  async function handleCheckout() {
-    setLoading(true)
-    try {
-      await authClient.checkout({ slug: 'pro' })
-    } catch (err) {
-      console.error('Checkout error:', err)
-    } finally {
-      setLoading(false)
-    }
+function useIsMobile(): boolean {
+  return useSyncExternalStore(
+    (cb) => {
+      const mq = window.matchMedia(MOBILE_QUERY)
+      mq.addEventListener('change', cb)
+      return () => mq.removeEventListener('change', cb)
+    },
+    () => window.matchMedia(MOBILE_QUERY).matches,
+    () => false,
+  )
+}
+
+export function SubscribeGate({
+  username,
+  open,
+  onOpenChange,
+}: {
+  username: string
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}) {
+  const { checkout, loading } = useCheckout()
+  const isMobile = useIsMobile()
+  const [device, setDevice] = useState<Device>('desktop')
+  const [iframeLoaded, setIframeLoaded] = useState(false)
+
+  const showMobile = isMobile || device === 'mobile'
+
+  function handleOpenChange(next: boolean) {
+    if (!next) setIframeLoaded(false)
+    onOpenChange(next)
   }
 
   return (
-    <div className="flex min-h-[70vh] flex-col items-center justify-center px-4 text-center">
-      <div className="relative w-full max-w-md rounded-3xl border border-hairline-strong bg-surface p-10 backdrop-blur-2xl shadow-glass-lg [box-shadow:inset_0_1px_0_0_rgba(255,255,255,0.18)]">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 rounded-3xl bg-[radial-gradient(ellipse_at_top,color-mix(in_oklab,var(--accent-glow)_14%,transparent)_0%,transparent_60%)]"
-        />
-        <div className="relative flex flex-col gap-4">
-          <div className="flex flex-col gap-1">
-            <Text as="h1" variant="title">
-              Your page is ready
-            </Text>
-            <Text variant="caption">
-              Publish at <span className="font-medium text-fg">/{username}</span>
-            </Text>
-          </div>
-
-          <div className="my-2 flex flex-col gap-3 text-left">
-            {FEATURES.map(({ icon: Icon, text }) => (
-              <div key={text} className="flex items-center gap-3 text-sm text-fg-subtle">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-surface-strong text-fg-muted">
-                  <Icon size={18} />
-                </span>
-                {text}
-              </div>
-            ))}
-          </div>
-
-          <div className="my-1 h-px bg-hairline-strong" />
-
-          <div className="flex flex-col gap-2">
-            <Button
-              variant="primary"
-              size="lg"
-              className="w-full"
-              onClick={handleCheckout}
-              disabled={loading}
-            >
-              {loading ? <Spinner className="size-5" /> : 'Publish your page'}
-            </Button>
-            <Text variant="caption" className="text-fg-muted">
-              $3/month · Cancel anytime
-            </Text>
-          </div>
+    <Dialog
+      open={open}
+      onOpenChange={handleOpenChange}
+      size="full"
+      aria-describedby={undefined}
+      className="h-[85vh] p-0"
+    >
+      <div className="flex shrink-0 items-center justify-between gap-3 border-b border-hairline-subtle px-5 py-3">
+        <div className="flex min-w-0 flex-col">
+          <DialogTitle className="text-fg text-sm font-semibold">
+            Your page is ready
+          </DialogTitle>
+          <Text variant="caption" className="truncate">
+            Preview of /{username}
+          </Text>
+        </div>
+        <div className="flex items-center gap-2">
+          <Segmented
+            className="hidden md:inline-flex"
+            size="sm"
+            aria-label="Preview device"
+            value={device}
+            onChange={setDevice}
+            options={[
+              { value: 'desktop', label: 'Desktop' },
+              { value: 'mobile', label: 'Mobile' },
+            ]}
+          />
+          <DialogClose
+            aria-label="Close"
+            className="text-fg-subtle hover:bg-surface-strong hover:text-fg rounded-md p-1 transition-colors"
+          >
+            <X size={16} />
+          </DialogClose>
         </div>
       </div>
-    </div>
+
+      <div className="bg-surface-subtle relative flex min-h-0 flex-1 items-stretch justify-center overflow-hidden p-3 sm:p-5">
+        <div
+          className={cn(
+            'bg-app-bg shadow-card relative h-full overflow-hidden',
+            showMobile
+              ? 'border-hairline-strong w-[380px] max-w-full rounded-[2rem] border'
+              : 'border-hairline w-full rounded-xl border',
+          )}
+        >
+          {!iframeLoaded && (
+            <div className="absolute inset-0 grid place-items-center">
+              <Spinner className="text-fg-subtle size-6" />
+            </div>
+          )}
+          {open && (
+            <iframe
+              src="/preview"
+              title="Live preview of your page"
+              onLoad={() => setIframeLoaded(true)}
+              className="h-full w-full border-0"
+            />
+          )}
+        </div>
+      </div>
+
+      <div className="flex shrink-0 flex-col items-center gap-3 border-t border-hairline-subtle px-5 py-4 text-center sm:flex-row sm:justify-between sm:text-left">
+        <div className="flex items-center gap-2">
+          <Monitor size={15} className="text-fg-subtle hidden sm:block" />
+          <Smartphone size={15} className="text-fg-subtle sm:hidden" />
+          <Text variant="caption" className="text-fg-muted">
+            This is exactly how your live page will look.
+          </Text>
+        </div>
+        <div className="flex flex-col items-center gap-2 sm:flex-row">
+          <Text variant="caption" className="text-fg-muted">
+            $3/month · Cancel anytime
+          </Text>
+          <Button
+            variant="primary"
+            onClick={checkout}
+            disabled={loading}
+            className="w-full sm:w-auto"
+          >
+            {loading ? <Spinner className="size-5" /> : 'Publish your page'}
+          </Button>
+        </div>
+      </div>
+    </Dialog>
   )
 }

@@ -1,10 +1,11 @@
-import { sql } from 'drizzle-orm'
+import { eq, sql, type SQL } from 'drizzle-orm'
 
 import { db } from '@/lib/db'
 import { profiles } from '@/lib/db/schema'
 import { billingEnabled, hasActiveSubscription } from '@/lib/subscription'
 import type {
   LinkPublic,
+  ProfilePublic,
   PublicProfileResult,
   SuspendedProfilePublic,
   TabPublic,
@@ -16,11 +17,9 @@ function toLinkPublic(l: LinkRow): LinkPublic {
   return { title: l.title, url: l.url, icon: l.icon, iconUrl: l.icon_url }
 }
 
-export async function getPublicProfileByUsername(
-  username: string,
-): Promise<PublicProfileResult | null> {
-  const row = await db.query.profiles.findFirst({
-    where: sql`lower(${profiles.username}) = ${username.toLowerCase()}`,
+function findProfileRow(where: SQL) {
+  return db.query.profiles.findFirst({
+    where,
     with: {
       tabs: {
         orderBy: (t, { asc }) => [asc(t.position)],
@@ -32,20 +31,11 @@ export async function getPublicProfileByUsername(
       links: { orderBy: (l, { asc }) => [asc(l.position)] },
     },
   })
+}
 
-  if (!row || !row.published) return null
+type ProfileRow = NonNullable<Awaited<ReturnType<typeof findProfileRow>>>
 
-  if (billingEnabled() && !hasActiveSubscription(row)) {
-    const suspended: SuspendedProfilePublic = {
-      status: 'suspended',
-      username: row.username,
-      displayName: row.display_name,
-      avatarUrl: row.avatar_url,
-      accent: row.accent,
-    }
-    return suspended
-  }
-
+function toPublicProfile(row: ProfileRow): ProfilePublic {
   const globalLinks: LinkPublic[] = row.links.filter((l) => l.tab_id === null).map(toLinkPublic)
 
   const tabs: TabPublic[] = row.tabs
@@ -80,4 +70,33 @@ export async function getPublicProfileByUsername(
     theme: row.theme,
     tabs,
   }
+}
+
+export async function getPublicProfileByUsername(
+  username: string,
+): Promise<PublicProfileResult | null> {
+  const row = await findProfileRow(sql`lower(${profiles.username}) = ${username.toLowerCase()}`)
+
+  if (!row || !row.published) return null
+
+  if (billingEnabled() && !hasActiveSubscription(row)) {
+    const suspended: SuspendedProfilePublic = {
+      status: 'suspended',
+      username: row.username,
+      displayName: row.display_name,
+      avatarUrl: row.avatar_url,
+      accent: row.accent,
+    }
+    return suspended
+  }
+
+  return toPublicProfile(row)
+}
+
+export async function getPreviewProfileForUser(
+  userId: string,
+): Promise<ProfilePublic | null> {
+  const row = await findProfileRow(eq(profiles.user_id, userId))
+  if (!row) return null
+  return toPublicProfile(row)
 }

@@ -16,7 +16,12 @@ export function MediaPicker({
   onPick: (id: string) => void
 }) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} size="lg">
+    <Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+      size="lg"
+      aria-describedby={undefined}
+    >
       <DialogHeader>
         <DialogTitle>Pick avatar from your photos</DialogTitle>
       </DialogHeader>

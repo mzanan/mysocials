@@ -26,7 +26,12 @@ export function NetworkPicker({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} size="sm">
+    <Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+      size="sm"
+      aria-describedby={undefined}
+    >
       <DialogHeader>
         <DialogTitle>Add a link</DialogTitle>
       </DialogHeader>
