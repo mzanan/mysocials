@@ -43,6 +43,28 @@ export async function ensurePolarCustomer(user: PolarUser) {
   }
 }
 
+export async function syncSubscriptionFromPolar(userId: string): Promise<void> {
+  const client = buildPolarClient()
+  if (!client || !process.env.POLAR_PRODUCT_ID) return
+  try {
+    const state = await client.customers.getStateExternal({ externalId: userId })
+    const sub = state.activeSubscriptions?.[0]
+    if (sub) {
+      await db
+        .update(profiles)
+        .set({
+          subscription_status: 'active',
+          subscription_id: sub.id,
+          polar_customer_id: state.id,
+          subscription_current_period_end: sub.currentPeriodEnd ?? null,
+        })
+        .where(eq(profiles.user_id, userId))
+    }
+  } catch (e) {
+    console.error('syncSubscriptionFromPolar failed', e)
+  }
+}
+
 export function buildPolarPlugin() {
   const client = buildPolarClient()
   const productId = process.env.POLAR_PRODUCT_ID

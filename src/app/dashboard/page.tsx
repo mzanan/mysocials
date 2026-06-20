@@ -6,15 +6,24 @@ import { db } from "@/lib/db";
 import { ig_connections, profiles } from "@/lib/db/schema";
 import { importEnabled, igMode } from "@/lib/ig";
 import { billingEnabled } from "@/lib/subscription";
+import { syncSubscriptionFromPolar } from "@/lib/polar";
 import { agentEnabled } from "@/lib/agent/planner";
 import { DashboardEditor } from "./_components/DashboardEditor";
 import type { DashboardData } from "@/types/dashboard";
 
 export const dynamic = "force-dynamic";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ checkout?: string }>;
+}) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) redirect("/");
+
+  if ((await searchParams).checkout === "success") {
+    await syncSubscriptionFromPolar(session.user.id);
+  }
 
   const profile = await db.query.profiles.findFirst({
     where: eq(profiles.user_id, session.user.id),
