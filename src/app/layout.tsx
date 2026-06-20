@@ -54,6 +54,7 @@ export default function RootLayout({
         />
       </head>
       <body
+        suppressHydrationWarning
         className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}
       >
         <ImpersonationBanner />
