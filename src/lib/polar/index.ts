@@ -1,6 +1,7 @@
 import { Polar } from '@polar-sh/sdk'
 import { checkout, polar, portal, webhooks } from '@polar-sh/better-auth'
 import { eq } from 'drizzle-orm'
+import { revalidatePath } from 'next/cache'
 
 import { db } from '@/lib/db'
 import { profiles } from '@/lib/db/schema'
@@ -13,6 +14,44 @@ function buildPolarClient() {
     accessToken,
     server: process.env.POLAR_SERVER === 'production' ? 'production' : 'sandbox',
   })
+}
+
+function isNotFound(e: unknown): boolean {
+  return Boolean(
+    e && typeof e === 'object' && 'statusCode' in e && (e as { statusCode?: number }).statusCode === 404,
+  )
+}
+
+async function markActive(
+  userId: string,
+  subId: string,
+  customerId: string,
+  periodEnd: Date | null | undefined,
+) {
+  await db
+    .update(profiles)
+    .set({
+      subscription_status: 'active',
+      subscription_id: subId,
+      polar_customer_id: customerId,
+      subscription_current_period_end: periodEnd ?? null,
+    })
+    .where(eq(profiles.user_id, userId))
+}
+
+async function markInactive(
+  userId: string,
+  status: 'canceled' | 'revoked',
+  opts?: { unpublish?: boolean },
+) {
+  await db
+    .update(profiles)
+    .set({
+      subscription_status: status,
+      subscription_current_period_end: null,
+      ...(opts?.unpublish ? { published: false } : {}),
+    })
+    .where(eq(profiles.user_id, userId))
 }
 
 type PolarUser = { id: string; email: string; name?: string | null }
@@ -43,24 +82,22 @@ export async function ensurePolarCustomer(user: PolarUser) {
   }
 }
 
+/** Reconcile the stored subscription state from Polar's source of truth.
+ *  Activates if there's an active subscription, otherwise downgrades.
+ *  Lets the app work without the webhook (local sandbox, or as a prod fallback). */
 export async function syncSubscriptionFromPolar(userId: string): Promise<void> {
   const client = buildPolarClient()
   if (!client || !process.env.POLAR_PRODUCT_ID) return
   try {
     const state = await client.customers.getStateExternal({ externalId: userId })
     const sub = state.activeSubscriptions?.[0]
-    if (sub) {
-      await db
-        .update(profiles)
-        .set({
-          subscription_status: 'active',
-          subscription_id: sub.id,
-          polar_customer_id: state.id,
-          subscription_current_period_end: sub.currentPeriodEnd ?? null,
-        })
-        .where(eq(profiles.user_id, userId))
-    }
+    if (sub) await markActive(userId, sub.id, state.id, sub.currentPeriodEnd)
+    else await markInactive(userId, 'canceled')
   } catch (e) {
+    if (isNotFound(e)) {
+      await markInactive(userId, 'canceled')
+      return
+    }
     console.error('syncSubscriptionFromPolar failed', e)
   }
 }
@@ -87,38 +124,18 @@ export function buildPolarPlugin() {
       webhooks({
         secret: webhookSecret,
         onCustomerStateChanged: async ({ data }) => {
-          console.log('[Polar Webhook] customer.state_changed', JSON.stringify(data, null, 2))
           const userId = data.externalId
-          if (!userId) {
-            console.log('[Polar Webhook] No externalId, skipping')
-            return
-          }
+          if (!userId) return
           const sub = data.activeSubscriptions[0]
-          if (sub) {
-            console.log('[Polar Webhook] Activating subscription for userId:', userId)
-            await db
-              .update(profiles)
-              .set({
-                subscription_status: 'active',
-                subscription_id: sub.id,
-                polar_customer_id: data.id,
-                subscription_current_period_end: sub.currentPeriodEnd ?? null,
-              })
-              .where(eq(profiles.user_id, userId))
-          } else {
-            await db
-              .update(profiles)
-              .set({ subscription_status: 'canceled' })
-              .where(eq(profiles.user_id, userId))
-          }
+          if (sub) await markActive(userId, sub.id, data.id, sub.currentPeriodEnd)
+          else await markInactive(userId, 'canceled')
+          revalidatePath('/dashboard')
         },
         onSubscriptionRevoked: async ({ data }) => {
           const userId = data.customer?.externalId
           if (!userId) return
-          await db
-            .update(profiles)
-            .set({ subscription_status: 'revoked', published: false })
-            .where(eq(profiles.user_id, userId))
+          await markInactive(userId, 'revoked', { unpublish: true })
+          revalidatePath('/dashboard')
         },
       }),
     )

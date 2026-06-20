@@ -28,7 +28,7 @@ export function hasActiveSubscription(p: SubscriptionState): boolean {
 }
 
 export function billingEnabled(): boolean {
-  return Boolean(process.env.POLAR_PRODUCT_ID)
+  return Boolean(process.env.POLAR_PRODUCT_ID && process.env.POLAR_ACCESS_TOKEN)
 }
 
 export async function requirePublishAccess(

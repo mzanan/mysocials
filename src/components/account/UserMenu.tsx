@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { ChevronDown, CreditCard, KeyRound, LogOut } from "lucide-react";
+import { ChevronDown, CreditCard, KeyRound, LogOut, RefreshCw } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import { refreshBilling } from "@/app/dashboard/actions/billing";
+import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { ChangePasswordDialog } from "./ChangePasswordDialog";
 
@@ -53,6 +55,18 @@ export function UserMenu({
             <div className="text-fg-subtle truncate px-3 py-2 text-xs sm:hidden">
               {email}
             </div>
+            {billingEnabled && (
+              <DropdownMenu.Item
+                className={itemClass}
+                onSelect={async () => {
+                  await refreshBilling();
+                  router.refresh();
+                  toast.success("Subscription refreshed");
+                }}
+              >
+                <RefreshCw size={15} /> Refresh subscription
+              </DropdownMenu.Item>
+            )}
             {billingEnabled && hasActiveSub && (
               <DropdownMenu.Item asChild className={itemClass}>
                 <a
