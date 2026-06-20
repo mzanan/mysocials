@@ -54,11 +54,14 @@ export function UserMenu({
               {email}
             </div>
             {billingEnabled && hasActiveSub && (
-              <DropdownMenu.Item
-                className={itemClass}
-                onSelect={() => authClient.customer.portal()}
-              >
-                <CreditCard size={15} /> Manage subscription
+              <DropdownMenu.Item asChild className={itemClass}>
+                <a
+                  href="/api/auth/customer/portal"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <CreditCard size={15} /> Manage subscription
+                </a>
               </DropdownMenu.Item>
             )}
             <DropdownMenu.Item
