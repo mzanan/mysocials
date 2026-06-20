@@ -85,15 +85,25 @@ export function DashboardTabs({
   );
 
   function addTab() {
+    const tempId = crypto.randomUUID();
+    const optimistic: DashTab = {
+      id: tempId,
+      label: "New tab",
+      type: "grid",
+      media: [],
+    };
+    setTabs((prev) => [...prev, optimistic]);
+    setActive(tempId);
     startTransition(async () => {
       const res = await createTab({ label: "New tab", type: "grid" });
       if (!res.ok) {
         toast.error(res.error);
+        setTabs((prev) => prev.filter((t) => t.id !== tempId));
+        setActive("profile");
         return;
       }
-      setTabs((prev) => [...prev, res.tab]);
-      setActive(res.tab.id);
-      toast.success("Tab created");
+      setTabs((prev) => prev.map((t) => (t.id === tempId ? res.tab : t)));
+      setActive((cur) => (cur === tempId ? res.tab.id : cur));
     });
   }
 
