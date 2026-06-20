@@ -54,7 +54,7 @@ export function NetworkPicker({
               key={s}
               type="button"
               onClick={() => pick(s)}
-              className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-surface-strong"
+              className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-hover"
             >
               <span className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-strong text-fg">
                 <NetworkIcon slug={s} size={18} />
@@ -65,7 +65,7 @@ export function NetworkPicker({
           <button
             type="button"
             onClick={() => pick(null)}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-surface-strong"
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-hover"
           >
             <span className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-strong text-fg-muted">
               <Link2 size={18} />

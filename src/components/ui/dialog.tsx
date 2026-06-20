@@ -54,7 +54,7 @@ export function DialogHeader({ children }: { children: ReactNode }) {
       {children}
       <RadixDialog.Close
         aria-label="Close"
-        className="rounded-md p-1 text-fg-subtle transition-colors hover:bg-surface-strong hover:text-fg"
+        className="rounded-md p-1 text-fg-subtle transition-colors hover:bg-hover hover:text-fg"
       >
         <X size={16} />
       </RadixDialog.Close>

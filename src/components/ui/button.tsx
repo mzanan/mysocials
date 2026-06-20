@@ -10,8 +10,8 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary: "bg-fg text-app-bg hover:opacity-90",
-        secondary: "border border-hairline bg-surface text-fg hover:bg-surface-strong",
-        ghost: "text-fg-muted hover:bg-surface hover:text-fg",
+        secondary: "border border-hairline bg-surface text-fg hover:bg-hover",
+        ghost: "text-fg-muted hover:bg-hover hover:text-fg",
         danger: "text-danger hover:bg-danger/12 hover:text-danger",
         overlay: "text-white/80 hover:bg-white/15 hover:text-white",
       },

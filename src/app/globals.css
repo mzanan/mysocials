@@ -13,6 +13,7 @@
   --color-surface: rgba(255, 255, 255, 0.09);
   --color-surface-strong: rgba(255, 255, 255, 0.13);
   --color-surface-stronger: rgba(255, 255, 255, 0.18);
+  --color-hover: rgba(255, 255, 255, 0.13);
 
   --color-hairline: rgba(255, 255, 255, 0.1);
   --color-hairline-strong: rgba(255, 255, 255, 0.18);
@@ -54,6 +55,7 @@
   --color-surface: rgba(255, 255, 255, 0.09);
   --color-surface-strong: rgba(255, 255, 255, 0.13);
   --color-surface-stronger: rgba(255, 255, 255, 0.18);
+  --color-hover: rgba(255, 255, 255, 0.13);
   --color-hairline: rgba(255, 255, 255, 0.1);
   --color-hairline-strong: rgba(255, 255, 255, 0.18);
   --color-hairline-subtle: rgba(255, 255, 255, 0.06);
@@ -75,6 +77,7 @@
   --color-surface: rgba(255, 255, 255, 0.7);
   --color-surface-strong: rgba(255, 255, 255, 0.86);
   --color-surface-stronger: #ffffff;
+  --color-hover: rgba(30, 27, 46, 0.07);
   --color-hairline: rgba(30, 27, 46, 0.09);
   --color-hairline-strong: rgba(30, 27, 46, 0.15);
   --color-hairline-subtle: rgba(30, 27, 46, 0.05);

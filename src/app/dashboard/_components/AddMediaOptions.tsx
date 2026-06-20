@@ -17,7 +17,7 @@ export function AddMediaOptions({
         type="button"
         onClick={onPickPhotos}
         disabled={uploading}
-        className="group border-hairline bg-surface hover:border-hairline-strong hover:bg-surface-strong flex items-center gap-3 rounded-xl border p-3 text-left transition disabled:opacity-60"
+        className="group border-hairline bg-surface hover:border-hairline-strong hover:bg-hover flex items-center gap-3 rounded-xl border p-3 text-left transition disabled:opacity-60"
       >
         <span className="bg-surface-strong text-fg grid size-10 shrink-0 place-items-center rounded-full">
           <Upload size={18} />

@@ -78,7 +78,7 @@ export function SubscribeGate({
           />
           <DialogClose
             aria-label="Close"
-            className="text-fg-subtle hover:bg-surface-strong hover:text-fg rounded-md p-1 transition-colors"
+            className="text-fg-subtle hover:bg-hover hover:text-fg rounded-md p-1 transition-colors"
           >
             <X size={16} />
           </DialogClose>

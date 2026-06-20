@@ -192,7 +192,7 @@ export function TabLinks({ tabId, igUsername }: { tabId: string; igUsername: str
         <button
           type="button"
           onClick={() => setPickerOpen(true)}
-          className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-hairline-strong py-2.5 text-sm font-medium text-fg-muted transition-colors hover:bg-surface-subtle hover:text-fg"
+          className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-hairline-strong py-2.5 text-sm font-medium text-fg-muted transition-colors hover:bg-hover hover:text-fg"
         >
           <Plus size={16} /> Add link
         </button>
