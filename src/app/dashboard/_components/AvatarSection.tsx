@@ -1,57 +1,99 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Image from 'next/image'
-import { Instagram, Images } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import type { DashMedia } from '@/types/dashboard'
-import { MediaPicker } from './MediaPicker'
-import { useAvatar } from './useAvatar'
+import { useState } from "react";
+import Image from "next/image";
+import { Instagram, Images } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Text } from "@/components/ui/text";
+import type { DashMedia } from "@/types/dashboard";
+import { MediaPicker } from "./MediaPicker";
+import { SubscribeLockButton } from "./SubscribeLockButton";
+import { useAvatar } from "./useAvatar";
 
 export function AvatarSection({
   initialUrl,
   instagramConnected,
   imageMedia,
+  canImport,
 }: {
-  initialUrl: string | null
-  instagramConnected: boolean
-  imageMedia: DashMedia[]
+  initialUrl: string | null;
+  instagramConnected: boolean;
+  imageMedia: DashMedia[];
+  canImport: boolean;
 }) {
-  const { avatarUrl, busy, msg, fileRef, uploadFile, useInstagramAvatar, pickFromMedia } =
-    useAvatar(initialUrl)
-  const [pickerOpen, setPickerOpen] = useState(false)
+  const {
+    avatarUrl,
+    busy,
+    msg,
+    fileRef,
+    uploadFile,
+    useInstagramAvatar,
+    pickFromMedia,
+  } = useAvatar(initialUrl);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   async function onPick(id: string) {
-    setPickerOpen(false)
-    await pickFromMedia(id)
+    setPickerOpen(false);
+    await pickFromMedia(id);
   }
 
   return (
     <div className="flex items-center gap-4">
-      <div className="relative h-16 w-16 overflow-hidden rounded-full border border-hairline-strong bg-surface">
+      <div className="border-hairline-strong bg-surface relative h-16 w-16 overflow-hidden rounded-full border">
         {avatarUrl && (
-          <Image src={avatarUrl} alt="avatar" fill className="object-cover" sizes="64px" />
+          <Image
+            src={avatarUrl}
+            alt="avatar"
+            fill
+            priority
+            className="object-cover"
+            sizes="64px"
+          />
         )}
       </div>
       <div className="flex min-w-0 flex-col gap-1.5">
-        <span className="text-xs font-medium text-fg-subtle">Profile photo</span>
-        <input ref={fileRef} type="file" accept="image/*" hidden onChange={uploadFile} />
+        <Text variant="label">Profile photo</Text>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          hidden
+          onChange={uploadFile}
+        />
         <div className="flex flex-wrap gap-1.5">
-          <Button variant="secondary" size="sm" disabled={busy} onClick={() => fileRef.current?.click()}>
-            {busy ? 'Updating…' : 'Upload'}
+          <Button
+            variant="secondary"
+            size="sm"
+            disabled={busy}
+            onClick={() => fileRef.current?.click()}
+          >
+            {busy ? "Updating…" : "Upload"}
           </Button>
-          {instagramConnected && (
-            <Button variant="secondary" size="sm" disabled={busy} onClick={useInstagramAvatar}>
-              <Instagram size={14} /> Instagram
-            </Button>
-          )}
           {imageMedia.length > 0 && (
-            <Button variant="secondary" size="sm" disabled={busy} onClick={() => setPickerOpen(true)}>
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={busy}
+              onClick={() => setPickerOpen(true)}
+            >
               <Images size={14} /> Photos
             </Button>
           )}
+          {instagramConnected &&
+            (canImport ? (
+              <Button
+                variant="secondary"
+                size="sm"
+                disabled={busy}
+                onClick={useInstagramAvatar}
+              >
+                <Instagram size={14} /> Import from Instagram
+              </Button>
+            ) : (
+              <SubscribeLockButton size="sm" />
+            ))}
         </div>
-        {msg && <span className="text-xs text-fg-subtle">{msg}</span>}
+        {msg && <span className="text-fg-subtle text-xs">{msg}</span>}
       </div>
 
       <MediaPicker
@@ -61,5 +103,5 @@ export function AvatarSection({
         onPick={onPick}
       />
     </div>
-  )
+  );
 }
