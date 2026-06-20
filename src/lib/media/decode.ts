@@ -20,6 +20,6 @@ function isHeic(buf: Buffer): boolean {
 export async function toDecodableImage(buf: Buffer): Promise<Buffer> {
   if (!isHeic(buf)) return buf
   const { default: convert } = await import('heic-convert')
-  const out = await convert({ buffer: new Uint8Array(buf), format: 'JPEG', quality: 0.92 })
+  const out = await convert({ buffer: new Uint8Array(buf).buffer, format: 'JPEG', quality: 0.92 })
   return Buffer.from(out)
 }
