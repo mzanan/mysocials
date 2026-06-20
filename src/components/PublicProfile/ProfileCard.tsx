@@ -82,7 +82,7 @@ export function ProfileCard({
                 <TabsTrigger
                   key={tab.id}
                   value={tab.id}
-                  className="relative z-10 bg-transparent text-fg-subtle shadow-none transition-colors hover:text-fg-muted data-[state=active]:bg-transparent data-[state=active]:text-fg data-[state=active]:shadow-none"
+                  className="relative z-10 bg-transparent text-fg-subtle shadow-none transition-colors hover:text-fg data-[state=active]:bg-transparent data-[state=active]:text-fg data-[state=active]:shadow-none"
                 >
                   {tab.label}
                 </TabsTrigger>

@@ -22,7 +22,7 @@ export function ImpersonationBanner() {
           await authClient.admin.stopImpersonating()
           window.location.href = '/admin'
         }}
-        className="font-medium underline underline-offset-4 disabled:opacity-60"
+        className="font-medium underline underline-offset-4 transition-opacity hover:opacity-70 disabled:opacity-60"
       >
         {pending ? 'Returning…' : 'Stop impersonating'}
       </button>

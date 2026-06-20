@@ -31,7 +31,7 @@ import { ProfileSection } from "./ProfileSection";
 import { TabPanel } from "./TabPanel";
 
 const triggerClass =
-  "flex-none gap-1.5 rounded-lg px-3 py-1.5 text-sm transition data-[state=active]:bg-surface-stronger data-[state=active]:shadow-sm data-[state=active]:[&_svg]:text-accent";
+  "flex-none gap-1.5 rounded-lg px-3 py-1.5 text-sm transition data-[state=inactive]:hover:bg-surface-strong/60 data-[state=inactive]:hover:text-fg data-[state=active]:bg-surface-stronger data-[state=active]:shadow-sm data-[state=active]:[&_svg]:text-accent";
 
 function SortableTabTrigger({ tab }: { tab: DashTab }) {
   const { listeners, setNodeRef, transform, transition, isDragging } =
