@@ -21,8 +21,12 @@ export default async function DashboardPage({
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) redirect("/");
 
-  if ((await searchParams).checkout === "success") {
-    await syncSubscriptionFromPolar(session.user.id);
+  const justCheckedOut = (await searchParams).checkout === "success";
+  if (justCheckedOut) {
+    await syncSubscriptionFromPolar(session.user.id, {
+      downgrade: false,
+      publishOnActivate: true,
+    });
   }
 
   const profile = await db.query.profiles.findFirst({
@@ -83,6 +87,7 @@ export default async function DashboardPage({
       instagramEnabled={importEnabled()}
       igUsesUsername={igMode() === "apify"}
       agentEnabled={agentEnabled}
+      justCheckedOut={justCheckedOut}
     />
   );
 }

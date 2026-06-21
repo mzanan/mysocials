@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import { setPublished } from "../actions";
+import { CheckoutConfirm } from "./CheckoutConfirm";
 import { IgConnectStatus } from "./IgConnectStatus";
 import { DashboardStore } from "./DashboardStore";
 import { ImportProvider } from "./ImportProvider";
@@ -102,16 +103,24 @@ export function DashboardEditor({
   instagramEnabled,
   igUsesUsername,
   agentEnabled,
+  justCheckedOut,
 }: {
   data: DashboardData;
   billingEnabled: boolean;
   instagramEnabled: boolean;
   igUsesUsername: boolean;
   agentEnabled: boolean;
+  justCheckedOut: boolean;
 }) {
   const canImport = !billingEnabled || data.subscriptionStatus === "active";
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-5">
+      {justCheckedOut && (
+        <CheckoutConfirm
+          username={data.username}
+          alreadyActive={data.subscriptionStatus === "active"}
+        />
+      )}
       {instagramEnabled && (
         <Suspense fallback={null}>
           <IgConnectStatus />

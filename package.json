@@ -31,7 +31,9 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-tooltip": "^1.2.10",
+    "@types/canvas-confetti": "^1.9.0",
     "better-auth": "^1.6.11",
+    "canvas-confetti": "^1.9.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.2",
@@ -48,6 +50,7 @@
     "sharp": "^0.34.5",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.1",
+    "vercel": "^54.14.5",
     "zod": "^4.4.3"
   },
   "devDependencies": {

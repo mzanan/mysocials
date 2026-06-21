@@ -27,6 +27,7 @@ async function markActive(
   subId: string,
   customerId: string,
   periodEnd: Date | null | undefined,
+  opts?: { publish?: boolean },
 ) {
   await db
     .update(profiles)
@@ -35,6 +36,7 @@ async function markActive(
       subscription_id: subId,
       polar_customer_id: customerId,
       subscription_current_period_end: periodEnd ?? null,
+      ...(opts?.publish ? { published: true } : {}),
     })
     .where(eq(profiles.user_id, userId))
 }
@@ -82,23 +84,31 @@ export async function ensurePolarCustomer(user: PolarUser) {
   }
 }
 
-/** Reconcile the stored subscription state from Polar's source of truth.
- *  Activates if there's an active subscription, otherwise downgrades.
- *  Lets the app work without the webhook (local sandbox, or as a prod fallback). */
-export async function syncSubscriptionFromPolar(userId: string): Promise<void> {
+export async function syncSubscriptionFromPolar(
+  userId: string,
+  opts: { downgrade?: boolean; publishOnActivate?: boolean } = {},
+): Promise<boolean> {
+  const { downgrade = true, publishOnActivate = false } = opts
   const client = buildPolarClient()
-  if (!client || !process.env.POLAR_PRODUCT_ID) return
+  if (!client || !process.env.POLAR_PRODUCT_ID) return false
   try {
     const state = await client.customers.getStateExternal({ externalId: userId })
     const sub = state.activeSubscriptions?.[0]
-    if (sub) await markActive(userId, sub.id, state.id, sub.currentPeriodEnd)
-    else await markInactive(userId, 'canceled')
+    if (sub) {
+      await markActive(userId, sub.id, state.id, sub.currentPeriodEnd, {
+        publish: publishOnActivate,
+      })
+      return true
+    }
+    if (downgrade) await markInactive(userId, 'canceled')
+    return false
   } catch (e) {
     if (isNotFound(e)) {
-      await markInactive(userId, 'canceled')
-      return
+      if (downgrade) await markInactive(userId, 'canceled')
+      return false
     }
     console.error('syncSubscriptionFromPolar failed', e)
+    return false
   }
 }
 
