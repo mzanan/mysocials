@@ -19,6 +19,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Image is too large' }, { status: 413 })
   }
 
-  const url = await setAvatarFromBuffer(session.user.id, Buffer.from(await file.arrayBuffer()))
-  return NextResponse.json({ url })
+  try {
+    const url = await setAvatarFromBuffer(session.user.id, Buffer.from(await file.arrayBuffer()))
+    return NextResponse.json({ url })
+  } catch (err) {
+    console.error('[upload/avatar] failed', {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      error: err instanceof Error ? err.message : String(err),
+    })
+    return NextResponse.json({ error: 'Could not process this image' }, { status: 500 })
+  }
 }

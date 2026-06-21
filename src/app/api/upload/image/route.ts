@@ -51,13 +51,26 @@ export async function POST(req: Request) {
 
   const created = []
   for (const file of files) {
-    const input = Buffer.from(await file.arrayBuffer())
-    const row = await ingestImageBuffer(input, {
-      userId: session.user.id,
-      tabId,
-      position: position++,
-    })
-    created.push(row)
+    try {
+      const input = Buffer.from(await file.arrayBuffer())
+      const row = await ingestImageBuffer(input, {
+        userId: session.user.id,
+        tabId,
+        position: position++,
+      })
+      created.push(row)
+    } catch (err) {
+      console.error('[upload/image] failed', {
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        error: err instanceof Error ? err.message : String(err),
+      })
+      return NextResponse.json(
+        { error: `Could not process ${file.name}` },
+        { status: 500 },
+      )
+    }
   }
 
   return NextResponse.json({ media: created })
