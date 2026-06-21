@@ -9,7 +9,7 @@ import {
   Upload,
   Instagram,
   RotateCcw,
-  RotateCw,
+  RotateCwSquare,
   X,
   GripVertical,
   AlertTriangle,
@@ -105,7 +105,7 @@ function SortableMedia({
           aria-label="Rotate"
           className="absolute top-1 right-1 grid h-7 w-7 place-items-center rounded-md bg-black/45 text-white opacity-100 transition hover:bg-black/65 sm:opacity-0 sm:group-hover:opacity-100"
         >
-          <RotateCw size={14} />
+          <RotateCwSquare size={14} />
         </button>
       )}
       <div
@@ -290,7 +290,7 @@ export function MediaManager({
           >
             <Upload size={14} />{" "}
             {videoStep
-              ? `${videoStep === "compressing" ? "Compressing" : "Uploading"}${
+              ? `Uploading${
                   videoProgress && videoProgress.total > 1
                     ? ` ${videoProgress.index}/${videoProgress.total}`
                     : ""

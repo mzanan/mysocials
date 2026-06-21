@@ -50,7 +50,6 @@ export async function rotateMedia(
     .update(media)
     .set({ r2_key: newKey, url, width: info.width, height: info.height })
     .where(eq(media.id, id))
-  revalidate()
   return { ok: true, url }
 }
 

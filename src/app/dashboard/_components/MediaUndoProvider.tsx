@@ -1,12 +1,10 @@
 'use client'
 
-import { createContext, useContext, useRef, type ReactNode } from 'react'
+import { createContext, useContext, type ReactNode } from 'react'
 import { deleteMedia } from '../actions'
 import { toast } from '@/lib/toast'
 import type { DashMedia } from '@/types/dashboard'
 import { useDashboardStore } from './DashboardStore'
-
-const UNDO_MS = 6000
 
 type MediaUndo = {
   remove: (tabId: string, item: DashMedia, index: number) => void
@@ -16,38 +14,29 @@ const MediaUndoContext = createContext<MediaUndo | null>(null)
 
 export function MediaUndoProvider({ children }: { children: ReactNode }) {
   const { setTabMedia } = useDashboardStore()
-  const timers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map())
 
   function remove(tabId: string, item: DashMedia, index: number) {
     setTabMedia(tabId, (prev) => prev.filter((m) => m.id !== item.id))
 
-    const toastId = `del-${item.id}`
-    const timer = setTimeout(() => {
-      timers.current.delete(item.id)
-      toast.dismiss(toastId)
-      deleteMedia(item.id)
-    }, UNDO_MS)
-    timers.current.set(item.id, timer)
+    const restore = () =>
+      setTabMedia(tabId, (prev) => {
+        if (prev.some((m) => m.id === item.id)) return prev
+        const next = [...prev]
+        next.splice(Math.min(index, next.length), 0, item)
+        return next
+      })
 
-    toast(item.kind === 'video' ? 'Video deleted' : 'Photo deleted', {
-      id: toastId,
-      duration: UNDO_MS,
-      action: {
-        label: 'Undo',
-        onClick: () => {
-          const t = timers.current.get(item.id)
-          if (!t) return
-          clearTimeout(t)
-          timers.current.delete(item.id)
-          setTabMedia(tabId, (prev) => {
-            if (prev.some((m) => m.id === item.id)) return prev
-            const next = [...prev]
-            next.splice(Math.min(index, next.length), 0, item)
-            return next
-          })
-        },
-      },
-    })
+    void deleteMedia(item.id)
+      .then((res) => {
+        if (!res.ok) {
+          restore()
+          toast.error(res.error ?? 'Could not delete')
+        }
+      })
+      .catch(() => {
+        restore()
+        toast.error('Could not delete')
+      })
   }
 
   return <MediaUndoContext.Provider value={{ remove }}>{children}</MediaUndoContext.Provider>
