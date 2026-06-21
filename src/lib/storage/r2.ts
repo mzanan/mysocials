@@ -1,4 +1,5 @@
 import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 
 import type { Storage } from './types'
 
@@ -45,5 +46,12 @@ export const r2Driver: Storage = {
   publicUrl(key) {
     const base = (process.env.R2_PUBLIC_BASE_URL ?? '').replace(/\/$/, '')
     return `${base}/${key}`
+  },
+  async presignedPutUrl(key, contentType) {
+    return getSignedUrl(
+      getClient(),
+      new PutObjectCommand({ Bucket: process.env.R2_BUCKET!, Key: key, ContentType: contentType }),
+      { expiresIn: 600 },
+    )
   },
 }

@@ -3,4 +3,5 @@ export interface Storage {
   get(key: string): Promise<Buffer>
   delete(key: string): Promise<void>
   publicUrl(key: string): string
+  presignedPutUrl?(key: string, contentType: string): Promise<string>
 }

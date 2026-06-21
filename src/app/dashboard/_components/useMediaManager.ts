@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { reorderMedia, rotateMedia as rotateMediaApi } from '../actions'
 import { moveItem } from '@/lib/array'
+import { canCompressVideo, compressVideo } from '@/lib/media/compressVideo'
 import { extractPoster } from '@/lib/media/poster'
 import { validateClip } from '@/lib/media/video'
 import { toast } from '@/lib/toast'
@@ -19,11 +20,75 @@ function toDashMedia(row: MediaRow): DashMedia {
   return { id: row.id, kind: row.kind, url: row.url, posterUrl: row.poster_url }
 }
 
+type PresignResponse =
+  | {
+      mode: 'r2'
+      clipKey: string
+      clipUploadUrl: string
+      posterKey: string
+      posterUploadUrl: string
+    }
+  | { mode: 'local' }
+
+async function uploadClip(tabId: string, clip: Blob, poster: Blob | null): Promise<MediaRow> {
+  const presignRes = await fetch('/api/upload/video/presign', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ tabId }),
+  })
+  if (!presignRes.ok) {
+    const b = (await presignRes.json().catch(() => ({}))) as { error?: string }
+    throw new Error(b.error ?? `upload failed (${presignRes.status})`)
+  }
+  const presign = (await presignRes.json()) as PresignResponse
+
+  if (presign.mode === 'r2') {
+    const put = await fetch(presign.clipUploadUrl, {
+      method: 'PUT',
+      headers: { 'content-type': 'video/mp4' },
+      body: clip,
+    })
+    if (!put.ok) throw new Error(`upload failed (${put.status})`)
+    if (poster) {
+      await fetch(presign.posterUploadUrl, {
+        method: 'PUT',
+        headers: { 'content-type': 'image/webp' },
+        body: poster,
+      }).catch(() => {})
+    }
+    const confirmRes = await fetch('/api/upload/video/confirm', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        tabId,
+        clipKey: presign.clipKey,
+        posterKey: poster ? presign.posterKey : null,
+      }),
+    })
+    if (!confirmRes.ok) {
+      const b = (await confirmRes.json().catch(() => ({}))) as { error?: string }
+      throw new Error(b.error ?? `upload failed (${confirmRes.status})`)
+    }
+    return (await confirmRes.json()).media as MediaRow
+  }
+
+  const fd = new FormData()
+  fd.append('tabId', tabId)
+  fd.append('clip', new File([clip], 'clip.mp4', { type: 'video/mp4' }))
+  if (poster) fd.append('poster', poster, 'poster.webp')
+  const res = await fetch('/api/upload/video', { method: 'POST', body: fd })
+  if (!res.ok) {
+    const b = (await res.json().catch(() => ({}))) as { error?: string }
+    throw new Error(b.error ?? `upload failed (${res.status})`)
+  }
+  return (await res.json()).media as MediaRow
+}
+
 export function useMediaManager(tab: DashTab) {
   const { setTabMedia } = useDashboardStore()
   const mediaUndo = useMediaUndo()
   const [busy, setBusy] = useState(false)
-  const [videoStep, setVideoStep] = useState<'uploading' | null>(null)
+  const [videoStep, setVideoStep] = useState<'compressing' | 'uploading' | null>(null)
   const [videoProgress, setVideoProgress] = useState<{ index: number; total: number } | null>(null)
   const [videoItems, setVideoItems] = useState<VideoUploadItem[]>([])
   const vidRef = useRef<HTMLInputElement>(null)
@@ -43,40 +108,39 @@ export function useMediaManager(tab: DashTab) {
       setVideoItems((prev) => prev.map((it, idx) => (idx === i ? { ...it, status } : it)))
 
     setBusy(true)
-    setVideoStep('uploading')
     let uploaded = 0
     let failed = 0
+    const supported = await canCompressVideo()
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i]
         setVideoProgress({ index: i + 1, total: files.length })
         try {
-          const check = await validateClip(file)
+          const check = validateClip(file)
           if (!check.ok) {
             toast.error(`${file.name}: ${check.reason}`)
             patch(i, 'error')
             failed++
             continue
           }
-          const poster = await extractPoster(file)
-          const fd = new FormData()
-          fd.append('tabId', tab.id)
-          fd.append('clip', file)
-          if (poster) fd.append('poster', poster, 'poster.webp')
-          const res = await fetch('/api/upload/video', { method: 'POST', body: fd })
-          if (!res.ok) {
-            const body = (await res.json().catch(() => ({}))) as { error?: string }
-            toast.error(`${file.name}: ${body.error ?? `upload failed (${res.status})`}`)
+          if (!supported) {
+            toast.error(`${file.name}: your browser can't process video. Try Chrome or update Safari.`)
             patch(i, 'error')
             failed++
             continue
           }
-          const { media } = (await res.json()) as { media: MediaRow }
+
+          setVideoStep('compressing')
+          const clip = await compressVideo(file)
+          const poster = await extractPoster(file)
+
+          setVideoStep('uploading')
+          const media = await uploadClip(tab.id, clip, poster)
           setTabMedia(tab.id, (prev) => [...prev, toDashMedia(media)])
           patch(i, 'done')
           uploaded++
-        } catch {
-          toast.error(`${file.name}: failed`)
+        } catch (err) {
+          toast.error(`${file.name}: ${err instanceof Error ? err.message : 'failed'}`)
           patch(i, 'error')
           failed++
         }

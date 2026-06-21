@@ -290,7 +290,7 @@ export function MediaManager({
           >
             <Upload size={14} />{" "}
             {videoStep
-              ? `Uploading${
+              ? `${videoStep === "compressing" ? "Compressing" : "Uploading"}${
                   videoProgress && videoProgress.total > 1
                     ? ` ${videoProgress.index}/${videoProgress.total}`
                     : ""
