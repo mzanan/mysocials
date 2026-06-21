@@ -38,6 +38,11 @@ export async function POST(req: Request) {
     )
   }
 
+  const tooBig = files.find((f) => f.size > MAX_FILE_BYTES)
+  if (tooBig) {
+    return NextResponse.json({ error: `${tooBig.name} is too large` }, { status: 413 })
+  }
+
   const [{ max }] = await db
     .select({ max: sql<number>`coalesce(max(${media.position}), -1)` })
     .from(media)
@@ -46,9 +51,6 @@ export async function POST(req: Request) {
 
   const created = []
   for (const file of files) {
-    if (file.size > MAX_FILE_BYTES) {
-      return NextResponse.json({ error: `${file.name} is too large` }, { status: 413 })
-    }
     const input = Buffer.from(await file.arrayBuffer())
     const row = await ingestImageBuffer(input, {
       userId: session.user.id,
