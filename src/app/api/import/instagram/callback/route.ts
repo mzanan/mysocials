@@ -5,6 +5,7 @@ import { eq } from 'drizzle-orm'
 
 import { auth } from '@/lib/auth'
 import { setAvatarFromBuffer } from '@/lib/avatar'
+import { encryptSecret } from '@/lib/crypto'
 import { db } from '@/lib/db'
 import { ig_connections, profiles } from '@/lib/db/schema'
 import { exchangeCodeForToken, fetchProfile, getLongLivedToken, officialConfigured } from '@/lib/ig'
@@ -43,7 +44,7 @@ export async function GET(req: Request) {
       user_id: session.user.id,
       ig_user_id: profile.id,
       username: profile.username,
-      access_token: long.accessToken,
+      access_token: encryptSecret(long.accessToken),
       token_expires_at: long.expiresAt,
     }
     await db

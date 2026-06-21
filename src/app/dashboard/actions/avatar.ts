@@ -3,6 +3,7 @@
 import { and, eq } from "drizzle-orm";
 
 import { setAvatarFromBuffer } from "@/lib/avatar";
+import { decryptSecret } from "@/lib/crypto";
 import { db } from "@/lib/db";
 import { ig_connections, media } from "@/lib/db/schema";
 import { fetchApifyProfile, fetchProfile, igMode } from "@/lib/ig";
@@ -23,7 +24,7 @@ export async function setAvatarFromInstagram(): Promise<AvatarResult> {
         ? conn.username
           ? (await fetchApifyProfile(conn.username)).profilePictureUrl
           : null
-        : (await fetchProfile(conn.access_token)).profilePictureUrl;
+        : (await fetchProfile(decryptSecret(conn.access_token))).profilePictureUrl;
     if (!pictureUrl)
       return { ok: false, error: "No Instagram profile picture" };
     const res = await fetch(pictureUrl);

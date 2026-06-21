@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { and, eq, sql } from 'drizzle-orm'
 
 import { auth } from '@/lib/auth'
+import { decryptSecret } from '@/lib/crypto'
 import { db } from '@/lib/db'
 import { ig_connections, import_jobs, media } from '@/lib/db/schema'
 import { igProvider, IgAuthError, stillUrl } from '@/lib/ig'
@@ -68,7 +69,7 @@ export async function POST(req: Request) {
       if (!conn) throw new Error('Instagram not connected')
 
       const items = await igProvider().fetchMedia(
-        { username: conn.username, accessToken: conn.access_token },
+        { username: conn.username, accessToken: decryptSecret(conn.access_token) },
         MAX_IMPORT,
       )
       const remaining = items
