@@ -1,12 +1,12 @@
 'use server'
 
-import { and, eq, sql } from 'drizzle-orm'
+import { and, eq, inArray, sql } from 'drizzle-orm'
 import { z } from 'zod'
 
 import { db } from '@/lib/db'
 import { tabs } from '@/lib/db/schema'
 import { storage } from '@/lib/storage'
-import { requireUserId, revalidate, type Result, type TabResult } from './_helpers'
+import { positionCase, requireUserId, revalidate, type Result, type TabResult } from './_helpers'
 
 const tabSchema = z.object({
   label: z.string().trim().min(1).max(24),
@@ -80,11 +80,11 @@ export async function deleteTab(id: string): Promise<Result> {
 
 export async function reorderTabs(orderedIds: string[]): Promise<Result> {
   const uid = await requireUserId()
-  await Promise.all(
-    orderedIds.map((id, i) =>
-      db.update(tabs).set({ position: i }).where(and(eq(tabs.id, id), eq(tabs.user_id, uid))),
-    ),
-  )
+  if (orderedIds.length === 0) return { ok: true }
+  await db
+    .update(tabs)
+    .set({ position: positionCase(tabs.id, tabs.position, orderedIds) })
+    .where(and(eq(tabs.user_id, uid), inArray(tabs.id, orderedIds)))
   revalidate()
   return { ok: true }
 }

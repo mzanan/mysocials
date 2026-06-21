@@ -8,6 +8,7 @@ import { links } from '@/lib/db/schema'
 import { buildLinkTitle, buildLinkUrl, isNetworkSlug } from '@/lib/networks'
 import {
   assertTabOwned,
+  positionCase,
   requireUserId,
   revalidate,
   type LinkResult,
@@ -141,16 +142,11 @@ export async function deleteLink(id: string): Promise<Result> {
 
 export async function reorderLinks(orderedIds: string[]): Promise<Result> {
   const uid = await requireUserId()
-  const owned = await db
-    .select({ id: links.id })
-    .from(links)
+  if (orderedIds.length === 0) return { ok: true }
+  await db
+    .update(links)
+    .set({ position: positionCase(links.id, links.position, orderedIds) })
     .where(and(eq(links.user_id, uid), inArray(links.id, orderedIds)))
-  const ownedSet = new Set(owned.map((r) => r.id))
-  await Promise.all(
-    orderedIds
-      .filter((id) => ownedSet.has(id))
-      .map((id, i) => db.update(links).set({ position: i }).where(eq(links.id, id))),
-  )
   revalidate()
   return { ok: true }
 }

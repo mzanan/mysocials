@@ -2,13 +2,13 @@
 
 import { randomUUID } from 'node:crypto'
 
-import { and, eq } from 'drizzle-orm'
+import { and, eq, inArray } from 'drizzle-orm'
 import sharp from 'sharp'
 
 import { db } from '@/lib/db'
 import { media } from '@/lib/db/schema'
 import { storage } from '@/lib/storage'
-import { assertTabOwned, requireUserId, revalidate, type Result } from './_helpers'
+import { assertTabOwned, positionCase, requireUserId, revalidate, type Result } from './_helpers'
 
 export async function deleteMedia(id: string): Promise<Result> {
   const uid = await requireUserId()
@@ -57,11 +57,11 @@ export async function rotateMedia(
 export async function reorderMedia(tabId: string, orderedIds: string[]): Promise<Result> {
   const uid = await requireUserId()
   if (!(await assertTabOwned(tabId, uid))) return { ok: false, error: 'Tab not found' }
-  await Promise.all(
-    orderedIds.map((id, i) =>
-      db.update(media).set({ position: i }).where(and(eq(media.id, id), eq(media.tab_id, tabId))),
-    ),
-  )
+  if (orderedIds.length === 0) return { ok: true }
+  await db
+    .update(media)
+    .set({ position: positionCase(media.id, media.position, orderedIds) })
+    .where(and(eq(media.tab_id, tabId), inArray(media.id, orderedIds)))
   revalidate()
   return { ok: true }
 }

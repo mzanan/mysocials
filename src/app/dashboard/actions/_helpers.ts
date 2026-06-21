@@ -1,6 +1,7 @@
 import { headers } from 'next/headers'
 import { revalidatePath } from 'next/cache'
-import { and, eq } from 'drizzle-orm'
+import { and, eq, sql, type SQL } from 'drizzle-orm'
+import type { SQLiteColumn } from 'drizzle-orm/sqlite-core'
 
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
@@ -27,4 +28,13 @@ export async function assertTabOwned(tabId: string, uid: string): Promise<boolea
     where: and(eq(tabs.id, tabId), eq(tabs.user_id, uid)),
   })
   return Boolean(t)
+}
+
+export function positionCase(
+  idColumn: SQLiteColumn,
+  positionColumn: SQLiteColumn,
+  orderedIds: string[],
+): SQL<number> {
+  const whens = orderedIds.map((id, i) => sql`when ${idColumn} = ${id} then ${i}`)
+  return sql<number>`case ${sql.join(whens, sql` `)} else ${positionColumn} end`
 }
