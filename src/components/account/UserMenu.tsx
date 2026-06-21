@@ -30,6 +30,23 @@ export function UserMenu({
     router.refresh();
   }
 
+  async function openPortal() {
+    const tab = window.open("about:blank", "_blank");
+    try {
+      const res = await fetch("/api/auth/customer/portal", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ redirect: false }),
+      });
+      const data = (await res.json()) as { url?: string };
+      if (data.url && tab) tab.location.href = data.url;
+      else if (data.url) window.location.href = data.url;
+      else tab?.close();
+    } catch {
+      tab?.close();
+    }
+  }
+
   return (
     <>
       <DropdownMenu.Root>
@@ -54,14 +71,13 @@ export function UserMenu({
               {email}
             </div>
             {billingEnabled && hasActiveSub && (
-              <DropdownMenu.Item asChild className={itemClass}>
-                <a
-                  href="/api/auth/customer/portal"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <CreditCard size={15} /> Manage subscription
-                </a>
+              <DropdownMenu.Item
+                className={itemClass}
+                onSelect={() => {
+                  void openPortal();
+                }}
+              >
+                <CreditCard size={15} /> Manage subscription
               </DropdownMenu.Item>
             )}
             <DropdownMenu.Item
