@@ -229,15 +229,20 @@ export function MediaManager({
     })
   );
 
-  const sortable = tab.media.length > 1;
+  const visibleMedia = tab.media.filter((m) =>
+    tab.type === "video" ? m.kind === "video" : m.kind === "image",
+  );
+  const hiddenCount = tab.media.length - visibleMedia.length;
+  const sortable = visibleMedia.length > 1;
 
   function onDragEnd(e: DragEndEvent) {
     const { active, over } = e;
     if (!over || active.id === over.id) return;
-    const oldIndex = tab.media.findIndex((m) => m.id === active.id);
-    const newIndex = tab.media.findIndex((m) => m.id === over.id);
+    const oldIndex = visibleMedia.findIndex((m) => m.id === active.id);
+    const newIndex = visibleMedia.findIndex((m) => m.id === over.id);
     if (oldIndex < 0 || newIndex < 0) return;
-    setOrder(arrayMove(tab.media, oldIndex, newIndex));
+    const hidden = tab.media.filter((m) => !visibleMedia.includes(m));
+    setOrder([...arrayMove(visibleMedia, oldIndex, newIndex), ...hidden]);
   }
 
   return (
@@ -333,7 +338,7 @@ export function MediaManager({
         </div>
       )}
 
-      {tab.media.length > 0 && (
+      {visibleMedia.length > 0 && (
         <DndContext
           id={`media-${tab.id}`}
           sensors={sensors}
@@ -341,11 +346,11 @@ export function MediaManager({
           onDragEnd={onDragEnd}
         >
           <SortableContext
-            items={tab.media.map((m) => m.id)}
+            items={visibleMedia.map((m) => m.id)}
             strategy={rectSortingStrategy}
           >
             <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
-              {tab.media.map((m, i) => (
+              {visibleMedia.map((m, i) => (
                 <SortableMedia
                   key={m.id}
                   m={m}
@@ -359,6 +364,15 @@ export function MediaManager({
             </div>
           </SortableContext>
         </DndContext>
+      )}
+
+      {hiddenCount > 0 && (
+        <Text variant="caption">
+          {hiddenCount} {tab.type === "video" ? "photo" : "video"}
+          {hiddenCount > 1 ? "s" : ""} hidden in this layout. Switch back to{" "}
+          {tab.type === "video" ? "Photo grid" : "Video"} to see{" "}
+          {hiddenCount > 1 ? "them" : "it"}.
+        </Text>
       )}
 
       {up.items.some((it) => it.status !== "done") && (
