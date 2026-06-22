@@ -24,7 +24,10 @@ export function useImageUploader(tab: DashTab) {
   }
 
   async function uploadOne(file: File): Promise<{ ok: true } | { ok: false; error: string }> {
-    const toSend = await compressImage(file).catch(() => file)
+    const toSend = await compressImage(file).catch((err) => {
+      console.warn('[upload/image] compress failed, sending original', file.name, err)
+      return file
+    })
     const fd = new FormData()
     fd.append('tabId', tab.id)
     fd.append('files', toSend)
@@ -49,13 +52,17 @@ export function useImageUploader(tab: DashTab) {
     let ok = 0
     let fail = 0
     let cursor = 0
+    const errors = new Set<string>()
     async function worker() {
       while (cursor < targets.length) {
         const { index, file } = targets[cursor++]
         patch(index, { status: 'uploading', error: undefined })
         const r = await uploadOne(file)
         if (r.ok) ok += 1
-        else fail += 1
+        else {
+          fail += 1
+          errors.add(r.error)
+        }
         patch(index, r.ok ? { status: 'done' } : { status: 'error', error: r.error })
       }
     }
@@ -68,7 +75,9 @@ export function useImageUploader(tab: DashTab) {
       toast.success(`${ok} photo${ok === 1 ? '' : 's'} uploaded`)
       clear()
     } else {
-      toast.error(`${ok} uploaded · ${fail} failed`)
+      const detail = [...errors][0] ?? 'Upload failed'
+      console.error('[upload/image] failures', { ok, fail, errors: [...errors] })
+      toast.error(ok > 0 ? `${ok} uploaded · ${fail} failed — ${detail}` : detail)
     }
   }
 

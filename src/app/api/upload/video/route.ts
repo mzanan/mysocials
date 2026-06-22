@@ -41,8 +41,10 @@ export async function POST(req: Request) {
   const existing = await countUserMedia(session.user.id, 'video')
   if (existing >= MAX_VIDEOS_PER_USER) {
     return NextResponse.json(
-      { error: `Video limit reached (${MAX_VIDEOS_PER_USER}).` },
-      { status: 413 },
+      {
+        error: `Video limit reached (${existing}/${MAX_VIDEOS_PER_USER}). Delete some to add more.`,
+      },
+      { status: 409 },
     )
   }
 

@@ -32,9 +32,9 @@ export async function POST(req: Request) {
   if (existing + files.length > MAX_IMAGES_PER_USER) {
     return NextResponse.json(
       {
-        error: `Photo limit reached. You have ${existing} of ${MAX_IMAGES_PER_USER}.`,
+        error: `Photo limit reached (${existing}/${MAX_IMAGES_PER_USER}). Delete some to add more.`,
       },
-      { status: 413 },
+      { status: 409 },
     )
   }
 
