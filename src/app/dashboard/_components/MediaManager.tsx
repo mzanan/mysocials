@@ -9,7 +9,7 @@ import {
   Upload,
   Instagram,
   RotateCcw,
-  RotateCw,
+  RotateCwSquare,
   X,
   GripVertical,
   AlertTriangle,
@@ -105,7 +105,7 @@ function SortableMedia({
           aria-label="Rotate"
           className="absolute top-1 right-1 grid h-7 w-7 place-items-center rounded-md bg-black/45 text-white opacity-100 transition hover:bg-black/65 sm:opacity-0 sm:group-hover:opacity-100"
         >
-          <RotateCw size={14} />
+          <RotateCwSquare size={14} />
         </button>
       )}
       <div
@@ -229,15 +229,23 @@ export function MediaManager({
     })
   );
 
-  const sortable = tab.media.length > 1;
+  const visibleMedia = tab.media.filter((m) =>
+    tab.type === "video" ? m.kind === "video" : m.kind === "image",
+  );
+  const hiddenCount = tab.media.length - visibleMedia.length;
+  const sortable = visibleMedia.length > 1;
+  const pendingImages = up.items.filter((it) => it.status !== "done");
+  const pendingVideos = videoItems.filter((it) => it.status !== "done");
+  const hasPending = pendingImages.length > 0 || pendingVideos.length > 0;
 
   function onDragEnd(e: DragEndEvent) {
     const { active, over } = e;
     if (!over || active.id === over.id) return;
-    const oldIndex = tab.media.findIndex((m) => m.id === active.id);
-    const newIndex = tab.media.findIndex((m) => m.id === over.id);
+    const oldIndex = visibleMedia.findIndex((m) => m.id === active.id);
+    const newIndex = visibleMedia.findIndex((m) => m.id === over.id);
     if (oldIndex < 0 || newIndex < 0) return;
-    setOrder(arrayMove(tab.media, oldIndex, newIndex));
+    const hidden = tab.media.filter((m) => !visibleMedia.includes(m));
+    setOrder([...arrayMove(visibleMedia, oldIndex, newIndex), ...hidden]);
   }
 
   return (
@@ -333,7 +341,7 @@ export function MediaManager({
         </div>
       )}
 
-      {tab.media.length > 0 && (
+      {(visibleMedia.length > 0 || hasPending) && (
         <DndContext
           id={`media-${tab.id}`}
           sensors={sensors}
@@ -341,11 +349,11 @@ export function MediaManager({
           onDragEnd={onDragEnd}
         >
           <SortableContext
-            items={tab.media.map((m) => m.id)}
+            items={visibleMedia.map((m) => m.id)}
             strategy={rectSortingStrategy}
           >
             <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
-              {tab.media.map((m, i) => (
+              {visibleMedia.map((m, i) => (
                 <SortableMedia
                   key={m.id}
                   m={m}
@@ -356,40 +364,35 @@ export function MediaManager({
                   onRotate={rotateMedia}
                 />
               ))}
+              {pendingImages.map((it, i) => (
+                <UploadThumb
+                  key={`img-${i}`}
+                  previewUrl={it.previewUrl}
+                  loading={it.status === "pending" || it.status === "uploading"}
+                  error={it.status === "error"}
+                />
+              ))}
+              {pendingVideos.map((it, i) => (
+                <UploadThumb
+                  key={`vid-${i}`}
+                  previewUrl={it.previewUrl}
+                  loading={it.status === "uploading"}
+                  error={it.status === "error"}
+                  video
+                />
+              ))}
             </div>
           </SortableContext>
         </DndContext>
       )}
 
-      {up.items.some((it) => it.status !== "done") && (
-        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
-          {up.items
-            .filter((it) => it.status !== "done")
-            .map((it, i) => (
-              <UploadThumb
-                key={i}
-                previewUrl={it.previewUrl}
-                loading={it.status === "pending" || it.status === "uploading"}
-                error={it.status === "error"}
-              />
-            ))}
-        </div>
-      )}
-
-      {videoItems.some((it) => it.status !== "done") && (
-        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
-          {videoItems
-            .filter((it) => it.status !== "done")
-            .map((it, i) => (
-              <UploadThumb
-                key={i}
-                previewUrl={it.previewUrl}
-                loading={it.status === "uploading"}
-                error={it.status === "error"}
-                video
-              />
-            ))}
-        </div>
+      {hiddenCount > 0 && (
+        <Text variant="caption">
+          {hiddenCount} {tab.type === "video" ? "photo" : "video"}
+          {hiddenCount > 1 ? "s" : ""} hidden in this layout. Switch back to{" "}
+          {tab.type === "video" ? "Photo grid" : "Video"} to see{" "}
+          {hiddenCount > 1 ? "them" : "it"}.
+        </Text>
       )}
 
       {!up.active && up.failed.length > 0 && (
