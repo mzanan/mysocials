@@ -282,6 +282,7 @@ export function MediaManager({
       ).length,
     0,
   );
+  const atCap = usedCount >= cap;
 
   function onDragEnd(e: DragEndEvent) {
     const { active, over } = e;
@@ -342,6 +343,7 @@ export function MediaManager({
           />
           <Button
             variant="secondary"
+            disabled={atCap}
             onClick={() => vidRef.current?.click()}
             className="w-full sm:w-auto"
           >
@@ -352,12 +354,13 @@ export function MediaManager({
         <AddMediaOptions
           onPickPhotos={() => imgRef.current?.click()}
           uploading={up.active}
+          disabled={atCap}
         />
       ) : (
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
           <Button
             variant="secondary"
-            disabled={up.active}
+            disabled={up.active || atCap}
             onClick={() => imgRef.current?.click()}
             className="w-full sm:w-auto"
           >
@@ -374,6 +377,7 @@ export function MediaManager({
             ) : igConnected ? (
               <Button
                 variant="secondary"
+                disabled={atCap}
                 onClick={onImport}
                 className="w-full sm:w-auto"
               >
@@ -383,6 +387,7 @@ export function MediaManager({
               <InstagramConnectButton
                 igUsesUsername={igUsesUsername}
                 onConnected={onImport}
+                disabled={atCap}
               />
             ))}
         </div>

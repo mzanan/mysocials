@@ -7,16 +7,18 @@ import { GatedAction } from "./GatedAction";
 export function AddMediaOptions({
   onPickPhotos,
   uploading,
+  disabled = false,
 }: {
   onPickPhotos: () => void;
   uploading: boolean;
+  disabled?: boolean;
 }) {
   return (
     <div className="grid gap-2 sm:grid-cols-2">
       <button
         type="button"
         onClick={onPickPhotos}
-        disabled={uploading}
+        disabled={uploading || disabled}
         className="group border-hairline bg-surface hover:border-hairline-strong hover:bg-hover flex items-center gap-3 rounded-xl border p-3 text-left transition disabled:opacity-60"
       >
         <span className="bg-surface-strong text-fg grid size-10 shrink-0 place-items-center rounded-full">
@@ -35,7 +37,7 @@ export function AddMediaOptions({
         {({ loading }) => (
           <button
             type="button"
-            disabled={loading}
+            disabled={loading || disabled}
             className="group border-accent/40 bg-accent/8 hover:bg-accent/12 flex items-center gap-3 rounded-xl border p-3 text-left transition disabled:opacity-60"
           >
             <span className="bg-accent/15 text-accent grid size-10 shrink-0 place-items-center rounded-full">

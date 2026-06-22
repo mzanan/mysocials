@@ -11,9 +11,11 @@ import { toast } from '@/lib/toast'
 export function InstagramConnectButton({
   igUsesUsername,
   onConnected,
+  disabled = false,
 }: {
   igUsesUsername: boolean
   onConnected: () => void
+  disabled?: boolean
 }) {
   const [open, setOpen] = useState(false)
   const [username, setUsername] = useState('')
@@ -23,6 +25,7 @@ export function InstagramConnectButton({
     return (
       <Button
         variant="secondary"
+        disabled={disabled}
         onClick={() => {
           window.location.href = '/api/import/instagram/connect'
         }}
@@ -59,7 +62,7 @@ export function InstagramConnectButton({
 
   return (
     <>
-      <Button variant="secondary" onClick={() => setOpen(true)}>
+      <Button variant="secondary" disabled={disabled} onClick={() => setOpen(true)}>
         <Instagram size={14} /> Connect Instagram
       </Button>
       <Dialog
