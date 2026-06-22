@@ -34,7 +34,9 @@ import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
+import { MAX_IMAGES_PER_USER, MAX_VIDEOS_PER_USER } from "@/lib/media/limits";
 import type { DashMedia, DashTab } from "@/types/dashboard";
+import { useDashboardStore } from "./DashboardStore";
 import { useImageUploader } from "./useImageUploader";
 import { useInstagramImport } from "./useInstagramImport";
 import { InstagramConnectButton } from "./InstagramConnectButton";
@@ -253,6 +255,7 @@ export function MediaManager({
     rotateMedia,
   } = useMediaManager(tab);
   const up = useImageUploader(tab);
+  const { tabs } = useDashboardStore();
   const imgRef = useRef<HTMLInputElement>(null);
   const { importing, progress, start: onImport } = useInstagramImport(tab.id);
   const sensors = useSensors(
@@ -270,6 +273,15 @@ export function MediaManager({
   const pendingImages = up.items.filter((it) => it.status !== "done");
   const pendingVideos = videoItems.filter((it) => it.status !== "done");
   const hasPending = pendingImages.length > 0 || pendingVideos.length > 0;
+  const cap = tab.type === "video" ? MAX_VIDEOS_PER_USER : MAX_IMAGES_PER_USER;
+  const usedCount = tabs.reduce(
+    (n, t) =>
+      n +
+      t.media.filter((m) =>
+        tab.type === "video" ? m.kind === "video" : m.kind === "image",
+      ).length,
+    0,
+  );
 
   function onDragEnd(e: DragEndEvent) {
     const { active, over } = e;
@@ -284,7 +296,17 @@ export function MediaManager({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-0.5">
-        <Text variant="label">{tab.type === "video" ? "Videos" : "Photos"}</Text>
+        <div className="flex items-baseline gap-2">
+          <Text variant="label">
+            {tab.type === "video" ? "Videos" : "Photos"}
+          </Text>
+          <Text
+            variant="caption"
+            className={cn("tabular-nums", usedCount >= cap && "text-danger")}
+          >
+            {usedCount}/{cap}
+          </Text>
+        </div>
         <Text variant="caption">
           {tab.type === "video"
             ? "Upload videos to feature in this tab."
