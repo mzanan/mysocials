@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import { updateTab } from "../actions";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { toast } from "@/lib/toast";
 import type { DashTab } from "@/types/dashboard";
 import { useDashboardStore } from "./DashboardStore";
 import { MediaManager } from "./MediaManager";
@@ -37,15 +38,17 @@ export function TabPanel({
 }) {
   const { patchTab } = useDashboardStore();
   const [label, setLabel] = useState(tab.label);
-  const [type, setType] = useState(tab.type);
-  const [pending, startTransition] = useTransition();
 
-  function save(next?: { type?: "grid" | "video" }) {
-    const type_ = next?.type ?? type;
-    startTransition(async () => {
-      const res = await updateTab(tab.id, { label, type: type_ });
-      if (res.ok) patchTab(tab.id, { label, type: type_ });
-    });
+  async function persist(next: { label: string; type: "grid" | "video" }) {
+    const prev = { label: tab.label, type: tab.type };
+    if (prev.label === next.label && prev.type === next.type) return;
+    patchTab(tab.id, next);
+    const res = await updateTab(tab.id, next);
+    if (!res.ok) {
+      patchTab(tab.id, prev);
+      setLabel(prev.label);
+      toast.error(res.error ?? "Couldn't save changes");
+    }
   }
 
   return (
@@ -53,19 +56,19 @@ export function TabPanel({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <Field label="Tab name" className="flex-1 sm:max-w-xs">
           <Input
+            name="tab-label"
             value={label}
             onChange={(e) => setLabel(e.target.value)}
-            onBlur={() => save()}
+            onBlur={() => persist({ label, type: tab.type })}
           />
         </Field>
         <Field label="Layout" className="sm:w-44">
           <Select
-            value={type}
-            onChange={(e) => {
-              const v = e.target.value as "grid" | "video";
-              setType(v);
-              save({ type: v });
-            }}
+            name="tab-layout"
+            value={tab.type}
+            onChange={(e) =>
+              persist({ label, type: e.target.value as "grid" | "video" })
+            }
             className="w-full"
           >
             <option value="grid">Photo grid</option>
@@ -102,7 +105,6 @@ export function TabPanel({
           </Button>
         </div>
       </div>
-      {pending && <span className="text-fg-subtle -mt-3 text-xs">Saving…</span>}
 
       <MediaManager
         tab={tab}
