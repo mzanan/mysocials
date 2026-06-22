@@ -107,10 +107,21 @@ export function DashboardTabs({
     });
   }
 
+  function persistTabOrder(ordered: DashTab[], snapshot: DashTab[]) {
+    startTransition(async () => {
+      const res = await reorderTabs(ordered.map((t) => t.id));
+      if (!res.ok) {
+        setTabs(snapshot);
+        toast.error(res.error ?? "Could not save the new order");
+      }
+    });
+  }
+
   function reorder(index: number, dir: -1 | 1) {
+    const snapshot = tabs;
     const ordered = moveItem(tabs, index, dir);
     setTabs(ordered);
-    reorderTabs(ordered.map((t) => t.id));
+    persistTabOrder(ordered, snapshot);
   }
 
   function onDragEnd(e: DragEndEvent) {
@@ -119,17 +130,27 @@ export function DashboardTabs({
     const oldIndex = tabs.findIndex((t) => t.id === active.id);
     const newIndex = tabs.findIndex((t) => t.id === over.id);
     if (oldIndex < 0 || newIndex < 0) return;
+    const snapshot = tabs;
     const ordered = arrayMove(tabs, oldIndex, newIndex);
     setTabs(ordered);
-    reorderTabs(ordered.map((t) => t.id));
+    persistTabOrder(ordered, snapshot);
   }
 
   function remove(id: string) {
+    const snapshot = tabs;
     const tab = tabs.find((t) => t.id === id);
     setActive("profile");
     setTabs((prev) => prev.filter((t) => t.id !== id));
-    deleteTab(id);
-    if (tab) toast.success(`Tab “${tab.label}” deleted`);
+    startTransition(async () => {
+      const res = await deleteTab(id);
+      if (!res.ok) {
+        setTabs(snapshot);
+        setActive(id);
+        toast.error(res.error ?? "Could not delete the tab");
+        return;
+      }
+      if (tab) toast.success(`Tab “${tab.label}” deleted`);
+    });
   }
 
   return (

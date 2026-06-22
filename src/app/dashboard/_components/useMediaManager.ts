@@ -204,11 +204,18 @@ export function useMediaManager(tab: DashTab) {
   }
 
   function setOrder(ordered: DashMedia[]) {
+    const snapshot = tab.media
     setTabMedia(tab.id, () => ordered)
-    reorderMedia(
-      tab.id,
-      ordered.map((m) => m.id),
-    )
+    void (async () => {
+      const res = await reorderMedia(
+        tab.id,
+        ordered.map((m) => m.id),
+      )
+      if (!res.ok) {
+        setTabMedia(tab.id, () => snapshot)
+        toast.error(res.error ?? 'Could not save the new order')
+      }
+    })()
   }
 
   function reorder(index: number, dir: -1 | 1) {

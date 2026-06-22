@@ -2,11 +2,12 @@
 
 import { useState, useTransition } from 'react'
 import { deleteLink, updateLink } from '../actions'
+import { toast } from '@/lib/toast'
 import type { DashLink } from '@/types/dashboard'
 import { useDashboardStore } from './DashboardStore'
 
 export function useLinkRow(link: DashLink) {
-  const { setLinks } = useDashboardStore()
+  const { links, setLinks } = useDashboardStore()
   const [network, setNetwork] = useState(link.network ?? '')
   const [handle, setHandle] = useState(link.handle ?? '')
   const [title, setTitle] = useState(link.title)
@@ -47,8 +48,15 @@ export function useLinkRow(link: DashLink) {
   }
 
   function remove() {
+    const snapshot = links
     setLinks((prev) => prev.filter((l) => l.id !== link.id))
-    deleteLink(link.id)
+    startTransition(async () => {
+      const res = await deleteLink(link.id)
+      if (!res.ok) {
+        setLinks(snapshot)
+        toast.error(res.error ?? 'Could not delete the link')
+      }
+    })
   }
 
   return {
