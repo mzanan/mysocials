@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createTab, createLink } from "../actions";
 import { useDashboardStore } from "./DashboardStore";
 import {
@@ -30,6 +30,15 @@ export function useAgentChat({
   const [busy, setBusy] = useState(false);
   const [listening, setListening] = useState(false);
   const recognitionRef = useRef<Recognition | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(
+    () => () => {
+      abortRef.current?.abort();
+      recognitionRef.current?.stop();
+    },
+    [],
+  );
 
   async function runAction(action: AgentAction): Promise<string | null> {
     if (action.tool === "create_tab") {
@@ -86,6 +95,8 @@ export function useAgentChat({
     setInput("");
     setMessages((prev) => [...prev, { role: "user", text }]);
     setBusy(true);
+    const ac = new AbortController();
+    abortRef.current = ac;
     try {
       const res = await fetch("/api/agent", {
         method: "POST",
@@ -95,6 +106,7 @@ export function useAgentChat({
           tabLabels: tabs.map((t) => t.label),
           instagramConnected,
         }),
+        signal: ac.signal,
       });
       if (!res.ok) throw new Error();
       const plan: { reply: string; actions: AgentAction[] } = await res.json();
@@ -113,13 +125,14 @@ export function useAgentChat({
         { role: "assistant", text: reply || "Done." },
       ]);
     } catch {
+      if (ac.signal.aborted) return;
       toast.error("The assistant could not respond");
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", text: "Something went wrong — try again." },
+        { role: "assistant", text: "Something went wrong, try again." },
       ]);
     } finally {
-      setBusy(false);
+      if (!ac.signal.aborted) setBusy(false);
     }
   }
 
