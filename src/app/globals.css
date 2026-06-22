@@ -28,6 +28,8 @@
   --color-accent-2: var(--accent-2);
   --color-danger: #fca5a5;
   --color-danger-strong: rgba(248, 113, 113, 0.65);
+  --color-success: #86efac;
+  --color-info: #93c5fd;
 
   --shadow-glass: 0 16px 50px -30px rgba(0, 0, 0, 0.7);
   --shadow-glass-lg: 0 24px 70px -25px rgba(0, 0, 0, 0.8);
@@ -89,6 +91,8 @@
   --accent-2: #f4789a;
   --color-danger: #e11d48;
   --color-danger-strong: #e11d4899;
+  --color-success: #16a34a;
+  --color-info: #2563eb;
   --radius-card: 1.9rem;
   --radius-btn: 1.4rem;
   --shadow-card: 0 24px 60px -30px rgba(96, 74, 168, 0.4);
