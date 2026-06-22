@@ -8,7 +8,8 @@ export async function compressImage(file: File): Promise<File> {
   let bitmap: ImageBitmap
   try {
     bitmap = await createImageBitmap(file, { imageOrientation: "from-image" })
-  } catch {
+  } catch (err) {
+    console.warn("[compressImage] decode failed, sending original", file.name, err)
     return file
   }
 
@@ -24,6 +25,7 @@ export async function compressImage(file: File): Promise<File> {
   canvas.height = height
   const ctx = canvas.getContext("2d")
   if (!ctx) {
+    console.warn("[compressImage] no 2d context, sending original", file.name)
     bitmap.close()
     return file
   }

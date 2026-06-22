@@ -13,8 +13,13 @@ import { useMediaUndo } from './MediaUndoProvider'
 
 type MediaRow = { id: string; kind: 'image' | 'video'; url: string; poster_url: string | null }
 
-type VideoStatus = 'uploading' | 'done' | 'error'
-export type VideoUploadItem = { previewUrl: string; status: VideoStatus }
+type VideoStatus = 'queued' | 'compressing' | 'uploading' | 'done' | 'error'
+export type VideoUploadItem = {
+  id: string
+  previewUrl: string
+  status: VideoStatus
+  progress?: number
+}
 
 function toDashMedia(row: MediaRow): DashMedia {
   return { id: row.id, kind: row.kind, url: row.url, posterUrl: row.poster_url }
@@ -88,75 +93,114 @@ export function useMediaManager(tab: DashTab) {
   const { setTabMedia } = useDashboardStore()
   const mediaUndo = useMediaUndo()
   const [busy, setBusy] = useState(false)
-  const [videoStep, setVideoStep] = useState<'compressing' | 'uploading' | null>(null)
-  const [videoProgress, setVideoProgress] = useState<{ index: number; total: number } | null>(null)
   const [videoItems, setVideoItems] = useState<VideoUploadItem[]>([])
   const vidRef = useRef<HTMLInputElement>(null)
   const videoUrlsRef = useRef<string[]>([])
+  const queueRef = useRef<{ id: string; file: File }[]>([])
+  const runningRef = useRef(false)
 
   useEffect(() => () => videoUrlsRef.current.forEach(URL.revokeObjectURL), [])
 
-  async function onVideo(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? [])
-    if (!files.length) return
-    videoUrlsRef.current.forEach(URL.revokeObjectURL)
-    const urls = files.map((f) => URL.createObjectURL(f))
-    videoUrlsRef.current = urls
-    setVideoItems(files.map((_, i) => ({ previewUrl: urls[i], status: 'uploading' })))
+  function patchItem(id: string, fields: Partial<VideoUploadItem>) {
+    setVideoItems((prev) => prev.map((it) => (it.id === id ? { ...it, ...fields } : it)))
+  }
 
-    const patch = (i: number, status: VideoStatus) =>
-      setVideoItems((prev) => prev.map((it, idx) => (idx === i ? { ...it, status } : it)))
-
+  async function drain() {
+    if (runningRef.current) return
+    runningRef.current = true
     setBusy(true)
-    let uploaded = 0
-    let failed = 0
-    const supported = await canCompressVideo()
+    const canCompress = await canCompressVideo()
+    const stats = { uploaded: 0, failed: 0 }
     try {
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i]
-        setVideoProgress({ index: i + 1, total: files.length })
-        try {
-          const check = validateClip(file)
+      // Outer loop re-checks the queue so clips added during the final upload still run.
+      while (queueRef.current.length) {
+        let pendingUpload: Promise<void> = Promise.resolve()
+        while (queueRef.current.length) {
+          const task = queueRef.current.shift()!
+          const check = validateClip(task.file)
           if (!check.ok) {
-            toast.error(`${file.name}: ${check.reason}`)
-            patch(i, 'error')
-            failed++
+            toast.error(`${task.file.name}: ${check.reason}`)
+            patchItem(task.id, { status: 'error' })
+            stats.failed++
             continue
           }
-          if (!supported) {
-            toast.error(`${file.name}: your browser can't process video. Try Chrome or update Safari.`)
-            patch(i, 'error')
-            failed++
+          if (!canCompress) {
+            toast.error(`${task.file.name}: your browser can't process video. Try Chrome or update Safari.`)
+            patchItem(task.id, { status: 'error' })
+            stats.failed++
             continue
           }
 
-          setVideoStep('compressing')
-          const clip = await compressVideo(file)
-          const poster = await extractPoster(file)
+          let clip: Blob
+          let poster: Blob | null
+          try {
+            patchItem(task.id, { status: 'compressing', progress: 0 })
+            clip = await compressVideo(task.file, (p) => patchItem(task.id, { progress: p }))
+            poster = await extractPoster(clip)
+          } catch (err) {
+            toast.error(`${task.file.name}: ${err instanceof Error ? err.message : 'failed'}`)
+            patchItem(task.id, { status: 'error' })
+            stats.failed++
+            continue
+          }
 
-          setVideoStep('uploading')
-          const media = await uploadClip(tab.id, clip, poster)
-          setTabMedia(tab.id, (prev) => [...prev, toDashMedia(media)])
-          patch(i, 'done')
-          uploaded++
-        } catch (err) {
-          toast.error(`${file.name}: ${err instanceof Error ? err.message : 'failed'}`)
-          patch(i, 'error')
-          failed++
+          // Pipeline: upload this clip while the next one transcodes (one upload in flight).
+          patchItem(task.id, { status: 'uploading', progress: undefined })
+          const prior = pendingUpload
+          const clipToSend = clip
+          const posterToSend = poster
+          pendingUpload = (async () => {
+            await prior
+            try {
+              const media = await uploadClip(tab.id, clipToSend, posterToSend)
+              setTabMedia(tab.id, (prev) => [...prev, toDashMedia(media)])
+              patchItem(task.id, { status: 'done' })
+              stats.uploaded++
+            } catch (err) {
+              toast.error(`${task.file.name}: ${err instanceof Error ? err.message : 'failed'}`)
+              patchItem(task.id, { status: 'error' })
+              stats.failed++
+            }
+          })()
         }
+        await pendingUpload
       }
-      if (uploaded > 0) toast.success(`${uploaded} video${uploaded > 1 ? 's' : ''} uploaded`)
     } finally {
+      runningRef.current = false
       setBusy(false)
-      setVideoStep(null)
-      setVideoProgress(null)
-      if (vidRef.current) vidRef.current.value = ''
-      if (failed === 0) {
+      if (stats.uploaded > 0) {
+        toast.success(`${stats.uploaded} video${stats.uploaded > 1 ? 's' : ''} uploaded`)
+      }
+      if (stats.failed === 0) {
         videoUrlsRef.current.forEach(URL.revokeObjectURL)
         videoUrlsRef.current = []
         setVideoItems([])
+      } else {
+        setVideoItems((prev) => prev.filter((it) => it.status === 'error'))
       }
     }
+  }
+
+  function onVideo(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? [])
+    if (vidRef.current) vidRef.current.value = ''
+    if (!files.length) return
+    const additions = files.map((file) => {
+      const id = crypto.randomUUID()
+      const previewUrl = URL.createObjectURL(file)
+      videoUrlsRef.current.push(previewUrl)
+      return { id, file, previewUrl }
+    })
+    setVideoItems((prev) => [
+      ...prev,
+      ...additions.map((a) => ({
+        id: a.id,
+        previewUrl: a.previewUrl,
+        status: 'queued' as const,
+      })),
+    ])
+    queueRef.current.push(...additions.map((a) => ({ id: a.id, file: a.file })))
+    void drain()
   }
 
   function setOrder(ordered: DashMedia[]) {
@@ -189,8 +233,6 @@ export function useMediaManager(tab: DashTab) {
 
   return {
     busy,
-    videoStep,
-    videoProgress,
     videoItems,
     vidRef,
     onVideo,

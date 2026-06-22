@@ -114,8 +114,12 @@ export async function POST(req: Request) {
           const res = await fetch(item.src)
           if (!res.ok) return false
           const buf = Buffer.from(await res.arrayBuffer())
-          await ingestImageBuffer(buf, { userId: session.user.id, tabId: job.tab_id, position: item.position })
-          return true
+          const row = await ingestImageBuffer(buf, {
+            userId: session.user.id,
+            tabId: job.tab_id,
+            maxImages: MAX_IMAGES_PER_USER,
+          })
+          return row !== null
         } catch {
           return false
         }

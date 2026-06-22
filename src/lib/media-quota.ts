@@ -3,8 +3,7 @@ import { and, eq, sql } from 'drizzle-orm'
 import { db } from '@/lib/db'
 import { media, tabs } from '@/lib/db/schema'
 
-export const MAX_IMAGES_PER_USER = 60
-export const MAX_VIDEOS_PER_USER = 6
+export { MAX_IMAGES_PER_USER, MAX_VIDEOS_PER_USER } from '@/lib/media/limits'
 
 export async function countUserMedia(
   userId: string,

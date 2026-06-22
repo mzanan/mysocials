@@ -34,7 +34,9 @@ import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
+import { MAX_IMAGES_PER_USER, MAX_VIDEOS_PER_USER } from "@/lib/media/limits";
 import type { DashMedia, DashTab } from "@/types/dashboard";
+import { useDashboardStore } from "./DashboardStore";
 import { useImageUploader } from "./useImageUploader";
 import { useInstagramImport } from "./useInstagramImport";
 import { InstagramConnectButton } from "./InstagramConnectButton";
@@ -79,15 +81,24 @@ function SortableMedia({
       {...(sortable ? attributes : {})}
       {...(sortable ? listeners : {})}
     >
-      <Image
-        src={m.posterUrl ?? m.url}
-        alt=""
-        fill
-        className="pointer-events-none object-cover"
-        sizes="120px"
-        priority={index === 0}
-        unoptimized={m.kind === "video" && !m.posterUrl}
-      />
+      {m.kind === "video" && !m.posterUrl ? (
+        <video
+          src={m.url}
+          muted
+          playsInline
+          preload="metadata"
+          className="pointer-events-none h-full w-full object-cover"
+        />
+      ) : (
+        <Image
+          src={m.posterUrl ?? m.url}
+          alt=""
+          fill
+          className="pointer-events-none object-cover"
+          sizes="120px"
+          priority={index === 0}
+        />
+      )}
       {sortable && (
         <span className="pointer-events-none absolute top-1 left-1 grid h-7 w-7 place-items-center rounded-md bg-black/45 text-white opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100">
           <GripVertical size={14} />
@@ -149,17 +160,30 @@ function SortableMedia({
   );
 }
 
+type ThumbStatus =
+  | "queued"
+  | "pending"
+  | "compressing"
+  | "uploading"
+  | "done"
+  | "error";
+
 function UploadThumb({
   previewUrl,
-  loading,
-  error,
+  status,
+  progress,
   video,
 }: {
   previewUrl: string;
-  loading: boolean;
-  error: boolean;
+  status: ThumbStatus;
+  progress?: number;
   video?: boolean;
 }) {
+  const queued = status === "queued" || status === "pending";
+  const pct =
+    status === "compressing" && typeof progress === "number"
+      ? Math.round(progress * 100)
+      : null;
   return (
     <div className="border-hairline bg-surface-subtle relative aspect-square overflow-hidden rounded-lg border">
       {video ? (
@@ -180,14 +204,27 @@ function UploadThumb({
           sizes="120px"
         />
       )}
-      {loading && (
-        <div className="absolute inset-0 grid place-items-center bg-black/45">
-          <Spinner className="size-5 text-white" />
-        </div>
-      )}
-      {error && (
+      {status === "error" ? (
         <div className="bg-danger/55 absolute inset-0 grid place-items-center text-white">
           <AlertTriangle size={18} />
+        </div>
+      ) : queued ? (
+        <div className="absolute inset-0 grid place-items-center bg-black/40 text-[10px] font-medium tracking-wide text-white/90">
+          Queued
+        </div>
+      ) : (
+        <div className="absolute inset-0 grid place-items-center bg-black/45">
+          <Spinner className="size-5 text-white" />
+          {pct !== null && (
+            <span className="absolute bottom-1.5 text-[10px] font-medium text-white">
+              {pct}%
+            </span>
+          )}
+        </div>
+      )}
+      {pct !== null && (
+        <div className="absolute inset-x-0 bottom-0 h-1 bg-white/25">
+          <div className="h-full bg-white" style={{ width: `${pct}%` }} />
         </div>
       )}
     </div>
@@ -209,8 +246,6 @@ export function MediaManager({
 }) {
   const {
     busy,
-    videoStep,
-    videoProgress,
     videoItems,
     vidRef,
     onVideo,
@@ -220,6 +255,7 @@ export function MediaManager({
     rotateMedia,
   } = useMediaManager(tab);
   const up = useImageUploader(tab);
+  const { tabs } = useDashboardStore();
   const imgRef = useRef<HTMLInputElement>(null);
   const { importing, progress, start: onImport } = useInstagramImport(tab.id);
   const sensors = useSensors(
@@ -237,6 +273,15 @@ export function MediaManager({
   const pendingImages = up.items.filter((it) => it.status !== "done");
   const pendingVideos = videoItems.filter((it) => it.status !== "done");
   const hasPending = pendingImages.length > 0 || pendingVideos.length > 0;
+  const cap = tab.type === "video" ? MAX_VIDEOS_PER_USER : MAX_IMAGES_PER_USER;
+  const usedCount = tabs.reduce(
+    (n, t) =>
+      n +
+      t.media.filter((m) =>
+        tab.type === "video" ? m.kind === "video" : m.kind === "image",
+      ).length,
+    0,
+  );
 
   function onDragEnd(e: DragEndEvent) {
     const { active, over } = e;
@@ -251,7 +296,17 @@ export function MediaManager({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-0.5">
-        <Text variant="label">{tab.type === "video" ? "Videos" : "Photos"}</Text>
+        <div className="flex items-baseline gap-2">
+          <Text variant="label">
+            {tab.type === "video" ? "Videos" : "Photos"}
+          </Text>
+          <Text
+            variant="caption"
+            className={cn("tabular-nums", usedCount >= cap && "text-danger")}
+          >
+            {usedCount}/{cap}
+          </Text>
+        </div>
         <Text variant="caption">
           {tab.type === "video"
             ? "Upload videos to feature in this tab."
@@ -287,18 +342,10 @@ export function MediaManager({
           />
           <Button
             variant="secondary"
-            disabled={busy}
             onClick={() => vidRef.current?.click()}
             className="w-full sm:w-auto"
           >
-            <Upload size={14} />{" "}
-            {videoStep
-              ? `Uploading${
-                  videoProgress && videoProgress.total > 1
-                    ? ` ${videoProgress.index}/${videoProgress.total}`
-                    : ""
-                }…`
-              : "Add video"}
+            <Upload size={14} /> {busy ? "Add more" : "Add video"}
           </Button>
         </div>
       ) : instagramEnabled && !canImport ? (
@@ -368,16 +415,15 @@ export function MediaManager({
                 <UploadThumb
                   key={`img-${i}`}
                   previewUrl={it.previewUrl}
-                  loading={it.status === "pending" || it.status === "uploading"}
-                  error={it.status === "error"}
+                  status={it.status}
                 />
               ))}
-              {pendingVideos.map((it, i) => (
+              {pendingVideos.map((it) => (
                 <UploadThumb
-                  key={`vid-${i}`}
+                  key={`vid-${it.id}`}
                   previewUrl={it.previewUrl}
-                  loading={it.status === "uploading"}
-                  error={it.status === "error"}
+                  status={it.status}
+                  progress={it.progress}
                   video
                 />
               ))}

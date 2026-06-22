@@ -36,8 +36,10 @@ export async function POST(req: Request) {
     await storage.delete(clipKey).catch(() => {})
     if (posterKey) await storage.delete(posterKey).catch(() => {})
     return NextResponse.json(
-      { error: `Video limit reached (${MAX_VIDEOS_PER_USER}).` },
-      { status: 413 },
+      {
+        error: `Video limit reached (${existing}/${MAX_VIDEOS_PER_USER}). Delete some to add more.`,
+      },
+      { status: 409 },
     )
   }
 
