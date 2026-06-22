@@ -234,6 +234,9 @@ export function MediaManager({
   );
   const hiddenCount = tab.media.length - visibleMedia.length;
   const sortable = visibleMedia.length > 1;
+  const pendingImages = up.items.filter((it) => it.status !== "done");
+  const pendingVideos = videoItems.filter((it) => it.status !== "done");
+  const hasPending = pendingImages.length > 0 || pendingVideos.length > 0;
 
   function onDragEnd(e: DragEndEvent) {
     const { active, over } = e;
@@ -338,7 +341,7 @@ export function MediaManager({
         </div>
       )}
 
-      {visibleMedia.length > 0 && (
+      {(visibleMedia.length > 0 || hasPending) && (
         <DndContext
           id={`media-${tab.id}`}
           sensors={sensors}
@@ -361,6 +364,23 @@ export function MediaManager({
                   onRotate={rotateMedia}
                 />
               ))}
+              {pendingImages.map((it, i) => (
+                <UploadThumb
+                  key={`img-${i}`}
+                  previewUrl={it.previewUrl}
+                  loading={it.status === "pending" || it.status === "uploading"}
+                  error={it.status === "error"}
+                />
+              ))}
+              {pendingVideos.map((it, i) => (
+                <UploadThumb
+                  key={`vid-${i}`}
+                  previewUrl={it.previewUrl}
+                  loading={it.status === "uploading"}
+                  error={it.status === "error"}
+                  video
+                />
+              ))}
             </div>
           </SortableContext>
         </DndContext>
@@ -373,37 +393,6 @@ export function MediaManager({
           {tab.type === "video" ? "Photo grid" : "Video"} to see{" "}
           {hiddenCount > 1 ? "them" : "it"}.
         </Text>
-      )}
-
-      {up.items.some((it) => it.status !== "done") && (
-        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
-          {up.items
-            .filter((it) => it.status !== "done")
-            .map((it, i) => (
-              <UploadThumb
-                key={i}
-                previewUrl={it.previewUrl}
-                loading={it.status === "pending" || it.status === "uploading"}
-                error={it.status === "error"}
-              />
-            ))}
-        </div>
-      )}
-
-      {videoItems.some((it) => it.status !== "done") && (
-        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
-          {videoItems
-            .filter((it) => it.status !== "done")
-            .map((it, i) => (
-              <UploadThumb
-                key={i}
-                previewUrl={it.previewUrl}
-                loading={it.status === "uploading"}
-                error={it.status === "error"}
-                video
-              />
-            ))}
-        </div>
       )}
 
       {!up.active && up.failed.length > 0 && (
