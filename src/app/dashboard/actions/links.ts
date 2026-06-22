@@ -15,13 +15,19 @@ import {
   type Result,
 } from './_helpers'
 
+function normalizeUrl(value: string): string {
+  const trimmed = value.trim()
+  if (!trimmed) return trimmed
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`
+}
+
 const linkSchema = z
   .object({
     tabId: z.string().nullable(),
     network: z.string().trim().nullable(),
     handle: z.string().trim().nullable(),
     title: z.string().trim().max(40).optional(),
-    url: z.string().trim().max(500).optional(),
+    url: z.string().trim().max(500).optional().transform((v) => (v ? normalizeUrl(v) : v)),
     icon: z.string().trim().max(40).nullable(),
   })
   .superRefine((data, ctx) => {
