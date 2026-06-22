@@ -79,15 +79,24 @@ function SortableMedia({
       {...(sortable ? attributes : {})}
       {...(sortable ? listeners : {})}
     >
-      <Image
-        src={m.posterUrl ?? m.url}
-        alt=""
-        fill
-        className="pointer-events-none object-cover"
-        sizes="120px"
-        priority={index === 0}
-        unoptimized={m.kind === "video" && !m.posterUrl}
-      />
+      {m.kind === "video" && !m.posterUrl ? (
+        <video
+          src={m.url}
+          muted
+          playsInline
+          preload="metadata"
+          className="pointer-events-none h-full w-full object-cover"
+        />
+      ) : (
+        <Image
+          src={m.posterUrl ?? m.url}
+          alt=""
+          fill
+          className="pointer-events-none object-cover"
+          sizes="120px"
+          priority={index === 0}
+        />
+      )}
       {sortable && (
         <span className="pointer-events-none absolute top-1 left-1 grid h-7 w-7 place-items-center rounded-md bg-black/45 text-white opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100">
           <GripVertical size={14} />
@@ -149,17 +158,30 @@ function SortableMedia({
   );
 }
 
+type ThumbStatus =
+  | "queued"
+  | "pending"
+  | "compressing"
+  | "uploading"
+  | "done"
+  | "error";
+
 function UploadThumb({
   previewUrl,
-  loading,
-  error,
+  status,
+  progress,
   video,
 }: {
   previewUrl: string;
-  loading: boolean;
-  error: boolean;
+  status: ThumbStatus;
+  progress?: number;
   video?: boolean;
 }) {
+  const queued = status === "queued" || status === "pending";
+  const pct =
+    status === "compressing" && typeof progress === "number"
+      ? Math.round(progress * 100)
+      : null;
   return (
     <div className="border-hairline bg-surface-subtle relative aspect-square overflow-hidden rounded-lg border">
       {video ? (
@@ -180,14 +202,27 @@ function UploadThumb({
           sizes="120px"
         />
       )}
-      {loading && (
-        <div className="absolute inset-0 grid place-items-center bg-black/45">
-          <Spinner className="size-5 text-white" />
-        </div>
-      )}
-      {error && (
+      {status === "error" ? (
         <div className="bg-danger/55 absolute inset-0 grid place-items-center text-white">
           <AlertTriangle size={18} />
+        </div>
+      ) : queued ? (
+        <div className="absolute inset-0 grid place-items-center bg-black/40 text-[10px] font-medium tracking-wide text-white/90">
+          Queued
+        </div>
+      ) : (
+        <div className="absolute inset-0 grid place-items-center bg-black/45">
+          <Spinner className="size-5 text-white" />
+          {pct !== null && (
+            <span className="absolute bottom-1.5 text-[10px] font-medium text-white">
+              {pct}%
+            </span>
+          )}
+        </div>
+      )}
+      {pct !== null && (
+        <div className="absolute inset-x-0 bottom-0 h-1 bg-white/25">
+          <div className="h-full bg-white" style={{ width: `${pct}%` }} />
         </div>
       )}
     </div>
@@ -209,8 +244,6 @@ export function MediaManager({
 }) {
   const {
     busy,
-    videoStep,
-    videoProgress,
     videoItems,
     vidRef,
     onVideo,
@@ -287,18 +320,10 @@ export function MediaManager({
           />
           <Button
             variant="secondary"
-            disabled={busy}
             onClick={() => vidRef.current?.click()}
             className="w-full sm:w-auto"
           >
-            <Upload size={14} />{" "}
-            {videoStep
-              ? `Uploading${
-                  videoProgress && videoProgress.total > 1
-                    ? ` ${videoProgress.index}/${videoProgress.total}`
-                    : ""
-                }…`
-              : "Add video"}
+            <Upload size={14} /> {busy ? "Add more" : "Add video"}
           </Button>
         </div>
       ) : instagramEnabled && !canImport ? (
@@ -368,16 +393,15 @@ export function MediaManager({
                 <UploadThumb
                   key={`img-${i}`}
                   previewUrl={it.previewUrl}
-                  loading={it.status === "pending" || it.status === "uploading"}
-                  error={it.status === "error"}
+                  status={it.status}
                 />
               ))}
-              {pendingVideos.map((it, i) => (
+              {pendingVideos.map((it) => (
                 <UploadThumb
-                  key={`vid-${i}`}
+                  key={`vid-${it.id}`}
                   previewUrl={it.previewUrl}
-                  loading={it.status === "uploading"}
-                  error={it.status === "error"}
+                  status={it.status}
+                  progress={it.progress}
                   video
                 />
               ))}
