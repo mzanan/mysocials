@@ -71,14 +71,13 @@ export function useImageUploader(tab: DashTab) {
       Array.from({ length: Math.min(CONCURRENCY, targets.length) }, worker),
     )
     setActive(false)
-    if (fail === 0) {
-      toast.success(`${ok} photo${ok === 1 ? '' : 's'} uploaded`)
-      clear()
-    } else {
+    if (ok > 0) toast.success(`${ok} photo${ok === 1 ? '' : 's'} uploaded`)
+    if (fail > 0) {
       const detail = [...errors][0] ?? 'Upload failed'
-      console.error('[upload/image] failures', { ok, fail, errors: [...errors] })
-      toast.error(ok > 0 ? `${ok} uploaded · ${fail} failed — ${detail}` : detail)
+      console.warn('[upload/image] failures', { ok, fail, errors: [...errors] })
+      toast.error(fail === 1 ? detail : `${fail} failed. ${detail}`)
     }
+    if (fail === 0) clear()
   }
 
   function enqueue(files: File[]) {
