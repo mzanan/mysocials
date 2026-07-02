@@ -45,8 +45,6 @@
     "motion": "^12.40.0",
     "next": "^16.0.7",
     "nodemailer": "^8.0.10",
-    "puppeteer": "^24.30.0",
-    "puppeteer-core": "^24.30.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "sharp": "^0.34.5",
