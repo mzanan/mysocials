@@ -99,8 +99,8 @@ export function VideoWall({
   return (
     <div className="bg-fixed-overlay bg-grid-base">
       <div
-        className="absolute inset-0 overflow-hidden p-1"
-        style={{ columnCount: cols, columnGap: GAP }}
+        className="absolute inset-x-0 top-0 overflow-hidden p-1"
+        style={{ columnCount: cols, columnGap: GAP, columnFill: 'auto', height: '150%' }}
       >
         {slots.map((slot) => (
           <WallTile key={slot.key} slot={slot} isActive={isActive} />
