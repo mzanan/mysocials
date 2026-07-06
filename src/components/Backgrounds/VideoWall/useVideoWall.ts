@@ -4,7 +4,7 @@ import { useSyncExternalStore } from 'react'
 
 export const GAP = 4
 const MAX_LIVE = 6
-const FILL_PER_COL = 4
+const FILL_PER_COL = 8
 
 export interface WallVideo {
   url: string
