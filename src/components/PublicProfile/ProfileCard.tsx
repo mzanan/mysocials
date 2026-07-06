@@ -37,7 +37,7 @@ export function ProfileCard({
         animate={{ opacity: reveal ? 1 : 0, y: reveal ? 0 : 12 }}
         transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
       >
-        <div className="flex items-center justify-center pb-4 md:flex-col-reverse">
+        <div className="flex flex-row-reverse items-center justify-center pb-4 md:flex-col-reverse">
           <div className="flex flex-col gap-2 text-center">
             <h1 className="text-[1.7rem] font-semibold tracking-tight text-fg drop-shadow-md">
               {displayName}
