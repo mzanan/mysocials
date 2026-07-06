@@ -39,7 +39,7 @@ export function AvatarSection({
 
   return (
     <div className="flex items-center gap-4">
-      <div className="border-hairline-strong bg-surface relative h-16 w-16 overflow-hidden rounded-full border">
+      <div className="border-hairline-strong bg-surface relative h-16 w-16 shrink-0 overflow-hidden rounded-full border">
         {avatarUrl && (
           <Image
             src={avatarUrl}
