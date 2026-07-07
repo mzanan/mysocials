@@ -30,7 +30,7 @@ export function ProfileCard({
 
   return (
     <div className="relative mx-auto w-[340px] max-w-[calc(100vw-2rem)] rounded-3xl shadow-glass-lg">
-      <div className="absolute inset-0 rounded-3xl border border-hairline-strong bg-surface backdrop-blur-2xl [box-shadow:inset_0_1px_0_0_rgba(255,255,255,0.18)]" />
+      <div className="absolute inset-0 rounded-3xl border border-hairline-strong bg-app-bg/55 backdrop-blur-2xl [box-shadow:inset_0_1px_0_0_rgba(255,255,255,0.18)]" />
       <m.div
         className="relative p-8"
         initial={{ opacity: 0, y: 12 }}
