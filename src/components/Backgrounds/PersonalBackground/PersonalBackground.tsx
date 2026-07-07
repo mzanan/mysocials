@@ -13,8 +13,8 @@ import {
 
 const GAP = 4
 const READY_FALLBACK_MS = 2500
-const READY_PER_TILE_MS = 30
-const READY_BASE_MS = 500
+const READY_PER_TILE_MS = 20
+const READY_BASE_MS = 700
 
 function CycleGridView({
   grid,
