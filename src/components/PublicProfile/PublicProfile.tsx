@@ -8,6 +8,7 @@ import { ProfileCard } from './ProfileCard'
 import { PersonalBackground } from '@/components/Backgrounds/PersonalBackground/PersonalBackground'
 import { VideoWall } from '@/components/Backgrounds/VideoWall/VideoWall'
 import { BrandFooter } from '@/components/ui/BrandFooter'
+import { SignupCta } from '@/components/ui/SignupCta'
 import type { Theme } from '@/lib/appearance'
 import type { ProfilePublic } from '@/types/profile'
 
@@ -66,6 +67,8 @@ export function PublicProfile({ profile }: { profile: ProfilePublic }) {
         className="relative flex h-dvh flex-col items-center justify-center overflow-hidden bg-app-bg"
         style={{ ['--accent-glow' as string]: profile.accent }}
       >
+        <SignupCta />
+
         <button
           type="button"
           onClick={toggleTheme}
