@@ -47,6 +47,29 @@ export function useLinkRow(link: DashLink) {
     })
   }
 
+  function setIconAndSave(next: string | null) {
+    setIcon(next ?? '')
+    startTransition(async () => {
+      const payload = {
+        tabId: tabId || null,
+        network: network || null,
+        handle: handle || null,
+        title,
+        url,
+        icon: next,
+      }
+      const res = await updateLink(link.id, payload)
+      if (res.ok) {
+        setLinks((prev) =>
+          prev.map((l) => (l.id === link.id ? { ...l, icon: next } : l)),
+        )
+      } else {
+        setIcon(link.icon ?? '')
+        toast.error(res.error ?? 'Could not update the icon')
+      }
+    })
+  }
+
   function remove() {
     const snapshot = links
     setLinks((prev) => prev.filter((l) => l.id !== link.id))
@@ -70,6 +93,7 @@ export function useLinkRow(link: DashLink) {
     setUrl,
     icon,
     setIcon,
+    setIconAndSave,
     tabId,
     setTabId,
     pending,

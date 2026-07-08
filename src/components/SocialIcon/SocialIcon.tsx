@@ -18,6 +18,10 @@ function TikTokIcon({ size }: { size: number }) {
   )
 }
 
+export function isSocialUrl(url: string): boolean {
+  return detectBrand(url) !== null
+}
+
 export function SocialIcon({ url, size = 22 }: { url: string; size?: number }) {
   const brand = detectBrand(url)
   if (!brand) return null

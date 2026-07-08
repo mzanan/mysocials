@@ -12,6 +12,7 @@ import type { DashLink } from '@/types/dashboard'
 import { useDashboardStore } from './DashboardStore'
 import { useLinkRow } from './useLinkRow'
 import { NetworkPicker } from './NetworkPicker'
+import { LinkIconPicker } from './LinkIconPicker'
 
 const bareInput = 'w-full min-w-0 bg-transparent placeholder:text-fg-faint outline-none'
 
@@ -86,10 +87,15 @@ function LinkFields({
 
 function LinkRow({ link }: { link: DashLink }) {
   const r = useLinkRow(link)
+  const isCustom = !r.network
 
   return (
     <div className="group flex items-center gap-3 rounded-xl border border-hairline px-3 py-2 transition hover:border-hairline-strong focus-within:border-accent">
-      <NetworkBadge slug={r.network || null} />
+      {isCustom ? (
+        <LinkIconPicker value={r.icon} url={r.url} onChange={r.setIconAndSave} />
+      ) : (
+        <NetworkBadge slug={r.network || null} />
+      )}
       <LinkFields
         network={r.network || null}
         handle={r.handle}
