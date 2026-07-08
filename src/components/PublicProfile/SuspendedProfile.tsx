@@ -1,5 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Text } from '@/components/ui/text'
+import { SignupCta } from '@/components/ui/SignupCta'
 import type { SuspendedProfilePublic } from '@/types/profile'
 
 export function SuspendedProfile({ profile }: { profile: SuspendedProfilePublic }) {
@@ -10,6 +11,8 @@ export function SuspendedProfile({ profile }: { profile: SuspendedProfilePublic 
       className="relative flex h-dvh flex-col items-center justify-center overflow-hidden bg-app-bg text-fg"
       style={{ ['--accent-glow' as string]: profile.accent }}
     >
+      <SignupCta />
+
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,color-mix(in_oklab,var(--accent-glow)_18%,transparent)_0%,transparent_55%)]"
