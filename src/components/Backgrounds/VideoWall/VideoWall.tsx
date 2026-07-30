@@ -5,6 +5,7 @@ import { m } from 'motion/react'
 import { cn } from '@/lib/utils'
 import {
   DESKTOP_MIN,
+  FILL_PER_COL,
   GAP,
   assignColumns,
   buildSlots,
@@ -18,6 +19,7 @@ import {
 } from './useVideoWall'
 
 const READY_MS = 1100
+const MEASURE_TIMEOUT_MS = 2500
 const ENTRANCE_EASE: [number, number, number, number] = [0.25, 0.46, 0.45, 0.94]
 const entranceDelay = (index: number) => Math.min(index * 0.06, 0.6)
 
@@ -25,12 +27,12 @@ function WallTile({
   slot,
   index,
   isActive,
-  onAspect,
+  aspect,
 }: {
   slot: WallSlot
   index: number
   isActive: boolean
-  onAspect: (url: string, aspect: number) => void
+  aspect: number
 }) {
   const [loaded, setLoaded] = useState(false)
 
@@ -38,8 +40,9 @@ function WallTile({
     <m.div
       className={cn(
         'overflow-hidden rounded-md bg-grid-base',
-        !loaded && 'aspect-[3/4] skeleton-shimmer',
+        !loaded && 'skeleton-shimmer',
       )}
+      style={{ aspectRatio: aspect }}
       initial={{ opacity: 0, scale: 1.04 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 1.1, delay: entranceDelay(index), ease: ENTRANCE_EASE }}
@@ -52,12 +55,8 @@ function WallTile({
         loop={slot.live}
         playsInline
         preload="metadata"
-        onLoadedMetadata={(e) => {
-          const el = e.currentTarget
-          if (el.videoWidth && el.videoHeight) onAspect(slot.url, el.videoWidth / el.videoHeight)
-          setLoaded(true)
-        }}
-        className={cn('block w-full', loaded ? 'h-auto' : 'h-full object-cover')}
+        onLoadedMetadata={() => setLoaded(true)}
+        className="block h-full w-full object-cover"
       />
     </m.div>
   )
@@ -169,8 +168,17 @@ export function VideoWall({
   )
 
   const slotUrls = useMemo(() => slots.map((s) => s.url), [slots])
-  const { aspects: slotAspects, reportAspect: reportSlotAspect } = useAspects(slotUrls)
+  const { aspects: slotAspects, reportAspect: reportSlotAspect, measuredCount } = useAspects(slotUrls)
   const columns = useMemo(() => assignColumns(slotAspects, cols), [slotAspects, cols])
+  const uniqueUrls = useMemo(() => Array.from(new Set(slotUrls)), [slotUrls])
+
+  const [measureTimedOut, setMeasureTimedOut] = useState(false)
+  useEffect(() => {
+    if (isDesktop) return
+    const t = setTimeout(() => setMeasureTimedOut(true), MEASURE_TIMEOUT_MS)
+    return () => clearTimeout(t)
+  }, [isDesktop])
+  const wallReady = isDesktop || measuredCount >= uniqueUrls.length || measureTimedOut
 
   const [animationKey, setAnimationKey] = useState(0)
   const [wasActive, setWasActive] = useState(isActive)
@@ -204,7 +212,7 @@ export function VideoWall({
             />
           ))}
         </div>
-      ) : (
+      ) : wallReady ? (
         <div key={animationKey} className="absolute inset-x-0 top-0 flex p-1" style={{ gap: GAP }}>
           {columns.map((colIndices, c) => (
             <div key={c} className="flex flex-1 flex-col" style={{ gap: GAP }}>
@@ -214,10 +222,34 @@ export function VideoWall({
                   slot={slots[idx]}
                   index={idx}
                   isActive={isActive}
-                  onAspect={reportSlotAspect}
+                  aspect={slotAspects[idx]}
                 />
               ))}
             </div>
+          ))}
+        </div>
+      ) : (
+        <div className="absolute inset-x-0 top-0 flex p-1" style={{ gap: GAP }}>
+          {Array.from({ length: cols }, (_, c) => (
+            <div key={c} className="flex flex-1 flex-col" style={{ gap: GAP }}>
+              {Array.from({ length: FILL_PER_COL }, (_, r) => (
+                <div key={r} className="aspect-[3/4] rounded-md bg-grid-base skeleton-shimmer" />
+              ))}
+            </div>
+          ))}
+          {uniqueUrls.map((url) => (
+            <video
+              key={url}
+              src={url}
+              muted
+              playsInline
+              preload="metadata"
+              onLoadedMetadata={(e) => {
+                const el = e.currentTarget
+                if (el.videoWidth && el.videoHeight) reportSlotAspect(url, el.videoWidth / el.videoHeight)
+              }}
+              className="hidden"
+            />
           ))}
         </div>
       )}

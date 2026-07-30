@@ -43,12 +43,18 @@ export function useViewportHeight(): number {
 export function useAspects(urls: string[]): {
   aspects: number[]
   reportAspect: (url: string, aspect: number) => void
+  measuredCount: number
 } {
   const [measured, setMeasured] = useState<Record<string, number>>({})
   const reportAspect = useCallback((url: string, aspect: number) => {
     setMeasured((prev) => (prev[url] ? prev : { ...prev, [url]: aspect }))
   }, [])
-  return { aspects: urls.map((url) => measured[url] ?? 1), reportAspect }
+  const uniqueUrls = Array.from(new Set(urls))
+  return {
+    aspects: urls.map((url) => measured[url] ?? 1),
+    reportAspect,
+    measuredCount: uniqueUrls.filter((url) => measured[url]).length,
+  }
 }
 
 function packRow(aspects: number[], containerWidth: number, gap: number, rowHeight: number): number[][] {
