@@ -13,3 +13,21 @@ export function validateClip(file: File): ClipCheck {
   }
   return { ok: true }
 }
+
+const MIN_VIDEO_DIMENSION = 16
+const MAX_VIDEO_DIMENSION = 8000
+const MAX_VIDEO_ASPECT_RATIO = 6
+
+export function sanitizeVideoDimensions(
+  width: unknown,
+  height: unknown,
+): { width: number; height: number } | null {
+  const w = typeof width === "number" && Number.isFinite(width) ? Math.round(width) : null
+  const h = typeof height === "number" && Number.isFinite(height) ? Math.round(height) : null
+  if (!w || !h) return null
+  if (w < MIN_VIDEO_DIMENSION || h < MIN_VIDEO_DIMENSION) return null
+  if (w > MAX_VIDEO_DIMENSION || h > MAX_VIDEO_DIMENSION) return null
+  const ratio = w / h
+  if (ratio > MAX_VIDEO_ASPECT_RATIO || ratio < 1 / MAX_VIDEO_ASPECT_RATIO) return null
+  return { width: w, height: h }
+}

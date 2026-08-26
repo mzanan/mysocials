@@ -6,6 +6,7 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { media, tabs } from '@/lib/db/schema'
 import { MAX_VIDEOS_PER_USER, countUserMedia } from '@/lib/media-quota'
+import { sanitizeVideoDimensions } from '@/lib/media/video'
 import { storage } from '@/lib/storage'
 
 export const runtime = 'nodejs'
@@ -14,12 +15,16 @@ export async function POST(req: Request) {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { tabId, clipKey, posterKey } = (await req.json().catch(() => ({}))) as {
+  const { tabId, clipKey, posterKey, width, height } = (await req.json().catch(() => ({}))) as {
     tabId?: string
     clipKey?: string
     posterKey?: string | null
+    width?: number | null
+    height?: number | null
   }
   if (!tabId || !clipKey) return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
+
+  const dims = sanitizeVideoDimensions(width, height)
 
   const prefix = `media/${session.user.id}/${tabId}/`
   if (!clipKey.startsWith(prefix) || (posterKey && !posterKey.startsWith(prefix))) {
@@ -55,6 +60,8 @@ export async function POST(req: Request) {
       kind: 'video',
       r2_key: clipKey,
       url: storage.publicUrl(clipKey),
+      width: dims?.width ?? null,
+      height: dims?.height ?? null,
       poster_key: posterKey ?? null,
       poster_url: posterKey ? storage.publicUrl(posterKey) : null,
       position: (max ?? -1) + 1,

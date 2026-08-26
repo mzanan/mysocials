@@ -10,13 +10,21 @@ export const FILL_PER_COL = 4
 export interface WallVideo {
   url: string
   posterUrl?: string | null
+  width?: number | null
+  height?: number | null
 }
 
 export interface WallSlot {
   url: string
   posterUrl: string | null
+  width: number | null
+  height: number | null
   live: boolean
   key: string
+}
+
+export function knownAspect(video: { width?: number | null; height?: number | null }): number | null {
+  return video.width && video.height ? video.width / video.height : null
 }
 
 function subscribeWindow(cb: () => void) {
@@ -40,7 +48,7 @@ export function useViewportHeight(): number {
   )
 }
 
-export function useAspects(urls: string[]): {
+export function useAspects(items: { url: string; aspect?: number | null }[]): {
   aspects: number[]
   reportAspect: (url: string, aspect: number) => void
   measuredCount: number
@@ -49,11 +57,14 @@ export function useAspects(urls: string[]): {
   const reportAspect = useCallback((url: string, aspect: number) => {
     setMeasured((prev) => (prev[url] ? prev : { ...prev, [url]: aspect }))
   }, [])
-  const uniqueUrls = Array.from(new Set(urls))
+  const knownAspects = new Map(
+    items.filter((item): item is { url: string; aspect: number } => !!item.aspect).map((item) => [item.url, item.aspect]),
+  )
+  const uniqueUrls = Array.from(new Set(items.map((item) => item.url)))
   return {
-    aspects: urls.map((url) => measured[url] ?? 1),
+    aspects: items.map((item) => measured[item.url] ?? item.aspect ?? 1),
     reportAspect,
-    measuredCount: uniqueUrls.filter((url) => measured[url]).length,
+    measuredCount: uniqueUrls.filter((url) => measured[url] != null || knownAspects.has(url)).length,
   }
 }
 
@@ -157,6 +168,13 @@ export function buildSlots(videos: WallVideo[], cols: number): WallSlot[] {
     seen.add(v.url)
     const live = firstTime && liveCount < MAX_LIVE
     if (live) liveCount++
-    return { url: v.url, posterUrl: v.posterUrl ?? null, live, key: `${v.url}-${i}` }
+    return {
+      url: v.url,
+      posterUrl: v.posterUrl ?? null,
+      width: v.width ?? null,
+      height: v.height ?? null,
+      live,
+      key: `${v.url}-${i}`,
+    }
   })
 }

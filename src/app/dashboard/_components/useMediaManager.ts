@@ -4,14 +4,21 @@ import { useEffect, useRef, useState } from 'react'
 import { reorderMedia, rotateMedia as rotateMediaApi } from '../actions'
 import { moveItem } from '@/lib/array'
 import { canCompressVideo, compressVideo } from '@/lib/media/compressVideo'
-import { extractPoster } from '@/lib/media/poster'
+import { extractPoster, type PosterResult } from '@/lib/media/poster'
 import { validateClip } from '@/lib/media/video'
 import { toast } from '@/lib/toast'
 import type { DashMedia, DashTab } from '@/types/dashboard'
 import { useDashboardStore } from './DashboardStore'
 import { useMediaUndo } from './MediaUndoProvider'
 
-type MediaRow = { id: string; kind: 'image' | 'video'; url: string; poster_url: string | null }
+type MediaRow = {
+  id: string
+  kind: 'image' | 'video'
+  url: string
+  poster_url: string | null
+  width: number | null
+  height: number | null
+}
 
 type VideoStatus = 'queued' | 'compressing' | 'uploading' | 'done' | 'error'
 export type VideoUploadItem = {
@@ -35,7 +42,13 @@ type PresignResponse =
     }
   | { mode: 'local' }
 
-async function uploadClip(tabId: string, clip: Blob, poster: Blob | null): Promise<MediaRow> {
+async function uploadClip(
+  tabId: string,
+  clip: Blob,
+  poster: Blob | null,
+  width: number | null,
+  height: number | null,
+): Promise<MediaRow> {
   const presignRes = await fetch('/api/upload/video/presign', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
@@ -68,6 +81,8 @@ async function uploadClip(tabId: string, clip: Blob, poster: Blob | null): Promi
         tabId,
         clipKey: presign.clipKey,
         posterKey: poster ? presign.posterKey : null,
+        width,
+        height,
       }),
     })
     if (!confirmRes.ok) {
@@ -81,6 +96,8 @@ async function uploadClip(tabId: string, clip: Blob, poster: Blob | null): Promi
   fd.append('tabId', tabId)
   fd.append('clip', new File([clip], 'clip.mp4', { type: 'video/mp4' }))
   if (poster) fd.append('poster', poster, 'poster.webp')
+  if (width) fd.append('width', String(width))
+  if (height) fd.append('height', String(height))
   const res = await fetch('/api/upload/video', { method: 'POST', body: fd })
   if (!res.ok) {
     const b = (await res.json().catch(() => ({}))) as { error?: string }
@@ -132,11 +149,11 @@ export function useMediaManager(tab: DashTab) {
           }
 
           let clip: Blob
-          let poster: Blob | null
+          let posterResult: PosterResult | null
           try {
             patchItem(task.id, { status: 'compressing', progress: 0 })
             clip = await compressVideo(task.file, (p) => patchItem(task.id, { progress: p }))
-            poster = await extractPoster(clip)
+            posterResult = await extractPoster(clip)
           } catch (err) {
             toast.error(`${task.file.name}: ${err instanceof Error ? err.message : 'failed'}`)
             patchItem(task.id, { status: 'error' })
@@ -148,11 +165,19 @@ export function useMediaManager(tab: DashTab) {
           patchItem(task.id, { status: 'uploading', progress: undefined })
           const prior = pendingUpload
           const clipToSend = clip
-          const posterToSend = poster
+          const posterToSend = posterResult?.blob ?? null
+          const widthToSend = posterResult?.width ?? null
+          const heightToSend = posterResult?.height ?? null
           pendingUpload = (async () => {
             await prior
             try {
-              const media = await uploadClip(tab.id, clipToSend, posterToSend)
+              const media = await uploadClip(
+                tab.id,
+                clipToSend,
+                posterToSend,
+                widthToSend,
+                heightToSend,
+              )
               setTabMedia(tab.id, (prev) => [...prev, toDashMedia(media)])
               patchItem(task.id, { status: 'done' })
               stats.uploaded++
