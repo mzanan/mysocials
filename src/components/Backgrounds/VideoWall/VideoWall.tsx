@@ -14,6 +14,7 @@ import {
   useAspects,
   useViewportHeight,
   useViewportWidth,
+  useWallPlayback,
   wallColumns,
   type WallSlot,
   type WallVideo,
@@ -36,6 +37,7 @@ function WallTile({
   aspect: number
 }) {
   const [loaded, setLoaded] = useState(false)
+  const videoRef = useWallPlayback(slot.live && isActive)
 
   return (
     <m.div
@@ -49,6 +51,7 @@ function WallTile({
       transition={{ duration: 1.1, delay: entranceDelay(index), ease: ENTRANCE_EASE }}
     >
       <video
+        ref={videoRef}
         src={slot.url}
         poster={slot.posterUrl ?? undefined}
         autoPlay={slot.live && isActive}
@@ -79,6 +82,7 @@ function JustifiedTile({
   onAspect: (url: string, aspect: number) => void
 }) {
   const [loaded, setLoaded] = useState(false)
+  const videoRef = useWallPlayback(live && isActive)
 
   return (
     <m.div
@@ -92,6 +96,7 @@ function JustifiedTile({
       transition={{ duration: 1.1, delay: entranceDelay(index), ease: ENTRANCE_EASE }}
     >
       <video
+        ref={videoRef}
         src={video.url}
         poster={video.posterUrl ?? undefined}
         autoPlay={live && isActive}
@@ -111,6 +116,9 @@ function JustifiedTile({
 }
 
 function SingleVideo({ video, isActive }: { video: WallVideo; isActive: boolean }) {
+  const bgRef = useWallPlayback(isActive)
+  const mainRef = useWallPlayback(isActive)
+
   return (
     <div className="bg-fixed-overlay bg-app-bg">
       {video.posterUrl ? (
@@ -121,6 +129,7 @@ function SingleVideo({ video, isActive }: { video: WallVideo; isActive: boolean 
         />
       ) : (
         <video
+          ref={bgRef}
           aria-hidden
           src={video.url}
           autoPlay={isActive}
@@ -131,6 +140,7 @@ function SingleVideo({ video, isActive }: { video: WallVideo; isActive: boolean 
         />
       )}
       <video
+        ref={mainRef}
         src={video.url}
         poster={video.posterUrl ?? undefined}
         autoPlay={isActive}
