@@ -89,7 +89,12 @@ export function PublicProfile({ profile }: { profile: ProfilePublic }) {
               {tab.type === 'video' ? (
                 <VideoWall
                   isActive={tab.id === activeTabId}
-                  videos={tab.media.map((md) => ({ url: md.url, posterUrl: md.posterUrl }))}
+                  videos={tab.media.map((md) => ({
+                    url: md.url,
+                    posterUrl: md.posterUrl,
+                    width: md.width,
+                    height: md.height,
+                  }))}
                   onReady={revealCard}
                 />
               ) : (

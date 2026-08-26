@@ -10,6 +10,7 @@ import {
   assignColumns,
   buildSlots,
   justifyLayout,
+  knownAspect,
   useAspects,
   useViewportHeight,
   useViewportWidth,
@@ -160,15 +161,26 @@ export function VideoWall({
   const slots = useMemo(() => buildSlots(videos, cols), [videos, cols])
   const isDesktop = width >= DESKTOP_MIN
 
-  const urls = useMemo(() => videos.map((v) => v.url), [videos])
-  const { aspects, reportAspect } = useAspects(urls)
+  const aspectItems = useMemo(
+    () => videos.map((v) => ({ url: v.url, aspect: knownAspect(v) })),
+    [videos],
+  )
+  const { aspects, reportAspect } = useAspects(aspectItems)
   const rects = useMemo(
     () => justifyLayout(aspects, width - GAP * 2, height - GAP * 2, GAP),
     [aspects, width, height],
   )
 
+  const slotAspectItems = useMemo(
+    () => slots.map((s) => ({ url: s.url, aspect: knownAspect(s) })),
+    [slots],
+  )
+  const {
+    aspects: slotAspects,
+    reportAspect: reportSlotAspect,
+    measuredCount,
+  } = useAspects(slotAspectItems)
   const slotUrls = useMemo(() => slots.map((s) => s.url), [slots])
-  const { aspects: slotAspects, reportAspect: reportSlotAspect, measuredCount } = useAspects(slotUrls)
   const columns = useMemo(() => assignColumns(slotAspects, cols), [slotAspects, cols])
   const uniqueUrls = useMemo(() => Array.from(new Set(slotUrls)), [slotUrls])
 

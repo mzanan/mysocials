@@ -8,7 +8,7 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { media, tabs } from '@/lib/db/schema'
 import { MAX_VIDEOS_PER_USER, countUserMedia } from '@/lib/media-quota'
-import { MAX_VIDEO_BYTES } from '@/lib/media/video'
+import { MAX_VIDEO_BYTES, sanitizeVideoDimensions } from '@/lib/media/video'
 import { storage } from '@/lib/storage'
 
 export const runtime = 'nodejs'
@@ -23,6 +23,7 @@ export async function POST(req: Request) {
   const tabId = String(form.get('tabId') ?? '')
   const clip = form.get('clip')
   const poster = form.get('poster')
+  const dims = sanitizeVideoDimensions(Number(form.get('width')), Number(form.get('height')))
   if (!tabId || !(clip instanceof File)) {
     return NextResponse.json({ error: 'Missing tabId or clip' }, { status: 400 })
   }
@@ -82,6 +83,8 @@ export async function POST(req: Request) {
         kind: 'video',
         r2_key: clipKey,
         url: storage.publicUrl(clipKey),
+        width: dims?.width ?? null,
+        height: dims?.height ?? null,
         poster_key: posterKey,
         poster_url: posterUrl,
         position: (max ?? -1) + 1,
