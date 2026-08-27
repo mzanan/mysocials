@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState, useSyncExternalStore } from 'react'
+import { type RefObject, useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 
 export const GAP = 4
 export const DESKTOP_MIN = 1024
@@ -46,6 +46,20 @@ export function useViewportHeight(): number {
     () => window.innerHeight,
     () => 768,
   )
+}
+
+export function useWallPlayback(active: boolean): RefObject<HTMLVideoElement | null> {
+  const ref = useRef<HTMLVideoElement>(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    if (active) {
+      if (el.paused) el.play().catch(() => {})
+    } else if (!el.paused) {
+      el.pause()
+    }
+  }, [active])
+  return ref
 }
 
 export function useAspects(items: { url: string; aspect?: number | null }[]): {
