@@ -1,122 +1,71 @@
-# 🚀 Complete Setup - mySocials
+# mySocials
 
-## Prerequisites
+Multi-user link-in-bio SaaS. Users sign up, build a profile (avatar, bio, accent, theme) with tabs of photo grids or video walls plus links, then subscribe to publish it at `/<username>`.
 
-- **Node.js** 20+ and npm
+Live: [links.itsmatias.com](https://links.itsmatias.com)
 
-## Installation
+## Features
 
-### 1️⃣ Clone and install Node.js dependencies
+- Email-first auth (email + password, optional Google) with better-auth.
+- Dashboard editor for profile, tabs, media and links; tabs, media and links reorder by drag and drop.
+- Links: 16 preset networks from an `@handle`, or custom title/URL/icon.
+- Media: images compressed client-side and normalized with `sharp`; videos transcoded in the browser (WebCodecs) and uploaded straight to R2.
+- Instagram import (Apify scraper).
+- Public page with animated photo grid or video wall background, light/dark theme per profile.
+- Paid publishing via Polar ($3/mo); viewing is never gated.
+- Optional LLM dashboard agent (Groq).
+
+## Stack
+
+Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4, motion, better-auth, Drizzle + libSQL/Turso, Polar, Cloudflare R2, dnd-kit.
+
+## Setup
+
+Requires Node.js 20+.
 
 ```bash
 npm install
-```
-
-### 2️⃣ Start the server
-
-```bash
+npm run db:migrate
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+Opens on [http://localhost:3030](http://localhost:3030) (the port must match `NEXT_PUBLIC_BETTER_AUTH_URL`).
 
-## 🎨 Features
+### Environment
 
-### Dynamic Backgrounds per Category
+Secrets live in Infisical (`.infisical.json`). Minimum for local dev:
 
-Each tab has a dynamic background with real content from your social media:
+| Variable | Purpose |
+|---|---|
+| `TURSO_DATABASE_URL` | `file:local.db` in dev, Turso URL in prod |
+| `TURSO_AUTH_TOKEN` | Turso only |
+| `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `NEXT_PUBLIC_BETTER_AUTH_URL` | auth |
+| `NEXT_PUBLIC_SITE_URL` | canonical site URL |
+| `STORAGE_DRIVER` | `local` (dev) or `r2` (prod) |
 
-#### 📸 Personal
-- **Source**: Instagram
-- **Implementation**: Direct API calls to Instagram's public web API
-- **Visual**: Animated grid with real images
+Optional features activate only when their variables are set:
 
-#### 🎮 Valorant
-- **Source**: Reddit (r/Valorant subreddit)
-- **Visual**: Grid of gameplay and character images
+- Google login: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
+- R2 storage: `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`, `R2_PUBLIC_BASE_URL`
+- Billing: `POLAR_ACCESS_TOKEN`, `POLAR_PRODUCT_ID`, `POLAR_SERVER`, `POLAR_WEBHOOK_SECRET`
+- Instagram import: `IG_PROVIDER`, `APIFY_TOKEN`, `APIFY_ACTOR` (or `INSTAGRAM_APP_ID`, `INSTAGRAM_APP_SECRET` for the official provider)
+- Email: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_FROM_EMAIL`
+- AI agent: `GROQ_API_KEY` or `AGENT_API_KEY`, `AGENT_BASE_URL`, `AGENT_MODEL`
 
-#### 💻 Dev
-- **Source**: Automatic screenshots with Puppeteer
-- **Projects**: 
-  - ecommerce-landing-kappa.vercel.app
-  - ecommerce-six-peach-14.vercel.app
-- **Visual**: Real screenshots captured in real-time
-
-#### 📈 Trading
-- **Source**: TradingView Widgets
-- **Charts**: BTC, ETH, SOL, BNB, XRP, ADA, DOGE, MATIC, DOT, AVAX, LINK, UNI
-- **Timeframe**: 1 hour (1H)
-- **Visual**: Grid of 10 real-time charts in 2 columns
-
-## 📂 File Structure
-
-```
-/src
-  /app
-    /api
-      /instagram      # Instagram images API
-      /valorant       # Valorant images from Reddit API
-      /dev-screenshots # Screenshots API with Puppeteer
-      /trading-charts  # TradingView widgets API
-  /components
-    /PublicProfile
-      /Backgrounds    # Background components per category
-  /lib
-    cache.ts          # Server-side caching system (30 min)
-    browser-cache.ts  # Browser-side caching system (24 hours)
-    preload.ts        # Preloads all background data
-    projects.ts       # Dev projects configuration
-```
-
-## 🔧 Available Scripts
+## Scripts
 
 ```bash
-npm run dev              # Start development server
-npm run build            # Build for production
-npm run start            # Start production server
-npm run lint             # Run linter
-npm run format           # Format code with Prettier
+npm run dev          # dev server on port 3030
+npm run build        # production build
+npm run start        # serve the build
+npm run lint         # eslint
+npm run format       # prettier
+npm run db:generate  # drizzle migration from schema
+npm run db:migrate   # apply migrations
+npm run db:studio    # drizzle studio
+npm run make-admin <email>
 ```
 
-## 🐛 Troubleshooting
+## License
 
-### Screenshots not working
-
-Puppeteer may take time on first execution. Screenshots are cached for 30 minutes.
-
-### No Instagram images
-
-If there are no images:
-1. Check the logs in the terminal
-2. Make sure the Instagram profile is public
-3. Instagram's API may have rate limits
-
-## 🎯 Cache
-
-The system implements a dual caching system:
-
-**Server-side cache** (30 minutes):
-- ✅ Instagram images
-- ✅ Valorant images
-- ✅ Project screenshots
-- ✅ Trading charts
-
-**Browser-side cache** (24 hours):
-- ✅ All background data is cached in localStorage
-- ✅ Prevents unnecessary API calls when switching tabs
-- ✅ Improves performance and reduces server load
-
-## 🔐 Privacy
-
-- Instagram images are fetched directly from Instagram's public API
-- Screenshots are generated in real-time and cached temporarily
-- All data is cached in the browser for 24 hours
-
-## 📝 Notes
-
-- Instagram requires the profile to be public
-- Screenshots may take a few seconds to generate
-- Server-side cache is reset when restarting the server
-- Browser cache persists across sessions (24 hours)
-- In production, consider using Redis for server-side caching
-
+MIT
