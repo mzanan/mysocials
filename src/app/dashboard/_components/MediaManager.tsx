@@ -17,10 +17,6 @@ import {
 import {
   DndContext,
   closestCenter,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
 import {
@@ -34,6 +30,7 @@ import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
+import { useDragSensors } from "@/hooks/useDragSensors";
 import { MAX_IMAGES_PER_USER, MAX_VIDEOS_PER_USER } from "@/lib/media/limits";
 import type { DashMedia, DashTab } from "@/types/dashboard";
 import { useDashboardStore } from "./DashboardStore";
@@ -258,12 +255,7 @@ export function MediaManager({
   const { tabs } = useDashboardStore();
   const imgRef = useRef<HTMLInputElement>(null);
   const { importing, progress, start: onImport } = useInstagramImport(tab.id);
-  const sensors = useSensors(
-    useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
-    useSensor(TouchSensor, {
-      activationConstraint: { delay: 180, tolerance: 8 },
-    })
-  );
+  const sensors = useDragSensors();
 
   const visibleMedia = tab.media.filter((m) =>
     tab.type === "video" ? m.kind === "video" : m.kind === "image",

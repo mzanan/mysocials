@@ -5,10 +5,6 @@ import { Clapperboard, LayoutGrid, Plus, User } from "lucide-react";
 import {
   DndContext,
   closestCenter,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
 import {
@@ -22,6 +18,7 @@ import { createTab, deleteTab, reorderTabs } from "../actions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useDragSensors } from "@/hooks/useDragSensors";
 import { moveItem } from "@/lib/array";
 import { toast } from "@/lib/toast";
 import { useHorizontalWheelScroll } from "@/hooks/useHorizontalWheelScroll";
@@ -77,12 +74,7 @@ export function DashboardTabs({
   const [active, setActive] = useState("profile");
   const [pending, startTransition] = useTransition();
   const tabBarRef = useHorizontalWheelScroll<HTMLDivElement>();
-  const sensors = useSensors(
-    useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
-    useSensor(TouchSensor, {
-      activationConstraint: { delay: 180, tolerance: 8 },
-    })
-  );
+  const sensors = useDragSensors();
 
   function addTab() {
     const tempId = crypto.randomUUID();

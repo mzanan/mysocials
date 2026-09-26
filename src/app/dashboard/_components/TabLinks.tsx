@@ -1,7 +1,10 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Link2, Plus, Trash2, X } from 'lucide-react'
+import { GripVertical, Link2, Plus, Trash2, X } from 'lucide-react'
+import { DndContext, closestCenter } from '@dnd-kit/core'
+import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { createLink } from '../actions'
 import { Button } from '@/components/ui/button'
 import { NetworkIcon } from '@/components/SocialIcon/NetworkIcon'
@@ -11,6 +14,7 @@ import { toast } from '@/lib/toast'
 import type { DashLink } from '@/types/dashboard'
 import { useDashboardStore } from './DashboardStore'
 import { useLinkRow } from './useLinkRow'
+import { useLinkReorder } from './useLinkReorder'
 import { NetworkPicker } from './NetworkPicker'
 import { LinkIconPicker } from './LinkIconPicker'
 
@@ -85,12 +89,34 @@ function LinkFields({
   )
 }
 
-function LinkRow({ link }: { link: DashLink }) {
+function LinkRow({ link, sortable }: { link: DashLink; sortable: boolean }) {
   const r = useLinkRow(link)
   const isCustom = !r.network
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } =
+    useSortable({ id: link.id, disabled: !sortable })
 
   return (
-    <div className="group flex items-center gap-3 rounded-xl border border-hairline px-3 py-2 transition hover:border-hairline-strong focus-within:border-accent">
+    <div
+      ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+      className={cn(
+        'group flex items-center gap-3 rounded-xl border border-hairline px-3 py-2 transition hover:border-hairline-strong focus-within:border-accent',
+        isDragging && 'relative z-10 bg-surface-strong opacity-80 ring-2 ring-accent',
+      )}
+    >
+      {sortable && (
+        <Button
+          ref={setActivatorNodeRef}
+          variant="ghost"
+          size="iconSm"
+          aria-label="Reorder link"
+          className="-mr-2 shrink-0 cursor-grab touch-none text-fg-faint active:cursor-grabbing"
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical size={15} />
+        </Button>
+      )}
       {isCustom ? (
         <LinkIconPicker value={r.icon} url={r.url} onChange={r.setIconAndSave} />
       ) : (
@@ -120,8 +146,8 @@ function LinkRow({ link }: { link: DashLink }) {
 }
 
 export function TabLinks({ tabId, igUsername }: { tabId: string; igUsername: string | null }) {
-  const { links, setLinks } = useDashboardStore()
-  const tabLinks = links.filter((l) => l.tabId === tabId)
+  const { setLinks } = useDashboardStore()
+  const { tabLinks, sensors, sortable, onDragEnd } = useLinkReorder(tabId)
   const [pickerOpen, setPickerOpen] = useState(false)
   const [draft, setDraft] = useState<{ network: NetworkSlug | null } | null>(null)
   const [handle, setHandle] = useState('')
@@ -160,11 +186,15 @@ export function TabLinks({ tabId, igUsername }: { tabId: string; igUsername: str
   return (
     <div className="mt-4 border-t border-hairline-subtle pt-4">
       <p className="mb-2 text-xs font-medium text-fg-subtle">Links</p>
-      <div className="flex flex-col gap-2">
-        {tabLinks.map((link) => (
-          <LinkRow key={link.id} link={link} />
-        ))}
-      </div>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+        <SortableContext items={tabLinks.map((l) => l.id)} strategy={verticalListSortingStrategy}>
+          <div className="flex flex-col gap-2">
+            {tabLinks.map((link) => (
+              <LinkRow key={link.id} link={link} sortable={sortable} />
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
 
       {draft && (
         <div className="mt-2 flex items-center gap-3 rounded-xl border border-accent/40 bg-surface-strong px-3 py-2">
