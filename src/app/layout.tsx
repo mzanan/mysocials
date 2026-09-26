@@ -4,9 +4,9 @@ import { GeistMono } from "geist/font/mono";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ImpersonationBanner } from "@/components/account/ImpersonationBanner";
+import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 const SITE_NAME = "mySocials";
 const SITE_DESCRIPTION = "One beautiful page for all your links.";
 
