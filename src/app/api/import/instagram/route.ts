@@ -1,13 +1,12 @@
-import { randomUUID } from 'node:crypto'
-
 import { headers } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { and, eq } from 'drizzle-orm'
 
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { import_jobs, tabs } from '@/lib/db/schema'
+import { tabs } from '@/lib/db/schema'
 import { importEnabled } from '@/lib/ig'
+import { claimImportJob } from '@/lib/ig/importQuota'
 import { requirePublishAccess } from '@/lib/subscription'
 
 export const runtime = 'nodejs'
@@ -30,14 +29,8 @@ export async function POST(req: Request) {
   })
   if (!tab) return NextResponse.json({ error: 'Tab not found' }, { status: 404 })
 
-  const jobId = randomUUID()
-  await db.insert(import_jobs).values({
-    id: jobId,
-    user_id: session.user.id,
-    tab_id: tabId,
-    source: 'instagram',
-    status: 'pending',
-  })
+  const claim = await claimImportJob(session.user.id, tabId)
+  if (!claim.ok) return NextResponse.json({ error: claim.message }, { status: 429 })
 
-  return NextResponse.json({ jobId })
+  return NextResponse.json({ jobId: claim.jobId })
 }
