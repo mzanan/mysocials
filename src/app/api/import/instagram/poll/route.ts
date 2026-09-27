@@ -49,6 +49,11 @@ async function claim(jobId: string, expected: JobState['status'], updatedAt?: st
   return res.length > 0
 }
 
+async function respondWithFreshState(jobId: string) {
+  const fresh = await db.query.import_jobs.findFirst({ where: eq(import_jobs.id, jobId) })
+  return NextResponse.json(fresh ? state(fresh) : { error: 'Job vanished' }, { status: fresh ? 200 : 500 })
+}
+
 async function failJob(jobId: string, error: string) {
   await db.update(import_jobs).set({ status: 'failed', error }).where(eq(import_jobs.id, jobId))
 }
@@ -73,14 +78,12 @@ export async function POST(req: Request) {
   if (stale && job.pending_items === null) {
     const error = 'Instagram took too long to respond. Please try again.'
     if (await claim(jobId, 'processing', job.updated_at)) await failJob(jobId, error)
-    const fresh = await db.query.import_jobs.findFirst({ where: eq(import_jobs.id, jobId) })
-    return NextResponse.json(fresh ? state(fresh) : { error: 'Job vanished' }, { status: fresh ? 200 : 500 })
+    return respondWithFreshState(jobId)
   }
 
   const step = stale ? 'running' : job.status
   if (!(await claim(jobId, job.status, stale ? job.updated_at : undefined))) {
-    const fresh = await db.query.import_jobs.findFirst({ where: eq(import_jobs.id, jobId) })
-    return NextResponse.json(fresh ? state(fresh) : { error: 'Job vanished' }, { status: fresh ? 200 : 500 })
+    return respondWithFreshState(jobId)
   }
 
   try {
