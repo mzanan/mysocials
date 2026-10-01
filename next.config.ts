@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
+import { posthogRewrites } from "./src/lib/analytics";
 
 const nextConfig: NextConfig = {
+  skipTrailingSlashRedirect: true,
+  async rewrites() {
+    return posthogRewrites
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
