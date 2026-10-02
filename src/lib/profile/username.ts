@@ -5,6 +5,7 @@ import { profiles } from '@/lib/db/schema'
 
 export const RESERVED_USERNAMES = new Set([
   'api',
+  'relay',
   'dashboard',
   'admin',
   'login',
