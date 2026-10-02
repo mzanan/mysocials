@@ -1,4 +1,4 @@
-const SITE_URL = "https://links.itsmatias.com";
+import { SITE_URL } from "@/lib/site";
 
 export function StructuredData() {
   const data = [
