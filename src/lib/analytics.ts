@@ -24,3 +24,11 @@ export const trailingSlashRedirect = {
   destination: '/:path',
   permanent: true,
 };
+
+export const posthogPrivacyOptions = {
+  mask_all_text: true,
+  session_recording: {
+    maskAllInputs: true,
+    maskTextSelector: '*',
+  },
+};

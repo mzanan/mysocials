@@ -1,5 +1,9 @@
 import posthog from 'posthog-js';
-import { POSTHOG_PROXY_PATH, POSTHOG_UI_HOST } from '@/lib/analytics';
+import {
+  POSTHOG_PROXY_PATH,
+  POSTHOG_UI_HOST,
+  posthogPrivacyOptions,
+} from '@/lib/analytics';
 
 const token = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
 
@@ -8,5 +12,6 @@ if (token && process.env.NODE_ENV === 'production') {
     api_host: POSTHOG_PROXY_PATH,
     ui_host: POSTHOG_UI_HOST,
     defaults: '2026-05-30',
+    ...posthogPrivacyOptions,
   });
 }
