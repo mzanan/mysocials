@@ -18,3 +18,9 @@ export const posthogRewrites = [
     destination: `${POSTHOG_INGEST_HOST}/:path*`,
   },
 ];
+
+export const trailingSlashRedirect = {
+  source: `/:path((?!${POSTHOG_PROXY_PATH.slice(1)}/).+)/`,
+  destination: '/:path',
+  permanent: true,
+};
