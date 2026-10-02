@@ -51,6 +51,7 @@ Optional features activate only when their variables are set:
 - Instagram import: `IG_PROVIDER`, `APIFY_TOKEN`, `APIFY_ACTOR` (or `INSTAGRAM_APP_ID`, `INSTAGRAM_APP_SECRET` for the official provider)
 - Email: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_FROM_EMAIL`
 - AI agent: `GROQ_API_KEY` or `AGENT_API_KEY`, `AGENT_BASE_URL`, `AGENT_MODEL`
+- Analytics: `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN` (PostHog EU, production only, proxied through `/relay`)
 
 ## Scripts
 
