@@ -2,7 +2,9 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { PublicProfile } from '@/components/PublicProfile/PublicProfile'
 import { SuspendedProfile } from '@/components/PublicProfile/SuspendedProfile'
+import { JsonLd } from '@/components/ui/JsonLd'
 import { getPublicProfileByUsername } from '@/lib/profile/getPublicProfile'
+import { SITE_NAME, profileJsonLd } from '@/lib/seo'
 import { isSuspended } from '@/types/profile'
 
 export const dynamic = 'force-dynamic'
@@ -25,7 +27,14 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   return {
     title: name,
     description,
-    openGraph: { title: name, description },
+    openGraph: {
+      type: 'profile',
+      siteName: SITE_NAME,
+      locale: 'en_US',
+      title: name,
+      description,
+      ...(profile.avatarUrl ? { images: [profile.avatarUrl] } : {}),
+    },
     alternates: { canonical: `/${profile.username}` },
   }
 }
@@ -35,5 +44,10 @@ export default async function UserPage({ params }: Params) {
   const profile = await getPublicProfileByUsername(username)
   if (!profile) notFound()
   if (isSuspended(profile)) return <SuspendedProfile profile={profile} />
-  return <PublicProfile profile={profile} />
+  return (
+    <>
+      <JsonLd data={profileJsonLd(profile)} />
+      <PublicProfile profile={profile} />
+    </>
+  )
 }

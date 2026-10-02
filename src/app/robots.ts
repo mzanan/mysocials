@@ -1,18 +1,14 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/site";
-
-const baseUrl = SITE_URL;
+import { AI_CRAWLERS, PRIVATE_PATHS } from "@/lib/seo";
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
-      {
-        userAgent: "*",
-        allow: "/",
-        disallow: ["/api/*"],
-      },
+      { userAgent: "*", allow: "/", disallow: PRIVATE_PATHS },
+      { userAgent: AI_CRAWLERS, allow: "/", disallow: PRIVATE_PATHS },
     ],
-    sitemap: `${baseUrl}/sitemap.xml`,
-    host: baseUrl,
+    sitemap: `${SITE_URL}/sitemap.xml`,
+    host: SITE_URL,
   };
 }

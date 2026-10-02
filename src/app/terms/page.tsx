@@ -4,6 +4,7 @@ import { LegalPage, LegalSection } from '@/components/legal/LegalPage'
 export const metadata: Metadata = {
   title: 'Terms of Service',
   description: 'The terms for using mySocials.',
+  alternates: { canonical: '/terms' },
 }
 
 export default function TermsPage() {

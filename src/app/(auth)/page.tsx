@@ -6,7 +6,10 @@ import { auth, googleAuthEnabled } from "@/lib/auth";
 import { AuthForm } from "@/components/auth/AuthForm";
 import { AuthErrorToast } from "@/components/auth/AuthErrorToast";
 
-export const metadata: Metadata = { title: "Sign in" };
+export const metadata: Metadata = {
+  title: "Sign in",
+  alternates: { canonical: "/" },
+};
 
 export default async function HomePage() {
   const session = await auth.api.getSession({ headers: await headers() });

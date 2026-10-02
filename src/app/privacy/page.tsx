@@ -5,6 +5,7 @@ import { LegalPage, LegalSection } from '@/components/legal/LegalPage'
 export const metadata: Metadata = {
   title: 'Privacy Policy',
   description: 'How mySocials collects, uses and protects your data.',
+  alternates: { canonical: '/privacy' },
 }
 
 export default function PrivacyPage() {
