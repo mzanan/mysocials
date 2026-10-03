@@ -53,6 +53,7 @@ export async function captureServerEvent(event: string, distinctId: string) {
   try {
     await fetch(`${POSTHOG_INGEST_HOST}/i/v0/e/`, {
       method: 'POST',
+      signal: AbortSignal.timeout(2000),
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         api_key: token,
