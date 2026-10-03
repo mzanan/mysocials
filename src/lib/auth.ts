@@ -10,6 +10,7 @@ import { generateUniqueUsername } from "@/lib/profile/username";
 import { mailerEnabled, sendMail } from "@/lib/mailer";
 import { verifyEmail } from "@/emails/verifyEmail";
 import { resetPassword } from "@/emails/resetPassword";
+import { captureServerEvent } from "@/lib/analytics";
 
 const adminUserIds = process.env.ADMIN_USER_ID
   ? [process.env.ADMIN_USER_ID]
@@ -108,6 +109,7 @@ export const auth = betterAuth({
             display_name: createdUser.name ?? null,
             avatar_url: createdUser.image ?? null,
           });
+          await captureServerEvent("signed_up", createdUser.id);
         },
       },
     },
