@@ -5,6 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ImpersonationBanner } from "@/components/account/ImpersonationBanner";
 import { SITE_URL } from "@/lib/site";
+import { JsonLd } from "@/components/ui/JsonLd";
+import { siteJsonLd } from "@/lib/seo";
 import "./globals.css";
 
 const SITE_NAME = "mySocials";
@@ -34,9 +36,6 @@ export const metadata: Metadata = {
     icon: "/icon.svg",
     apple: "/icon.svg",
   },
-  alternates: {
-    canonical: SITE_URL,
-  },
 };
 
 export default function RootLayout({
@@ -57,6 +56,7 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}
       >
+        <JsonLd data={siteJsonLd} />
         <ImpersonationBanner />
         <TooltipProvider delayDuration={200}>{children}</TooltipProvider>
         <Toaster />

@@ -1,0 +1,22 @@
+# mySocials
+
+> mySocials is a link-in-bio service: one page with a custom URL (links.itsmatias.com/username) that collects all of a creator's links, with themes, image and video tabs, and click analytics.
+
+## Who it is for
+
+- Creators, freelancers and small businesses who want a single link for their social bios.
+
+## Features
+
+- Custom username URL and a public profile page.
+- Dark and light themes with an accent color.
+- Tabs for links, image galleries and videos.
+- Click analytics per link.
+- Instagram import to fill a profile from existing posts.
+
+## Links
+
+- [Create a page](https://links.itsmatias.com)
+- [Privacy](https://links.itsmatias.com/privacy)
+- [Terms](https://links.itsmatias.com/terms)
+- Built by [Matias Zanan](https://itsmatias.com), contact: hello@itsmatias.com
