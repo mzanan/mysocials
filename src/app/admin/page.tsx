@@ -2,7 +2,8 @@ import { desc, eq } from 'drizzle-orm'
 import { db } from '@/lib/db'
 import { profiles, user } from '@/lib/db/schema'
 import { Card } from '@/components/ui/card'
-import { Text } from '@/components/ui/text'
+import { Badge } from '@/components/ui/badge'
+import { DisplayTitle } from '@/components/ui/DisplayTitle'
 import { UserRow } from './_components/UserRow'
 
 export const dynamic = 'force-dynamic'
@@ -27,13 +28,9 @@ export default async function AdminPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <Text as="h1" variant="title">
-          Users
-        </Text>
-        <Text variant="caption" className="mt-1">
-          {rows.length} total
-        </Text>
+      <div className="flex flex-col items-start gap-4">
+        <Badge>{rows.length} total</Badge>
+        <DisplayTitle lead="Users" size="md" />
       </div>
 
       <Card padded={false} className="overflow-hidden">

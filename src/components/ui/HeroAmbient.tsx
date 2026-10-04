@@ -1,4 +1,4 @@
-export function AuthAmbient() {
+export function HeroAmbient() {
   return (
     <div
       aria-hidden

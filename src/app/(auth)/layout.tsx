@@ -1,5 +1,5 @@
 import { HeroCards } from "@/components/auth/HeroCards";
-import { AuthAmbient } from "@/components/auth/AuthAmbient";
+import { HeroAmbient } from "@/components/ui/HeroAmbient";
 import { BrandFooter } from "@/components/ui/BrandFooter";
 
 export default function AuthLayout({
@@ -12,7 +12,7 @@ export default function AuthLayout({
       data-theme="light"
       className="relative min-h-dvh overflow-hidden bg-app-bg text-fg lg:grid lg:grid-cols-[2fr_3fr]"
     >
-      <AuthAmbient />
+      <HeroAmbient />
 
       <div className="absolute inset-0 overflow-hidden lg:relative lg:order-2">
         <HeroCards />

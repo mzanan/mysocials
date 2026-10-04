@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
+import { DisplayTitle } from "@/components/ui/DisplayTitle";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/lib/toast";
 import { AuthCard } from "./AuthCard";
@@ -44,7 +45,8 @@ export function ResetPasswordForm() {
 
   return (
     <AuthCard
-      title="Set a new password"
+      hero
+      title={<DisplayTitle lead="Set a new" accent="password." size="md" />}
       subtitle="Choose a strong password you don’t use elsewhere"
     >
       {token ? (
