@@ -26,3 +26,7 @@ export function setConsent(granted: boolean) {
   document.cookie = `${CONSENT_COOKIE}=${granted ? 'granted' : 'denied'}; path=/; max-age=31536000; samesite=lax; secure`
   window.dispatchEvent(new Event(CONSENT_CHANGE_EVENT))
 }
+
+export function resetAnalytics() {
+  if (posthog.__loaded) posthog.reset()
+}

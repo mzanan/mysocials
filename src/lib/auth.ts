@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { createAuthMiddleware, getSessionFromCtx } from "better-auth/api";
@@ -109,10 +110,8 @@ export const auth = betterAuth({
             display_name: createdUser.name ?? null,
             avatar_url: createdUser.image ?? null,
           });
-          await captureServerEvent(
-            "signed_up",
-            hasAnalyticsConsent(ctx?.headers) ? createdUser.id : null,
-          );
+          const distinctId = hasAnalyticsConsent(ctx?.headers) ? createdUser.id : null;
+          after(() => captureServerEvent("signed_up", distinctId));
         },
       },
     },

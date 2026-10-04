@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <LegalPage title="Privacy Policy" updated="June 15, 2026">
+    <LegalPage title="Privacy Policy" updated="October 4, 2026">
       <p>
         mySocials (&quot;we&quot;, &quot;us&quot;) is a link-in-bio service operated by Matias Zanan at
         links.itsmatias.com. This policy explains what we collect, why, and the choices you have.
