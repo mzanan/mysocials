@@ -34,6 +34,12 @@ export const posthogPrivacyOptions = {
 };
 
 export const CONSENT_CHANGE_EVENT = 'analytics-consent-change';
+export const CONSENT_COOKIE = 'analytics_consent';
+
+export function hasAnalyticsConsent(headers?: Headers | null): boolean {
+  const cookie = headers?.get('cookie') ?? '';
+  return cookie.split(';').some((part) => part.trim() === `${CONSENT_COOKIE}=granted`);
+}
 
 const NO_TRACK_KEY = 'notrack';
 
@@ -48,7 +54,7 @@ export function isTrackingDisabled(): boolean {
   }
 }
 
-export async function captureServerEvent(event: string, distinctId: string) {
+export async function captureServerEvent(event: string, distinctId: string | null) {
   const token = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
   if (!token || process.env.NODE_ENV !== 'production') return;
   const siteUrl = process.env.BETTER_AUTH_URL;
@@ -60,8 +66,11 @@ export async function captureServerEvent(event: string, distinctId: string) {
       body: JSON.stringify({
         api_key: token,
         event,
-        distinct_id: distinctId,
-        properties: siteUrl ? { $host: new URL(siteUrl).host } : {},
+        distinct_id: distinctId ?? crypto.randomUUID(),
+        properties: {
+          ...(siteUrl ? { $host: new URL(siteUrl).host } : {}),
+          ...(distinctId ? {} : { $process_person_profile: false }),
+        },
       }),
     });
   } catch {
