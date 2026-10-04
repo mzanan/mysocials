@@ -28,7 +28,8 @@ export default function PrivacyPage() {
         </p>
         <p>
           <strong className="text-fg">Instagram.</strong> If you connect Instagram, we access your
-          profile and the media you choose to import, using an access token we store on your behalf.
+          profile and the media you choose to import, either with an access token we store encrypted on
+          your behalf or by reading your public profile through Apify.
         </p>
         <p>
           <strong className="text-fg">Payments.</strong> Billing is handled by Polar. We store your
@@ -45,8 +46,11 @@ export default function PrivacyPage() {
 
       <LegalSection title="Processors we share with">
         <p>
-          Turso (database), Cloudflare R2 (media storage), Polar (payments), Meta/Instagram (import you
-          initiate) and our email provider. Each only receives what is needed to provide its function.
+          Vercel (hosting), Turso (database), Cloudflare R2 (media storage), Google (sign-in), Polar
+          (payments), Meta/Instagram and Apify (imports you initiate), Groq (the dashboard assistant, only
+          the messages you write to it), Google favicon service (link icons, receives each link&apos;s domain
+          and the visitor&apos;s IP), PostHog EU (analytics, see Cookies) and our email provider. Each only
+          receives what is needed to provide its function.
         </p>
       </LegalSection>
 
