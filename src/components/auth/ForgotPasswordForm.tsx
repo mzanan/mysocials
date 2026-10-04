@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
+import { DisplayTitle } from "@/components/ui/DisplayTitle";
 import { Input } from "@/components/ui/input";
 import { AuthCard } from "./AuthCard";
 import { AuthSubmit } from "./AuthSubmit";
@@ -25,7 +26,8 @@ export function ForgotPasswordForm() {
 
   return (
     <AuthCard
-      title="Reset password"
+      hero
+      title={<DisplayTitle lead="Forgot your" accent="password?" size="md" />}
       subtitle={
         sent ? "Check your inbox" : "Enter your email and we’ll send you a link"
       }
