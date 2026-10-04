@@ -15,7 +15,7 @@ export function CookieConsent() {
     <div
       role="region"
       aria-label="Cookie consent"
-      className="bottom-consent fixed inset-x-4 z-40 sm:right-auto sm:max-w-sm"
+      className="bottom-consent fixed inset-x-4 z-40 sm:mx-auto sm:max-w-sm"
     >
       <Card className="flex flex-col gap-3">
         <Text>
