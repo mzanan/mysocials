@@ -16,6 +16,8 @@ const profileSchema = z.object({
   theme: z.enum(THEME_VALUES).default(DEFAULT_PROFILE_THEME),
 })
 
+const searchVisibilitySchema = z.boolean()
+
 export async function updateProfile(input: z.infer<typeof profileSchema>): Promise<Result> {
   const uid = await requireUserId()
   const parsed = profileSchema.safeParse(input)
@@ -29,6 +31,15 @@ export async function updateProfile(input: z.infer<typeof profileSchema>): Promi
       theme: parsed.data.theme,
     })
     .where(eq(profiles.user_id, uid))
+  revalidate()
+  return { ok: true }
+}
+
+export async function updateSearchVisibility(hidden: boolean): Promise<Result> {
+  const uid = await requireUserId()
+  const parsed = searchVisibilitySchema.safeParse(hidden)
+  if (!parsed.success) return { ok: false, error: 'Invalid value' }
+  await db.update(profiles).set({ hide_from_search: parsed.data }).where(eq(profiles.user_id, uid))
   revalidate()
   return { ok: true }
 }

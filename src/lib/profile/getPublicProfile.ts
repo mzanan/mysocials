@@ -68,6 +68,7 @@ function toPublicProfile(row: ProfileRow): ProfilePublic {
     bio: row.bio,
     accent: row.accent,
     theme: row.theme,
+    hideFromSearch: row.hide_from_search,
     tabs,
   }
 }

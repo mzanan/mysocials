@@ -55,6 +55,7 @@ export default async function DashboardPage({
     theme: profile.theme,
     avatarUrl: profile.avatar_url,
     published: profile.published,
+    hideFromSearch: profile.hide_from_search,
     subscriptionStatus: profile.subscription_status,
     instagramConnected: Boolean(igConn),
     instagramUsername: igConn?.username ?? null,

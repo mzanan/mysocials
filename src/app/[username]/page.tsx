@@ -36,6 +36,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       ...(profile.avatarUrl ? { images: [profile.avatarUrl] } : {}),
     },
     alternates: { canonical: `/${profile.username}` },
+    ...(profile.hideFromSearch ? { robots: { index: false, follow: true } } : {}),
   }
 }
 

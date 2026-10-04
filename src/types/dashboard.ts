@@ -32,6 +32,7 @@ export interface DashboardData {
   theme: Theme
   avatarUrl: string | null
   published: boolean
+  hideFromSearch: boolean
   subscriptionStatus: string | null
   instagramConnected: boolean
   instagramUsername: string | null

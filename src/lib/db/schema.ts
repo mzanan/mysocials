@@ -70,6 +70,7 @@ export const profiles = sqliteTable(
     accent: text('accent').notNull().default('#a78bfa'),
     theme: text('theme', { enum: ['dark', 'light'] }).notNull().default('dark'),
     published: integer('published', { mode: 'boolean' }).notNull().default(false),
+    hide_from_search: integer('hide_from_search', { mode: 'boolean' }).notNull().default(false),
     subscription_status: text('subscription_status', {
       enum: ['active', 'canceled', 'past_due', 'revoked'],
     }),

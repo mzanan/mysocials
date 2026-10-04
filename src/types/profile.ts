@@ -30,6 +30,7 @@ export interface ProfilePublic {
   bio: string | null
   accent: string
   theme: Theme
+  hideFromSearch: boolean
   tabs: TabPublic[]
 }
 

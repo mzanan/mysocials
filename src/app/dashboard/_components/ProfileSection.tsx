@@ -4,6 +4,7 @@ import { useSyncExternalStore } from "react";
 import { Check, ChevronRight, Link2, Plus } from "lucide-react";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Text } from "@/components/ui/text";
 import { ACCENT_PRESETS } from "@/lib/appearance";
@@ -156,6 +157,7 @@ export function ProfileSection({
   canImport: boolean;
 }) {
   const {
+    pending,
     displayName,
     setDisplayName,
     bio,
@@ -166,6 +168,8 @@ export function ProfileSection({
     setUsername,
     saveProfile,
     saveUsername,
+    hideFromSearch,
+    toggleHideFromSearch,
   } = useProfileSection(data);
 
   return (
@@ -209,6 +213,22 @@ export function ProfileSection({
       </Field>
 
       <AccentField accent={accent} setAccent={setAccent} save={saveProfile} />
+
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col gap-0.5">
+          <Text variant="label">Hide from search engines</Text>
+          <Text variant="caption">
+            Your page still works for anyone with the link, but Google and
+            other search engines won&apos;t list it.
+          </Text>
+        </div>
+        <Switch
+          checked={hideFromSearch}
+          onCheckedChange={toggleHideFromSearch}
+          disabled={pending}
+          aria-label="Hide from search engines"
+        />
+      </div>
     </div>
   );
 }
