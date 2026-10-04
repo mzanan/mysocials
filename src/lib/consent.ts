@@ -1,32 +1,34 @@
-import posthog from 'posthog-js'
-import { CONSENT_CHANGE_EVENT, CONSENT_COOKIE } from '@/lib/analytics'
+import posthog from "posthog-js";
+import { consentCookie } from "@/lib/consentCookie";
 
-export type ConsentStatus = 'granted' | 'denied' | 'pending'
+const CONSENT_CHANGE_EVENT = "analytics-consent-change";
+
+export type ConsentStatus = "granted" | "denied" | "pending";
 
 export function subscribeConsent(onChange: () => void) {
-  window.addEventListener(CONSENT_CHANGE_EVENT, onChange)
-  window.addEventListener('storage', onChange)
+  window.addEventListener(CONSENT_CHANGE_EVENT, onChange);
+  window.addEventListener("storage", onChange);
   return () => {
-    window.removeEventListener(CONSENT_CHANGE_EVENT, onChange)
-    window.removeEventListener('storage', onChange)
-  }
+    window.removeEventListener(CONSENT_CHANGE_EVENT, onChange);
+    window.removeEventListener("storage", onChange);
+  };
 }
 
 export function readConsent(): ConsentStatus | null {
-  return posthog.__loaded ? posthog.get_explicit_consent_status() : null
+  return posthog.__loaded ? posthog.get_explicit_consent_status() : null;
 }
 
 export function readServerConsent(): ConsentStatus | null {
-  return null
+  return null;
 }
 
 export function setConsent(granted: boolean) {
-  if (granted) posthog.opt_in_capturing()
-  else posthog.opt_out_capturing()
-  document.cookie = `${CONSENT_COOKIE}=${granted ? 'granted' : 'denied'}; path=/; max-age=31536000; samesite=lax; secure`
-  window.dispatchEvent(new Event(CONSENT_CHANGE_EVENT))
+  if (granted) posthog.opt_in_capturing();
+  else posthog.opt_out_capturing();
+  document.cookie = consentCookie(granted);
+  window.dispatchEvent(new Event(CONSENT_CHANGE_EVENT));
 }
 
 export function resetAnalytics() {
-  if (posthog.__loaded) posthog.reset()
+  if (posthog.__loaded) posthog.reset();
 }

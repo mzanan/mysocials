@@ -11,7 +11,8 @@ import { generateUniqueUsername } from "@/lib/profile/username";
 import { mailerEnabled, sendMail } from "@/lib/mailer";
 import { verifyEmail } from "@/emails/verifyEmail";
 import { resetPassword } from "@/emails/resetPassword";
-import { captureServerEvent, hasAnalyticsConsent } from "@/lib/analytics";
+import { captureServerEvent } from "@/lib/analytics";
+import { hasAnalyticsConsent } from "@/lib/consentCookie";
 
 const adminUserIds = process.env.ADMIN_USER_ID
   ? [process.env.ADMIN_USER_ID]

@@ -33,14 +33,6 @@ export const posthogPrivacyOptions = {
   },
 };
 
-export const CONSENT_CHANGE_EVENT = 'analytics-consent-change';
-export const CONSENT_COOKIE = 'analytics_consent';
-
-export function hasAnalyticsConsent(headers?: Headers | null): boolean {
-  const cookie = headers?.get('cookie') ?? '';
-  return cookie.split(';').some((part) => part.trim() === `${CONSENT_COOKIE}=granted`);
-}
-
 const NO_TRACK_KEY = 'notrack';
 
 export function isTrackingDisabled(): boolean {
