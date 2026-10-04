@@ -32,6 +32,7 @@
   --color-danger-strong: rgba(248, 113, 113, 0.65);
   --color-success: #86efac;
   --color-info: #93c5fd;
+  --color-knob: #ffffff;
 
   --shadow-glass: 0 16px 50px -30px rgba(0, 0, 0, 0.7);
   --shadow-glass-lg: 0 24px 70px -25px rgba(0, 0, 0, 0.8);

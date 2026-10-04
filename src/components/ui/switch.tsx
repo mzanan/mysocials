@@ -24,18 +24,16 @@ export function Switch({
       disabled={disabled}
       onClick={() => onCheckedChange(!checked)}
       className={cn(
-        "focus-visible:outline-accent/40 relative inline-flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 ring-1 ring-inset outline-offset-2 transition-colors focus-visible:outline-2 disabled:opacity-50",
-        checked
-          ? "bg-fg ring-fg"
-          : "bg-surface-strong ring-hairline-strong",
+        "focus-visible:outline-accent/40 relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full p-0.5 outline-offset-2 transition-colors duration-200 focus-visible:outline-2 disabled:cursor-not-allowed disabled:opacity-50",
+        checked ? "bg-fg" : "bg-fg-faint",
         className,
       )}
     >
       <span
         aria-hidden
         className={cn(
-          "inline-block size-5 rounded-full shadow transition-transform",
-          checked ? "bg-app-bg translate-x-5" : "bg-fg translate-x-0",
+          "bg-knob inline-block size-6 rounded-full shadow-md transition-transform duration-200",
+          checked ? "translate-x-5" : "translate-x-0",
         )}
       />
     </button>

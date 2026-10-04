@@ -3,8 +3,8 @@
 import { useSyncExternalStore } from "react";
 import { Check, ChevronRight, Link2, Plus } from "lucide-react";
 import { Field } from "@/components/ui/field";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Text } from "@/components/ui/text";
 import { ACCENT_PRESETS } from "@/lib/appearance";
@@ -57,7 +57,7 @@ function AccentField({
   );
 
   return (
-    <div className="flex flex-col items-center gap-5 sm:flex-row sm:justify-center sm:gap-8">
+    <div className="flex flex-col items-center gap-5 sm:flex-row sm:justify-start sm:gap-8">
       <div className="flex flex-col gap-2.5">
         <Text variant="label">Accent color</Text>
         <div className="flex max-w-xs flex-wrap items-center gap-2.5">
@@ -157,7 +157,6 @@ export function ProfileSection({
   canImport: boolean;
 }) {
   const {
-    pending,
     displayName,
     setDisplayName,
     bio,
@@ -168,67 +167,55 @@ export function ProfileSection({
     setUsername,
     saveProfile,
     saveUsername,
-    hideFromSearch,
-    toggleHideFromSearch,
   } = useProfileSection(data);
 
   return (
-    <div className="flex flex-col gap-5">
-      <AvatarSection
-        initialUrl={data.avatarUrl}
-        instagramConnected={data.instagramConnected}
-        imageMedia={getImageMedia(data)}
-        canImport={canImport}
-      />
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Username (your public URL)">
-          <div className="border-hairline-strong bg-surface-strong focus-within:border-accent focus-within:bg-surface-stronger focus-within:ring-accent/25 flex h-10 items-center rounded-xl border px-3 transition focus-within:ring-2">
-            <span className="text-fg-faint text-sm">/</span>
-            <input
-              value={username}
-              onChange={(e) => setUsername(e.target.value.toLowerCase())}
-              onBlur={saveUsername}
-              className="text-fg h-full w-full min-w-0 flex-1 bg-transparent px-1 text-[15px] outline-none"
-            />
-          </div>
-        </Field>
-
-        <Field label="Display name">
-          <Input
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            onBlur={() => saveProfile()}
+    <div className="flex flex-col gap-6">
+      <Card title="Identity" desc="How you appear at the top of your page.">
+        <div className="flex flex-col gap-5">
+          <AvatarSection
+            initialUrl={data.avatarUrl}
+            instagramConnected={data.instagramConnected}
+            imageMedia={getImageMedia(data)}
+            canImport={canImport}
           />
-        </Field>
-      </div>
 
-      <Field label="Bio">
-        <Textarea
-          value={bio}
-          onChange={(e) => setBio(e.target.value)}
-          onBlur={() => saveProfile()}
-          rows={2}
-        />
-      </Field>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Username (your public URL)">
+              <div className="border-hairline-strong bg-surface-strong focus-within:border-accent focus-within:bg-surface-stronger focus-within:ring-accent/25 flex h-11 items-center rounded-xl border px-3.5 transition focus-within:ring-2">
+                <span className="text-fg-faint text-sm">/</span>
+                <input
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value.toLowerCase())}
+                  onBlur={saveUsername}
+                  className="text-fg h-full w-full min-w-0 flex-1 bg-transparent px-1 text-[15px] outline-none"
+                />
+              </div>
+            </Field>
 
-      <AccentField accent={accent} setAccent={setAccent} save={saveProfile} />
+            <Field label="Display name">
+              <Input
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                onBlur={() => saveProfile()}
+              />
+            </Field>
+          </div>
 
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex flex-col gap-0.5">
-          <Text variant="label">Hide from search engines</Text>
-          <Text variant="caption">
-            Your page still works for anyone with the link, but Google and
-            other search engines won&apos;t list it.
-          </Text>
+          <Field label="Bio">
+            <Textarea
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              onBlur={() => saveProfile()}
+              rows={2}
+            />
+          </Field>
         </div>
-        <Switch
-          checked={hideFromSearch}
-          onCheckedChange={toggleHideFromSearch}
-          disabled={pending}
-          aria-label="Hide from search engines"
-        />
-      </div>
+      </Card>
+
+      <Card title="Style" desc="The accent color for your links and highlights.">
+        <AccentField accent={accent} setAccent={setAccent} save={saveProfile} />
+      </Card>
     </div>
   );
 }

@@ -25,10 +25,10 @@ export function Card({
       )}
     >
       {(title || action) && (
-        <div className="mb-4 flex items-start justify-between gap-3">
+        <div className="mb-5 flex items-start justify-between gap-3">
           <div>
-            {title && <h2 className="text-sm font-semibold text-fg">{title}</h2>}
-            {desc && <p className="mt-0.5 text-xs text-fg-subtle">{desc}</p>}
+            {title && <h2 className="text-lg font-semibold tracking-tight text-fg">{title}</h2>}
+            {desc && <p className="mt-1 text-sm text-fg-subtle">{desc}</p>}
           </div>
           {action}
         </div>
