@@ -3,6 +3,7 @@
 import { and, eq, inArray, sql } from 'drizzle-orm'
 import { z } from 'zod'
 
+import { trackActivation } from '@/lib/activation'
 import { db } from '@/lib/db'
 import { links } from '@/lib/db/schema'
 import { buildLinkTitle, buildLinkUrl, isNetworkSlug } from '@/lib/networks'
@@ -102,6 +103,7 @@ export async function createLink(input: z.infer<typeof linkSchema>): Promise<Lin
       position: (max ?? -1) + 1,
     })
     .returning()
+  if (Number(max ?? -1) === -1) await trackActivation(uid)
   revalidate()
   return {
     ok: true,
