@@ -7,12 +7,14 @@ Live: [links.itsmatias.com](https://links.itsmatias.com)
 ## Features
 
 - Email-first auth (email + password, optional Google) with better-auth.
-- Dashboard editor for profile, tabs, media and links; tabs, media and links reorder by drag and drop.
+- Dashboard editor for profile, tabs, media and links with a live phone preview of the public page; tabs, media and links reorder by drag and drop.
 - Links: 16 preset networks from an `@handle`, or custom title/URL/icon.
 - Media: images compressed client-side and normalized with `sharp`; videos transcoded in the browser (WebCodecs) and uploaded straight to R2.
-- Instagram import (Apify scraper).
+- Instagram import (Apify scraper), one import per user every 7 days.
 - Public page with animated photo grid or video wall background, light/dark theme per profile.
 - Paid publishing via Polar ($3/mo); viewing is never gated.
+- SEO: sitemap of published profiles, per-profile JSON-LD, `llms.txt`, AI crawlers allowed; owners can hide their page from search engines (`noindex`).
+- Privacy-first analytics: PostHog EU with a cookie consent banner; append `?notrack=1` to any URL to exclude your browser.
 - Optional LLM dashboard agent (Groq).
 
 ## Stack
@@ -25,7 +27,7 @@ Requires Node.js 20+.
 
 ```bash
 npm install
-npm run db:migrate
+npm run db:migrate   # fresh local.db only
 npm run dev
 ```
 
