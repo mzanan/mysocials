@@ -179,9 +179,7 @@ export function DashboardTabs({
       </div>
 
       <TabsContent value="profile">
-        <Card>
-          <ProfileSection data={data} canImport={canImport} />
-        </Card>
+        <ProfileSection data={data} canImport={canImport} />
       </TabsContent>
 
       {tabs.map((t, i) => (

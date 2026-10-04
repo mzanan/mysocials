@@ -22,11 +22,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
   })
 
   return (
-    <div className="relative min-h-dvh overflow-hidden bg-app-bg text-fg">
-      {!session.session.impersonatedBy && <AnalyticsIdentify userId={session.user.id} />}
+    <div className="relative min-h-dvh overflow-clip bg-app-bg text-fg">
+           {!session.session.impersonatedBy && <AnalyticsIdentify userId={session.user.id} />}
       <AmbientBackground />
       <header className="sticky top-0 z-20 border-b border-hairline-subtle bg-app-bg/70 backdrop-blur-xl">
-        <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4">
+        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
           <Link href="/dashboard" className="text-sm font-semibold tracking-tight">
             mySocials
           </Link>
@@ -40,7 +40,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </div>
         </div>
       </header>
-      <main className="relative z-10 mx-auto max-w-3xl px-4 py-8">{children}</main>
+      <main className="relative z-10 mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:py-12">{children}</main>
       <BrandFooter />
       <div aria-hidden className="grain-overlay" />
     </div>

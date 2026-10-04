@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { updateProfile, updateSearchVisibility, updateUsername } from '../actions'
+import { updateProfile, updateUsername } from '../actions'
 import { toast } from '@/lib/toast'
 import type { DashboardData } from '@/types/dashboard'
 
@@ -15,7 +15,6 @@ export function useProfileSection(data: DashboardData) {
   const [accent, setAccent] = useState(data.accent)
   const [username, setUsername] = useState(data.username)
   const [savedUsername, setSavedUsername] = useState(data.username)
-  const [hideFromSearch, setHideFromSearch] = useState(data.hideFromSearch)
   const theme = data.theme
 
   function saveProfile(patch?: { accent?: string }) {
@@ -28,20 +27,6 @@ export function useProfileSection(data: DashboardData) {
       })
       if (!res.ok) toast.error(res.error)
       else router.refresh()
-    })
-  }
-
-  function toggleHideFromSearch(hidden: boolean) {
-    const previous = hideFromSearch
-    setHideFromSearch(hidden)
-    startTransition(async () => {
-      const res = await updateSearchVisibility(hidden)
-      if (res.ok) {
-        router.refresh()
-      } else {
-        setHideFromSearch(previous)
-        toast.error(res.error)
-      }
     })
   }
 
@@ -72,7 +57,5 @@ export function useProfileSection(data: DashboardData) {
     setUsername,
     saveProfile,
     saveUsername,
-    hideFromSearch,
-    toggleHideFromSearch,
   }
 }
