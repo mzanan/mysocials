@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 
 import { db } from '@/lib/db'
 import { profiles } from '@/lib/db/schema'
@@ -13,7 +13,7 @@ export async function listIndexableProfiles() {
       subscription_current_period_end: profiles.subscription_current_period_end,
     })
     .from(profiles)
-    .where(eq(profiles.published, true))
+    .where(and(eq(profiles.published, true), eq(profiles.hide_from_search, false)))
   const billing = billingEnabled()
   return rows
     .filter((row) => !billing || hasActiveSubscription(row))
