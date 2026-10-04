@@ -33,6 +33,8 @@ export const posthogPrivacyOptions = {
   },
 };
 
+export const CONSENT_CHANGE_EVENT = 'analytics-consent-change';
+
 const NO_TRACK_KEY = 'notrack';
 
 export function isTrackingDisabled(): boolean {

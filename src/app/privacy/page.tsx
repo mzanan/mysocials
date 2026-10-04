@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { LegalPage, LegalSection } from '@/components/legal/LegalPage'
+import { ConsentToggle } from '@/components/consent/ConsentToggle'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
@@ -70,7 +71,8 @@ export default function PrivacyPage() {
       </LegalSection>
 
       <LegalSection title="Cookies">
-        <p>We use a single session cookie to keep you signed in. No third-party advertising cookies.</p>
+        <p>We use a session cookie to keep you signed in. If you accept the cookie banner, we also set first-party analytics cookies (PostHog, EU region) for usage analytics and session replay with all text masked. If you decline, we only count visits anonymously without cookies. No third-party advertising cookies. You can change your choice here at any time.</p>
+        <ConsentToggle />
       </LegalSection>
 
       <LegalSection title="Contact">

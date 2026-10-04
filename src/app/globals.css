@@ -5,6 +5,8 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
+  --spacing-consent: 4.5rem;
+
   --color-app-bg: #110f1a;
   --color-app-bg-2: #181528;
   --color-app-bg-3: #0c0b14;
@@ -226,4 +228,8 @@
   .skeleton-shimmer::before {
     animation: none;
   }
+}
+
+@utility bottom-consent {
+  bottom: calc(var(--spacing-consent) + env(safe-area-inset-bottom));
 }
