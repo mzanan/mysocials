@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { createAuthMiddleware, getSessionFromCtx } from "better-auth/api";
@@ -11,6 +12,7 @@ import { mailerEnabled, sendMail } from "@/lib/mailer";
 import { verifyEmail } from "@/emails/verifyEmail";
 import { resetPassword } from "@/emails/resetPassword";
 import { captureServerEvent } from "@/lib/analytics";
+import { hasAnalyticsConsent } from "@/lib/consentCookie";
 
 const adminUserIds = process.env.ADMIN_USER_ID
   ? [process.env.ADMIN_USER_ID]
@@ -101,7 +103,7 @@ export const auth = betterAuth({
   databaseHooks: {
     user: {
       create: {
-        after: async (createdUser) => {
+        after: async (createdUser, ctx) => {
           const username = await generateUniqueUsername(createdUser.email);
           await db.insert(schema.profiles).values({
             user_id: createdUser.id,
@@ -109,7 +111,8 @@ export const auth = betterAuth({
             display_name: createdUser.name ?? null,
             avatar_url: createdUser.image ?? null,
           });
-          await captureServerEvent("signed_up", createdUser.id);
+          const distinctId = hasAnalyticsConsent(ctx?.headers) ? createdUser.id : null;
+          after(() => captureServerEvent("signed_up", distinctId));
         },
       },
     },

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { LegalPage, LegalSection } from '@/components/legal/LegalPage'
+import { ConsentToggle } from '@/components/consent/ConsentToggle'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <LegalPage title="Privacy Policy" updated="June 15, 2026">
+    <LegalPage title="Privacy Policy" updated="October 4, 2026">
       <p>
         mySocials (&quot;we&quot;, &quot;us&quot;) is a link-in-bio service operated by Matias Zanan at
         links.itsmatias.com. This policy explains what we collect, why, and the choices you have.
@@ -70,7 +71,8 @@ export default function PrivacyPage() {
       </LegalSection>
 
       <LegalSection title="Cookies">
-        <p>We use a single session cookie to keep you signed in. No third-party advertising cookies.</p>
+        <p>We use a session cookie to keep you signed in. If you accept the cookie banner, we also set first-party analytics cookies (PostHog, EU region) for usage analytics and session replay with all text masked. If you decline, we only count visits anonymously without cookies. No third-party advertising cookies. You can change your choice here at any time.</p>
+        <ConsentToggle />
       </LegalSection>
 
       <LegalSection title="Contact">

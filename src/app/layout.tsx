@@ -7,6 +7,7 @@ import { ImpersonationBanner } from "@/components/account/ImpersonationBanner";
 import { SITE_URL } from "@/lib/site";
 import { JsonLd } from "@/components/ui/JsonLd";
 import { siteJsonLd } from "@/lib/seo";
+import { CookieConsent } from "@/components/consent/CookieConsent";
 import "./globals.css";
 
 const SITE_NAME = "mySocials";
@@ -60,6 +61,7 @@ export default function RootLayout({
         <ImpersonationBanner />
         <TooltipProvider delayDuration={200}>{children}</TooltipProvider>
         <Toaster />
+        <CookieConsent />
       </body>
     </html>
   );

@@ -23,7 +23,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className="relative min-h-dvh overflow-hidden bg-app-bg text-fg">
-      <AnalyticsIdentify userId={session.user.id} />
+      {!session.session.impersonatedBy && <AnalyticsIdentify userId={session.user.id} />}
       <AmbientBackground />
       <header className="sticky top-0 z-20 border-b border-hairline-subtle bg-app-bg/70 backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4">

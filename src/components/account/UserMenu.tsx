@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { ChevronDown, CreditCard, KeyRound, LogOut } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import { resetAnalytics } from "@/lib/consent";
 import { Button } from "@/components/ui/button";
 import { ChangePasswordDialog } from "./ChangePasswordDialog";
 
@@ -26,6 +27,7 @@ export function UserMenu({
 
   async function signOut() {
     await authClient.signOut();
+    resetAnalytics();
     router.push("/");
     router.refresh();
   }
