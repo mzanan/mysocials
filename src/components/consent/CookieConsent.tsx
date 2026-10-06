@@ -4,18 +4,18 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Text } from '@/components/ui/text'
-import { useAnalyticsConsent } from '@/hooks/useAnalyticsConsent'
+import { useCookieConsent } from './useCookieConsent'
 
 export function CookieConsent() {
-  const { status, accept, decline } = useAnalyticsConsent()
+  const { visible, accept, decline } = useCookieConsent()
 
-  if (status !== 'pending') return null
+  if (!visible) return null
 
   return (
     <div
       role="region"
       aria-label="Cookie consent"
-      className="bottom-consent fixed inset-x-4 z-40 sm:mx-auto sm:max-w-sm"
+      className="bottom-consent fixed inset-x-4 z-40 sm:mx-auto sm:max-w-sm lg:mr-0"
     >
       <Card className="flex flex-col gap-3">
         <Text>
