@@ -2,11 +2,11 @@
 
 Multi-user **link-in-bio SaaS**. Each user signs up, builds a profile (avatar, bio, accent, theme) with **tabs** (photo grids / video walls) and links in a dashboard, then **pays (Polar) to publish** it at a public `/[username]` page. NOT the old single-user Linktree — that model is gone. Full context + backlog in `~/Documents/projects/personal/personal-brain/01-Projects/07-mysocials/`.
 
-Follow the backend/data standards (rules 7–14) in `personal-brain/02-Areas/Engineering-standards.md` — they were written from this project's audit. UI rules 1–6 apply as everywhere.
+Follow the backend/data standards in `personal-brain/02-Areas/Engineering-standards.md` (written from this project's audit). The UI rules apply as everywhere.
 
 ## Stack
 
-Next 16 (App Router) · React 19 · TypeScript · Tailwind v4 (`@theme` tokens) · `motion/react` (NOT framer-motion) · shadcn-style primitives over Radix (`components/ui`, add via shadcn CLI) · **better-auth** (email + Google) · **Drizzle + libSQL/Turso** · **Polar** (subscriptions) · **Cloudflare R2** (media, driver swappable with a local disk driver) · `sharp` + `heic-convert` (image ingest) · LLM agent (Groq planner).
+Next 16 (App Router) · React 19 · TypeScript · Tailwind v4 (`@theme` tokens) · `motion/react` (NOT framer-motion) · shadcn/ui (`components/ui`, `personal/CLAUDE.md` rule 7) · **better-auth** (email + Google) · **Drizzle + libSQL/Turso** · **Polar** (subscriptions) · **Cloudflare R2** (media, driver swappable with a local disk driver) · `sharp` + `heic-convert` (image ingest) · LLM agent (Groq planner).
 
 ## Commands
 
@@ -41,11 +41,9 @@ npm run format
 
 ## Heuristics
 
-- No commits/PRs without confirmation. Commits in English, no `Co-Authored-By`.
 - IG import (Apify) flows are flaky: check cache/job state before assuming a bug. One import per user every 7 days.
 - **Prod schema changes are hand-written `ALTER`s**: the prod `__drizzle_migrations` ledger predates `0000_baseline`, so the drizzle migrator would re-run the baseline there. Additive columns go to prod BEFORE the deploy that reads them. Same for an existing `local.db`.
 - `next dev` writes the `nextjs-agent-rules` block below into this file; keep it committed.
-- The `personal-brain/` vault is the source of truth for context/plans/tasks.
 
 <!-- BEGIN:nextjs-agent-rules -->
 
