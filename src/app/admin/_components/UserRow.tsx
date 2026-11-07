@@ -38,28 +38,32 @@ export function UserRow({ user }: { user: AdminUser }) {
     })
   }
 
+  const pageLink = user.username ? (
+    <Link href={`/${user.username}`} target="_blank" className="text-fg-muted hover:underline">
+      /{user.username}
+      {user.published ? '' : ' (draft)'}
+    </Link>
+  ) : (
+    '-'
+  )
+  const subscriptionClass = subColor[user.subscriptionStatus ?? ''] ?? 'text-fg-subtle'
+  const subscription = user.subscriptionStatus ?? 'none'
+  const roleLabel = role === 'admin' ? <span className="text-violet-300">admin</span> : 'user'
+
   return (
     <tr className="text-fg-muted">
       <td className="px-4 py-3">
         <div className="font-medium text-fg">{user.name || '-'}</div>
-        <div className="text-xs text-fg-subtle">{user.email}</div>
+        <div className="max-w-48 truncate text-xs text-fg-subtle sm:max-w-none">{user.email}</div>
+        <div className="mt-1 text-xs sm:hidden">{pageLink}</div>
+        <div className="mt-1 flex gap-2 text-xs md:hidden">
+          <span className={subscriptionClass}>{subscription}</span>
+          <span>{roleLabel}</span>
+        </div>
       </td>
-      <td className="px-4 py-3">
-        {user.username ? (
-          <Link href={`/${user.username}`} target="_blank" className="text-fg-muted hover:underline">
-            /{user.username}
-            {user.published ? '' : ' (draft)'}
-          </Link>
-        ) : (
-          '-'
-        )}
-      </td>
-      <td className={`px-4 py-3 ${subColor[user.subscriptionStatus ?? ''] ?? 'text-fg-subtle'}`}>
-        {user.subscriptionStatus ?? 'none'}
-      </td>
-      <td className="px-4 py-3">
-        {role === 'admin' ? <span className="text-violet-300">admin</span> : 'user'}
-      </td>
+      <td className="hidden px-4 py-3 sm:table-cell">{pageLink}</td>
+      <td className={`hidden px-4 py-3 md:table-cell ${subscriptionClass}`}>{subscription}</td>
+      <td className="hidden px-4 py-3 md:table-cell">{roleLabel}</td>
       <td className="px-4 py-3">
         <div className="flex flex-wrap gap-2">
           <Button
