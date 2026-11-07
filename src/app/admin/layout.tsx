@@ -1,15 +1,10 @@
-import { headers } from 'next/headers'
-import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
-import { auth } from '@/lib/auth'
-import { isAdminUser } from '@/lib/admin'
 import { SignOutButton } from '@/components/auth/SignOutButton'
 import { AmbientBackground } from '@/components/ui/AmbientBackground'
+import { requireAdmin } from './_helpers'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const session = await auth.api.getSession({ headers: await headers() })
-  if (!session) redirect('/')
-  if (!isAdminUser(session.user)) notFound()
+  await requireAdmin()
 
   return (
     <div className="relative min-h-dvh overflow-clip bg-app-bg text-fg">

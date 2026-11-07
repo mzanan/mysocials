@@ -5,10 +5,12 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { DisplayTitle } from '@/components/ui/DisplayTitle'
 import { UserRow } from './_components/UserRow'
+import { requireAdmin } from './_helpers'
 
 export const dynamic = 'force-dynamic'
 
 export default async function AdminPage() {
+  await requireAdmin()
   const rows = await db
     .select({
       id: user.id,
