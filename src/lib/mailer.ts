@@ -1,23 +1,21 @@
-const host = process.env.SMTP_HOST;
-const port = process.env.SMTP_PORT;
-const user = process.env.SMTP_USERNAME;
-const pass = process.env.SMTP_PASSWORD;
-const from = process.env.SMTP_FROM_EMAIL;
+import { Resend } from "resend";
 
-export const mailerEnabled = Boolean(host && port && user && pass && from);
+const apiKey = process.env.RESEND_API_KEY;
+const from = process.env.RESEND_FROM_EMAIL;
+
+export const mailerEnabled = Boolean(apiKey && from);
 
 type Mail = { to: string; subject: string; html: string };
 
 export async function sendMail({ to, subject, html }: Mail): Promise<void> {
-  if (!mailerEnabled) return;
+  if (!apiKey || !from) return;
 
-  const { createTransport } = await import("nodemailer");
-  const transport = createTransport({
-    host,
-    port: Number(port),
-    secure: Number(port) === 465,
-    auth: { user, pass },
+  const { error } = await new Resend(apiKey).emails.send({
+    from,
+    to,
+    subject,
+    html,
   });
 
-  await transport.sendMail({ from, to, subject, html });
+  if (error) throw new Error(`Resend send failed: ${error.name}: ${error.message}`);
 }
