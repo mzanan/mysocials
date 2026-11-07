@@ -66,7 +66,7 @@ const nextConfig: NextConfig = {
         : []),
     ],
   },
-  serverExternalPackages: ['canvas', 'jsdom', 'sharp', 'heic-convert', 'nodemailer'],
+  serverExternalPackages: ['canvas', 'jsdom', 'sharp', 'heic-convert'],
   async headers() {
     return [
       {

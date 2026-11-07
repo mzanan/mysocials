@@ -51,7 +51,7 @@ Optional features activate only when their variables are set:
 - R2 storage: `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`, `R2_PUBLIC_BASE_URL`
 - Billing: `POLAR_ACCESS_TOKEN`, `POLAR_PRODUCT_ID`, `POLAR_SERVER`, `POLAR_WEBHOOK_SECRET`
 - Instagram import: `IG_PROVIDER`, `APIFY_TOKEN`, `APIFY_ACTOR` (or `INSTAGRAM_APP_ID`, `INSTAGRAM_APP_SECRET` for the official provider)
-- Email: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_FROM_EMAIL`
+- Email: `RESEND_API_KEY`, `RESEND_FROM_EMAIL`
 - AI agent: `GROQ_API_KEY` or `AGENT_API_KEY`, `AGENT_BASE_URL`, `AGENT_MODEL`
 - Analytics: `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN` (PostHog EU, production only, proxied through `/relay`). Cookie consent banner with `cookieless_mode: "on_reject"`: requires **Cookieless server hash mode** enabled in the PostHog project settings.
 
