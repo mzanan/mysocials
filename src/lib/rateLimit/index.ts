@@ -17,8 +17,6 @@ const PERSISTED_PATHS = new Set([
   '/send-verification-email',
 ])
 
-const ALLOW: RateLimitDecision = { allowed: true, retryAfter: null }
-
 function pathOf(key: string): string {
   return key.slice(key.indexOf('|') + 1)
 }
@@ -32,8 +30,8 @@ async function consumePersisted(key: string, rule: RateLimitRule): Promise<RateL
     rememberBlock(key, decision, now)
     return decision
   } catch (error) {
-    console.error('Rate limit storage failed, request allowed', error)
-    return ALLOW
+    console.error('Rate limit storage failed, request rejected', error)
+    return { allowed: false, retryAfter: rule.window }
   }
 }
 
