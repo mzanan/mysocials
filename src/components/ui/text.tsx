@@ -9,6 +9,7 @@ const VARIANTS = {
   body: "text-[15px] leading-relaxed text-fg-muted",
   label: "text-xs font-medium text-fg-subtle",
   caption: "text-xs text-fg-subtle",
+  error: "text-sm text-danger",
 } as const;
 
 export function Text({
