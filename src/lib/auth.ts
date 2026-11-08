@@ -45,9 +45,13 @@ export const auth = betterAuth({
       session: schema.session,
       account: schema.account,
       verification: schema.verification,
+      rateLimit: schema.rateLimit,
     },
   }),
   secret: process.env.BETTER_AUTH_SECRET,
+  rateLimit: {
+    storage: "database",
+  },
   baseURL: process.env.BETTER_AUTH_URL,
   advanced: {
     database: {
