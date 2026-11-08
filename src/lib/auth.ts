@@ -36,7 +36,7 @@ const googleProvider =
 export const googleAuthEnabled = Boolean(googleProvider);
 
 type MailCallbackArgs = {
-  user: { name?: string | null; email: string };
+  user: { email: string };
   url: string;
 };
 
@@ -90,7 +90,7 @@ export const auth = betterAuth({
           sendResetPassword: async ({ user, url }: MailCallbackArgs) => {
             const mail = {
               to: user.email,
-              ...resetPassword({ name: user.name, url }),
+              ...resetPassword({ url }),
               kind: "reset_password" as const,
             };
             if (deferResetMail(mail)) return;
@@ -107,7 +107,7 @@ export const auth = betterAuth({
             try {
               await sendMail({
                 to: user.email,
-                ...verifyEmail({ name: user.name, url }),
+                ...verifyEmail({ url }),
                 kind: "verify_email",
               });
             } catch (error) {
