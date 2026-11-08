@@ -56,6 +56,12 @@ export const verification = sqliteTable('verification', {
   updatedAt: integer('updatedAt', { mode: 'timestamp_ms' }).notNull(),
 })
 
+export const rate_limits = sqliteTable('rate_limits', {
+  key: text('key').primaryKey(),
+  count: integer('count').notNull(),
+  window_start: integer('window_start').notNull(),
+})
+
 export const profiles = sqliteTable(
   'profiles',
   {

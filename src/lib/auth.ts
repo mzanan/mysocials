@@ -9,6 +9,7 @@ import { db, schema } from "@/lib/db";
 import { buildPolarPlugin, ensurePolarCustomer } from "@/lib/polar";
 import { generateUniqueUsername } from "@/lib/profile/username";
 import { mailerEnabled, sendMail } from "@/lib/mailer";
+import { rateLimitStorage } from "@/lib/rateLimit";
 import { verifyEmail } from "@/emails/verifyEmail";
 import { resetPassword } from "@/emails/resetPassword";
 import { captureServerEvent } from "@/lib/analytics";
@@ -48,6 +49,9 @@ export const auth = betterAuth({
     },
   }),
   secret: process.env.BETTER_AUTH_SECRET,
+  rateLimit: {
+    customStorage: rateLimitStorage,
+  },
   baseURL: process.env.BETTER_AUTH_URL,
   advanced: {
     database: {
