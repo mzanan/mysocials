@@ -1,5 +1,6 @@
 import type { BetterAuthOptions } from 'better-auth'
 
+import { knownBlock, rememberBlock } from './blocklist'
 import { consumeInDatabase } from './database'
 import { consumeInMemory } from './memory'
 import type { RateLimitDecision, RateLimitRule } from './window'
@@ -23,8 +24,13 @@ function pathOf(key: string): string {
 }
 
 async function consumePersisted(key: string, rule: RateLimitRule): Promise<RateLimitDecision> {
+  const now = Date.now()
+  const blocked = knownBlock(key, now)
+  if (blocked) return blocked
   try {
-    return await consumeInDatabase(key, rule)
+    const decision = await consumeInDatabase(key, rule)
+    rememberBlock(key, decision, now)
+    return decision
   } catch (error) {
     console.error('Rate limit storage failed, request allowed', error)
     return ALLOW

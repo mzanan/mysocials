@@ -13,6 +13,9 @@ export function toDecision(
   rule: RateLimitRule,
 ): RateLimitDecision {
   if (count <= rule.max) return { allowed: true, retryAfter: null }
-  const remainingMs = windowStart + rule.window * 1000 - now
-  return { allowed: false, retryAfter: Math.max(1, Math.ceil(remainingMs / 1000)) }
+  return blockedUntil(windowStart + rule.window * 1000, now)
+}
+
+export function blockedUntil(until: number, now: number): RateLimitDecision {
+  return { allowed: false, retryAfter: Math.max(1, Math.ceil((until - now) / 1000)) }
 }
