@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "e808fc03-da7a-4d89-b114-3f3179092816",
+  "id": "448cfe2d-d262-4412-b9d9-e226f4595f24",
   "prevId": "daa3e875-6554-4d07-a382-31f12a5df1da",
   "tables": {
     "account": {
@@ -709,20 +709,13 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "rateLimit": {
-      "name": "rateLimit",
+    "rate_limits": {
+      "name": "rate_limits",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
         "key": {
           "name": "key",
           "type": "text",
-          "primaryKey": false,
+          "primaryKey": true,
           "notNull": true,
           "autoincrement": false
         },
@@ -733,23 +726,15 @@
           "notNull": true,
           "autoincrement": false
         },
-        "lastRequest": {
-          "name": "lastRequest",
+        "window_start": {
+          "name": "window_start",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         }
       },
-      "indexes": {
-        "rateLimit_key_unique": {
-          "name": "rateLimit_key_unique",
-          "columns": [
-            "key"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},

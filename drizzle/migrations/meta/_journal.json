@@ -19,8 +19,8 @@
     {
       "idx": 2,
       "version": "6",
-      "when": 1794115854638,
-      "tag": "0002_rate_limit",
+      "when": 1794121301921,
+      "tag": "0002_rate_limits",
       "breakpoints": true
     }
   ]
