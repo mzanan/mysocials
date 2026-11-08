@@ -4,11 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { emailExists } from "@/app/(auth)/actions";
+import { GENERIC_ERROR, INVALID_EMAIL, isValidEmail } from "@/lib/formErrors";
 
 type Step = "email" | "password";
 type Mode = "login" | "signup";
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD = 8;
 
 export function useAuthForm() {
@@ -44,8 +44,8 @@ export function useAuthForm() {
       setEmailError("Enter your email to continue.");
       return;
     }
-    if (!EMAIL_RE.test(value)) {
-      setEmailError("That doesn't look like a valid email.");
+    if (!isValidEmail(value)) {
+      setEmailError(INVALID_EMAIL);
       return;
     }
     setEmailError(null);
@@ -56,7 +56,7 @@ export function useAuthForm() {
       setMode(exists ? "login" : "signup");
       setStep("password");
     } catch {
-      setError("Something went wrong. Try again.");
+      setError(GENERIC_ERROR);
     } finally {
       setLoading(false);
     }

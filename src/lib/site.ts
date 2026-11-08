@@ -8,3 +8,5 @@ export const SITE_URL = (
   vercelProductionUrl ||
   'http://localhost:3030'
 ).replace(/\/$/, '')
+
+export const CONTACT_EMAIL = 'hello@itsmatias.com'

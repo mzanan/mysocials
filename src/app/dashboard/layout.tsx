@@ -11,6 +11,8 @@ import { AmbientBackground } from '@/components/ui/AmbientBackground'
 import { BrandFooter } from '@/components/ui/BrandFooter'
 import { billingEnabled } from '@/lib/subscription'
 import { AnalyticsIdentify } from '@/components/analytics/AnalyticsIdentify'
+import { VerifyEmailNotice } from '@/components/account/VerifyEmailNotice'
+import { mailerEnabled } from '@/lib/mailer'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await auth.api.getSession({ headers: await headers() })
@@ -40,7 +42,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </div>
         </div>
       </header>
-      <main className="relative z-10 mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:py-12">{children}</main>
+      <main className="relative z-10 mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:py-12">
+        {mailerEnabled && !session.user.emailVerified && <VerifyEmailNotice email={session.user.email} />}
+        {children}
+      </main>
       <BrandFooter />
       <div aria-hidden className="grain-overlay" />
     </div>

@@ -46,7 +46,11 @@ export function isTrackingDisabled(): boolean {
   }
 }
 
-export async function captureServerEvent(event: string, distinctId: string | null) {
+export async function captureServerEvent(
+  event: string,
+  distinctId: string | null,
+  extra: Record<string, string> = {},
+) {
   const token = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
   if (!token || process.env.NODE_ENV !== 'production') return;
   const siteUrl = process.env.BETTER_AUTH_URL;
@@ -60,6 +64,7 @@ export async function captureServerEvent(event: string, distinctId: string | nul
         event,
         distinct_id: distinctId ?? crypto.randomUUID(),
         properties: {
+          ...extra,
           ...(siteUrl ? { $host: new URL(siteUrl).host } : {}),
           ...(distinctId ? {} : { $process_person_profile: false }),
         },

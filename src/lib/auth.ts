@@ -1,7 +1,7 @@
 import { after } from "next/server";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { createAuthMiddleware, getSessionFromCtx } from "better-auth/api";
+import { APIError, createAuthMiddleware, getSessionFromCtx } from "better-auth/api";
 import { nextCookies } from "better-auth/next-js";
 import { admin } from "better-auth/plugins";
 
@@ -9,6 +9,8 @@ import { db, schema } from "@/lib/db";
 import { buildPolarPlugin, ensurePolarCustomer } from "@/lib/polar";
 import { generateUniqueUsername } from "@/lib/profile/username";
 import { mailerEnabled, sendMail } from "@/lib/mailer";
+import { mailFailureMessage } from "@/lib/mailFailure";
+import { deferResetMail } from "@/lib/passwordResetMail";
 import { rateLimitStorage } from "@/lib/rateLimit";
 import { verifyEmail } from "@/emails/verifyEmail";
 import { resetPassword } from "@/emails/resetPassword";
@@ -86,8 +88,13 @@ export const auth = betterAuth({
     ...(mailerEnabled
       ? {
           sendResetPassword: async ({ user, url }: MailCallbackArgs) => {
-            const { subject, html } = resetPassword({ name: user.name, url });
-            await sendMail({ to: user.email, subject, html });
+            const mail = {
+              to: user.email,
+              ...resetPassword({ name: user.name, url }),
+              kind: "reset_password" as const,
+            };
+            if (deferResetMail(mail)) return;
+            await sendMail(mail);
           },
         }
       : {}),
@@ -97,8 +104,15 @@ export const auth = betterAuth({
         emailVerification: {
           sendOnSignUp: true,
           sendVerificationEmail: async ({ user, url }: MailCallbackArgs) => {
-            const { subject, html } = verifyEmail({ name: user.name, url });
-            await sendMail({ to: user.email, subject, html });
+            try {
+              await sendMail({
+                to: user.email,
+                ...verifyEmail({ name: user.name, url }),
+                kind: "verify_email",
+              });
+            } catch (error) {
+              throw new APIError("BAD_GATEWAY", { message: mailFailureMessage(error) });
+            }
           },
         },
       }
